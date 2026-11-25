@@ -12,6 +12,7 @@ const notify = require('./notify');
 const payments = require('./payments');
 const balance = require('./balance');
 const fulfillment = require('./providers/fulfillment');
+const { makeT } = require('./i18n');
 
 dbModule.init();
 dbModule.ensureAdmin();
@@ -34,6 +35,12 @@ app.use(session({
 }));
 app.use(auth.attachUser);
 app.use((req, res, next) => {
+  // Public storefront language: default English, customer can switch to Spanish.
+  const lang = (req.cookies && req.cookies.site_lang === 'es') ? 'es' : 'en';
+  req.lang = lang;
+  req.t = makeT(lang);
+  res.locals.lang = lang;
+  res.locals.t = req.t;
   res.locals.brand = config.brandName;
   res.locals.publicUrl = config.publicUrl;
   res.locals.year = new Date().getFullYear();
@@ -43,14 +50,23 @@ app.use((req, res, next) => {
   next();
 });
 
+// Switch public site language (customer-facing). Admin uses /admin/lang/:lang.
+app.get('/lang/:lang', (req, res) => {
+  const lang = req.params.lang === 'es' ? 'es' : 'en';
+  res.cookie('site_lang', lang, { maxAge: 365 * 86400000, httpOnly: true, sameSite: 'lax', secure: config.isProd });
+  let back = '/';
+  try { const u = new URL(req.get('referer')); if (u.pathname.indexOf('/admin') !== 0) back = u.pathname + (u.search || ''); } catch (e) {}
+  res.redirect(back);
+});
+
 app.use('/', require('./routes/public'));
 app.use('/', require('./routes/account'));
 app.use('/', require('./routes/order'));
 app.use('/', require('./routes/topup'));
 app.use('/admin', require('./routes/admin'));
 
-app.use((req, res) => res.status(404).render('error', { title: 'Not found', message: 'The page you are looking for does not exist.' }));
-app.use((err, req, res, next) => { console.error('[error]', err); res.status(500).render('error', { title: 'Error', message: 'An unexpected error occurred.' }); });
+app.use((req, res) => res.status(404).render('error', { title: req.t ? req.t('err.notFound') : 'Not found', message: (req.t && req.lang === 'es') ? 'La página que buscas no existe.' : 'The page you are looking for does not exist.' }));
+app.use((err, req, res, next) => { console.error('[error]', err); res.status(500).render('error', { title: 'Error', message: (req.lang === 'es') ? 'Ocurrió un error inesperado.' : 'An unexpected error occurred.' }); });
 
 // --- recarga confirmada -> avisar ---
 async function onTopupConfirmed(topup) {

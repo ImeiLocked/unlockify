@@ -217,3 +217,11 @@ h1.page-title { font-size: 26px; margin: 0 0 18px; }
 .tag-prov { background: #10263a; color: var(--accent); border: 1px solid #1d3f5c; padding: 2px 8px; border-radius: 7px; font-size: 12px; font-weight: 600; }
 .pill.queued { background:#332413;color:#fcd34d; }
 .pill.refunded { background:#1a2a3a;color:#a9d8f5; }
+
+/* Language switcher (public header + admin nav) */
+.lang-switch{display:inline-flex;align-items:center;gap:4px;margin-left:6px;font-size:13px}
+.lang-switch a{opacity:.55;padding:2px 4px;border-radius:6px}
+.lang-switch a.active{opacity:1;font-weight:700;color:var(--primary)}
+.lang-switch .sep{opacity:.3}
+.admin-lang a{opacity:.55;padding:2px 5px;border-radius:6px;font-size:13px}
+.admin-lang a.active{opacity:1;font-weight:700;color:var(--primary)}

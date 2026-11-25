@@ -17,19 +17,17 @@ router.post('/order/create', auth.requireLogin, (req, res) => {
   const { service_id, identifier } = req.body;
   const service = catalog.getServiceById(service_id);
   if (!service || !service.active || !service.hasSource) {
-    return res.status(404).render('error', { title: 'Unavailable', message: 'Service unavailable.' });
+    return res.status(404).render('error', { title: req.t('err.unavailable'), message: req.t('err.serviceUnavailable') });
   }
   const bal = balance.getBalance(req.user.id);
   const rerender = (error) => res.status(400).render('service', { title: service.title, service, userBalance: bal, error, form: { identifier } });
 
   const idValue = String(identifier || '').trim();
   if (!validIdentifier(service.identifier_type, idValue)) {
-    return rerender(service.identifier_type === 'imei'
-      ? 'Invalid IMEI. It must be 14 to 16 digits (dial *#06#).'
-      : 'Invalid serial number (6 to 20 characters).');
+    return rerender(service.identifier_type === 'imei' ? req.t('ordr.invalidImei') : req.t('ordr.invalidSerial'));
   }
   if (bal < service.price) {
-    return rerender(`Insufficient balance. Your balance is ${bal} USDT and the service costs ${service.price}. Add funds to continue.`);
+    return rerender(req.t('ordr.insufficientMsg', { bal: bal, price: service.price }));
   }
 
   // create order and charge the balance
@@ -39,7 +37,7 @@ router.post('/order/create', auth.requireLogin, (req, res) => {
     price: service.price, auto: service.auto_fulfill,
   });
   const deb = balance.debit(req.user.id, service.price, 'order', order.code);
-  if (!deb.ok) { orders.setStatus(order.id, orders.STATUS.CANCELLED); return rerender('Could not charge your balance. Please try again.'); }
+  if (!deb.ok) { orders.setStatus(order.id, orders.STATUS.CANCELLED); return rerender(req.t('ordr.chargeFail')); }
 
   // trigger fulfillment (auto) or queue (manual) without blocking the response
   fulfillment.submitNewOrder(orders.getById(order.id)).catch((e) => console.error('[order] submit:', e.message));
@@ -48,8 +46,8 @@ router.post('/order/create', auth.requireLogin, (req, res) => {
 
 router.get('/order/:code', auth.requireLogin, (req, res) => {
   const order = orders.getByCodeForUser(req.params.code, req.user.id);
-  if (!order) return res.status(404).render('error', { title: 'Not found', message: 'Order not found.' });
-  res.render('order', { title: `Order ${order.code}`, order });
+  if (!order) return res.status(404).render('error', { title: req.t('err.notFound'), message: req.t('err.orderNotFound') });
+  res.render('order', { title: `${req.t('order.title')} ${order.code}`, order });
 });
 
 router.get('/order/:code/status.json', auth.requireLogin, (req, res) => {

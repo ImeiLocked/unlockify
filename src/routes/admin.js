@@ -20,7 +20,9 @@ router.use(auth.requireLogin, auth.requireAdmin);
 router.use((req, res, next) => {
   const lang = (req.cookies && req.cookies.panel_lang === 'en') ? 'en' : 'es';
   req.t = makeT(lang);
+  req.lang = lang;
   res.locals.t = req.t;
+  res.locals.lang = lang;
   res.locals.adminLang = lang;
   next();
 });
@@ -53,7 +55,7 @@ router.get('/orders', (req, res) => {
 });
 router.get('/orders/:code', (req, res) => {
   const order = orders.getByCode(req.params.code);
-  if (!order) return res.status(404).render('error', { title: 'Not found', message: 'Order not found.' });
+  if (!order) return res.status(404).render('error', { title: req.t('err.notFound'), message: req.t('err.orderNotFound') });
   const customer = db.prepare('SELECT email,name FROM users WHERE id=?').get(order.user_id);
   res.render('admin/order', {
     title: `${req.t('order.title')} ${order.code}`, layoutAdmin: true, order, customer,
@@ -134,7 +136,7 @@ router.get('/users', (req, res) => {
 });
 router.post('/users', (req, res) => {
   try { auth.createUser({ email: req.body.email, password: req.body.password, name: req.body.name }); res.redirect('/admin/users'); }
-  catch (e) { res.redirect('/admin/users?error=' + encodeURIComponent(e.message)); }
+  catch (e) { res.redirect('/admin/users?error=' + encodeURIComponent(req.t(e.message))); }
 });
 router.get('/users/:id', (req, res) => {
   const u = db.prepare('SELECT id,email,name,active,balance,is_admin,created_at FROM users WHERE id=?').get(req.params.id);

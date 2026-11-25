@@ -1,26 +1,26 @@
 <%- include('partials/header') %>
 <div class="form-wrap">
   <div class="panel">
-    <h1>Create account</h1>
-    <p class="muted" style="margin-top:0">Free. Required to order and track your unlocks.</p>
+    <h1><%= t('reg.title') %></h1>
+    <p class="muted" style="margin-top:0"><%= t('reg.sub') %></p>
     <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
     <form action="/register" method="post">
       <div class="field">
-        <label>Name</label>
-        <input class="input" type="text" name="name" value="<%= form.name || '' %>" placeholder="Optional">
+        <label><%= t('field.name') %></label>
+        <input class="input" type="text" name="name" value="<%= form.name || '' %>" placeholder="<%= t('common.optional') %>">
       </div>
       <div class="field">
-        <label>Email</label>
+        <label><%= t('field.email') %></label>
         <input class="input" type="email" name="email" value="<%= form.email || '' %>" required>
       </div>
       <div class="field">
-        <label>Password</label>
+        <label><%= t('field.password') %></label>
         <input class="input" type="password" name="password" minlength="6" required>
-        <div class="hint">At least 6 characters.</div>
+        <div class="hint"><%= t('reg.passwordHint') %></div>
       </div>
-      <button class="btn btn-primary btn-lg" type="submit">Create account</button>
+      <button class="btn btn-primary btn-lg" type="submit"><%= t('reg.title') %></button>
     </form>
-    <p class="form-foot">Already have an account? <a href="/login">Log in</a></p>
+    <p class="form-foot"><%= t('reg.haveAccount') %> <a href="/login"><%= t('site.login') %></a></p>
   </div>
 </div>
 <%- include('partials/footer') %>

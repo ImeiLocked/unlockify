@@ -1,38 +1,38 @@
 <%- include('partials/header') %>
 <div class="form-wrap" style="max-width:520px">
   <div class="balance-hero" style="margin-bottom:18px">
-    <div><div class="lbl">Your current balance</div><div class="amt">$<%= balance.toFixed(2) %></div></div>
+    <div><div class="lbl"><%= t('top.currentBalance') %></div><div class="amt">$<%= balance.toFixed(2) %></div></div>
     <div class="lbl">USDT</div>
   </div>
 
   <div class="panel">
-    <h1 style="margin:0 0 4px">Add funds</h1>
-    <p class="muted" style="margin-top:0">Top up with USDT and it's instantly available for your orders.</p>
+    <h1 style="margin:0 0 4px"><%= t('top.addFunds') %></h1>
+    <p class="muted" style="margin-top:0"><%= t('top.sub') %></p>
     <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
     <% if (chains.length === 0) { %>
-      <div class="alert alert-warn">Top-ups aren't available yet. Check back soon.</div>
+      <div class="alert alert-warn"><%= t('top.notAvailable') %></div>
     <% } else { %>
     <form action="/topup/create" method="post">
       <div class="field">
-        <label>Amount to add (USDT)</label>
+        <label><%= t('top.amountLabel') %></label>
         <div class="preset-amounts">
           <% [20,50,100,200].forEach(function(v){ %><button type="button" class="preset" data-v="<%= v %>"><%= v %></button><% }); %>
         </div>
-        <input class="input" type="number" name="amount" id="amount" min="<%= min %>" step="0.01" value="<%= form.amount || '' %>" placeholder="Minimum <%= min %>" required>
-        <div class="hint">Minimum <%= min %> USDT.</div>
+        <input class="input" type="number" name="amount" id="amount" min="<%= min %>" step="0.01" value="<%= form.amount || '' %>" placeholder="<%= t('top.minPh', { min: min }) %>" required>
+        <div class="hint"><%= t('top.minHint', { min: min }) %></div>
       </div>
       <div class="field">
-        <label>Network</label>
+        <label><%= t('col.network') %></label>
         <div class="chain-options">
           <% chains.forEach(function(c, i){ %>
             <div class="chain-opt">
               <input type="radio" name="chain" id="ch_<%= c.key %>" value="<%= c.key %>" <%= (form.chain === c.key || (!form.chain && i===0)) ? 'checked' : '' %> required>
-              <label for="ch_<%= c.key %>"><b><%= c.key.toUpperCase() %></b><span><%= c.key === 'trc20' ? 'TRON · low fee' : 'Ethereum' %></span></label>
+              <label for="ch_<%= c.key %>"><b><%= c.key.toUpperCase() %></b><span><%= c.key === 'trc20' ? t('top.tronLowFee') : 'Ethereum' %></span></label>
             </div>
           <% }); %>
         </div>
       </div>
-      <button class="btn btn-primary btn-lg" type="submit">Continue →</button>
+      <button class="btn btn-primary btn-lg" type="submit"><%= t('top.continue') %></button>
     </form>
     <% } %>
   </div>

@@ -1,19 +1,19 @@
 <%- include('partials/header') %>
 
 <section class="hero">
-  <h1><span class="grad">Fast and secure</span> unlocks<br>for your iPhone and iPad</h1>
-  <p>FMI OFF, MDM bypass and network unlock with a 100% success rate. Order in minutes and pay securely with USDT.</p>
+  <h1><%- t('home.h1') %></h1>
+  <p><%= t('home.sub') %></p>
   <div class="hero-badges">
-    <span class="chip">⚡ <strong>Fast delivery</strong></span>
-    <span class="chip">🔒 Pay with <strong>USDT (TRC20 / ERC20)</strong></span>
-    <span class="chip">✅ <strong>100%</strong> success</span>
-    <span class="chip">🤖 <strong>Automatic</strong> process</span>
+    <span class="chip"><%- t('home.badge1') %></span>
+    <span class="chip"><%- t('home.badge2') %></span>
+    <span class="chip"><%- t('home.badge3') %></span>
+    <span class="chip"><%- t('home.badge4') %></span>
   </div>
 </section>
 
 <% if (categories.length === 0) { %>
   <div class="panel" style="margin-top:30px">
-    <p class="muted">No services loaded yet. If you're the admin, sync the catalog from the dashboard.</p>
+    <p class="muted"><%= t('home.noServices') %></p>
   </div>
 <% } %>
 
@@ -31,12 +31,12 @@
           <div class="svc-title"><%= s.title %></div>
           <div class="svc-meta">
             <% if (s.delivery_time) { %><span class="badge badge-time">⏱ <%= s.delivery_time %></span><% } %>
-            <span class="badge badge-id"><%= s.identifier_type === 'serial' ? '# Serial' : 'IMEI' %></span>
+            <span class="badge badge-id"><%= s.identifier_type === 'serial' ? t('badge.serial') : 'IMEI' %></span>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
             <div class="price">$<%= s.price.toFixed(2) %> <small>USDT</small></div>
           </div>
-          <a class="btn btn-primary" href="/service/<%= s.id %>">Order now</a>
+          <a class="btn btn-primary" href="/service/<%= s.id %>"><%= t('home.orderNow') %></a>
         </div>
       <% }); %>
     </div>

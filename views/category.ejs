@@ -1,5 +1,5 @@
 <%- include('partials/header') %>
-<a class="back" href="/">← All services</a>
+<a class="back" href="/"><%= t('cat.all') %></a>
 <div class="section-head">
   <div>
     <h1 class="page-title"><%= category.name %></h1>
@@ -12,14 +12,14 @@
       <div class="svc-title"><%= s.title %></div>
       <div class="svc-meta">
         <% if (s.delivery_time) { %><span class="badge badge-time">⏱ <%= s.delivery_time %></span><% } %>
-        <span class="badge badge-id"><%= s.identifier_type === 'serial' ? '# Serial' : 'IMEI' %></span>
+        <span class="badge badge-id"><%= s.identifier_type === 'serial' ? t('badge.serial') : 'IMEI' %></span>
       </div>
       <div class="price">$<%= s.price.toFixed(2) %> <small>USDT</small></div>
-      <a class="btn btn-primary" href="/service/<%= s.id %>">Order now</a>
+      <a class="btn btn-primary" href="/service/<%= s.id %>"><%= t('home.orderNow') %></a>
     </div>
   <% }); %>
   <% if (category.services.length === 0) { %>
-    <p class="muted">We'll add services to this category soon.</p>
+    <p class="muted"><%= t('cat.soon') %></p>
   <% } %>
 </div>
 <%- include('partials/footer') %>

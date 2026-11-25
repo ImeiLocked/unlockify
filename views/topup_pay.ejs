@@ -1,53 +1,53 @@
 <%- include('partials/header') %>
-<a class="back" href="/account">← My account</a>
-<% var netLabel = topup.chain === 'trc20' ? 'USDT · TRON network (TRC20)' : 'USDT · Ethereum network (ERC20)'; %>
+<a class="back" href="/account"><%= t('pay.back') %></a>
+<% var netLabel = topup.chain === 'trc20' ? t('pay.netTron') : t('pay.netEth'); %>
 
 <div class="order-grid">
   <div class="panel" data-poll="/topup/<%= topup.code %>/status.json" data-status="<%= topup.status %>" data-active="pending" data-expires="<%= topup.expires_at %>">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <h1 style="margin:0;font-size:22px">Top-up <%= topup.code %></h1>
+      <h1 style="margin:0;font-size:22px"><%= t('col.topup') %> <%= topup.code %></h1>
       <span class="pill <%= topup.status === 'confirmed' ? 'completed' : (topup.status === 'expired' ? 'rejected' : 'queued') %>">
-        <%= ({pending:'Awaiting payment',confirmed:'Confirmed',expired:'Expired'})[topup.status] %>
+        <%= topup.status === 'pending' ? t('tstatus.awaiting') : t('tstatus.'+topup.status) %>
       </span>
     </div>
 
     <% if (topup.status === 'pending') { %>
-      <div class="alert alert-info">Send <strong>exactly</strong> the amount below to the address shown, on the correct network. It's credited automatically in 1-3 minutes.</div>
+      <div class="alert alert-info"><%- t('pay.instr') %></div>
       <div class="field">
-        <label>Exact amount to send</label>
+        <label><%= t('pay.exactAmount') %></label>
         <div style="display:flex;align-items:center;gap:10px">
           <div class="pay-amount"><%= topup.expected_amount %></div><span class="muted">USDT</span>
-          <button class="btn btn-ghost btn-sm copy-btn" data-copy="<%= topup.expected_amount %>">Copy</button>
+          <button class="btn btn-ghost btn-sm copy-btn" data-copy="<%= topup.expected_amount %>"><%= t('btn.copy') %></button>
         </div>
-        <div class="hint">⚠️ Send the exact amount (including cents). That's how we identify your top-up automatically.</div>
+        <div class="hint"><%= t('pay.exactHint') %></div>
       </div>
       <div class="field">
-        <label>Network</label><div><span class="badge badge-ok" style="font-size:13px"><%= netLabel %></span></div>
-        <div class="hint">Only <strong>USDT</strong> on this network. Another network or coin = loss of funds.</div>
+        <label><%= t('col.network') %></label><div><span class="badge badge-ok" style="font-size:13px"><%= netLabel %></span></div>
+        <div class="hint"><%- t('pay.onlyUsdt') %></div>
       </div>
       <div class="field">
-        <label>Address</label>
-        <div class="addr-box"><code><%= topup.pay_address %></code><button class="btn btn-ghost btn-sm copy-btn" data-copy="<%= topup.pay_address %>">Copy</button></div>
+        <label><%= t('pay.address') %></label>
+        <div class="addr-box"><code><%= topup.pay_address %></code><button class="btn btn-ghost btn-sm copy-btn" data-copy="<%= topup.pay_address %>"><%= t('btn.copy') %></button></div>
       </div>
-      <% if (qr) { %><div class="center" style="margin-top:12px"><div class="qr"><img src="<%= qr %>" alt="QR" width="200" height="200"></div><div class="hint">Scan to pay</div></div><% } %>
-      <div class="statusbar status-pending" style="margin-top:18px"><span class="spinner"></span> Waiting for your payment… <span id="countdown"></span></div>
+      <% if (qr) { %><div class="center" style="margin-top:12px"><div class="qr"><img src="<%= qr %>" alt="QR" width="200" height="200"></div><div class="hint"><%= t('pay.scan') %></div></div><% } %>
+      <div class="statusbar status-pending" style="margin-top:18px"><span class="spinner"></span> <%= t('pay.waiting') %> <span id="countdown"></span></div>
     <% } else if (topup.status === 'confirmed') { %>
-      <div class="statusbar status-completed">✅ Top-up credited. Current balance: $<%= balance.toFixed(2) %> USDT</div>
-      <a class="btn btn-primary" style="margin-top:14px" href="/">Go shopping</a>
+      <div class="statusbar status-completed"><%= t('pay.creditedA') %> $<%= balance.toFixed(2) %> USDT</div>
+      <a class="btn btn-primary" style="margin-top:14px" href="/"><%= t('pay.goShopping') %></a>
     <% } else { %>
-      <div class="statusbar status-expired">⌛ This top-up expired without receiving payment.</div>
-      <a class="btn btn-primary" style="margin-top:14px" href="/topup">Create a new top-up</a>
+      <div class="statusbar status-expired"><%= t('pay.expired') %></div>
+      <a class="btn btn-primary" style="margin-top:14px" href="/topup"><%= t('pay.createNew') %></a>
     <% } %>
   </div>
 
   <aside class="panel">
-    <h3 style="margin-top:0">Summary</h3>
-    <div class="kv"><span>Top-up</span><strong><%= topup.code %></strong></div>
-    <div class="kv"><span>Amount</span><strong><%= topup.expected_amount %> USDT</strong></div>
-    <div class="kv"><span>Network</span><span><%= topup.chain.toUpperCase() %></span></div>
-    <div class="kv"><span>Current balance</span><strong>$<%= balance.toFixed(2) %></strong></div>
+    <h3 style="margin-top:0"><%= t('ordr.summary') %></h3>
+    <div class="kv"><span><%= t('col.topup') %></span><strong><%= topup.code %></strong></div>
+    <div class="kv"><span><%= t('col.amount') %></span><strong><%= topup.expected_amount %> USDT</strong></div>
+    <div class="kv"><span><%= t('col.network') %></span><span><%= topup.chain.toUpperCase() %></span></div>
+    <div class="kv"><span><%= t('pay.currentBalance') %></span><strong>$<%= balance.toFixed(2) %></strong></div>
   </aside>
 </div>
-<div class="toast" id="toast">Copied ✅</div>
+<div class="toast" id="toast"><%= t('btn.copy') %> ✅</div>
 <script src="/static/js/pay.js"></script>
 <%- include('partials/footer') %>

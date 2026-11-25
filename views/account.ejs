@@ -1,64 +1,64 @@
 <%- include('partials/header') %>
 <div class="balance-hero" style="margin-bottom:20px">
   <div>
-    <div class="lbl">Hi<%= user.name ? ', ' + user.name : '' %> 👋 — your balance</div>
+    <div class="lbl"><%= t('acct.hi') %><%= user.name ? ', ' + user.name : '' %> 👋 — <%= t('acct.yourBalance') %></div>
     <div class="amt">$<%= balance.toFixed(2) %></div>
   </div>
   <div style="display:flex;gap:10px">
-    <a class="btn btn-primary" href="/topup">Add funds</a>
-    <a class="btn btn-ghost" href="/">Shop</a>
+    <a class="btn btn-primary" href="/topup"><%= t('site.addFunds') %></a>
+    <a class="btn btn-ghost" href="/"><%= t('acct.shop') %></a>
   </div>
 </div>
 
-<div class="section-head"><h2>My orders</h2></div>
+<div class="section-head"><h2><%= t('acct.myOrders') %></h2></div>
 <div class="panel" style="overflow-x:auto;margin-bottom:24px">
   <table class="table">
-    <thead><tr><th>Order</th><th>Service</th><th>Price</th><th>Status</th><th>Time</th><th></th></tr></thead>
+    <thead><tr><th><%= t('col.order') %></th><th><%= t('col.service') %></th><th><%= t('col.price') %></th><th><%= t('col.status') %></th><th><%= t('col.time') %></th><th></th></tr></thead>
     <tbody>
-      <% if (orders.length === 0) { %><tr><td colspan="6" class="muted">You don't have any orders yet. <a href="/" style="color:var(--primary)">Browse services →</a></td></tr><% } %>
+      <% if (orders.length === 0) { %><tr><td colspan="6" class="muted"><%= t('acct.noOrders') %> <a href="/" style="color:var(--primary)"><%= t('acct.browse') %></a></td></tr><% } %>
       <% orders.forEach(function(o){ %>
         <tr>
           <td><strong><%= o.code %></strong><br><span class="muted small"><%= o.created_at %></span></td>
           <td style="max-width:260px"><%= o.service_title %><br><span class="muted small"><%= o.identifier_type==='serial'?'# ':'IMEI ' %><%= o.identifier %></span></td>
           <td>$<%= o.price.toFixed(2) %></td>
-          <td><span class="pill <%= o.status %>"><%= ({queued:'Processing',processing:'Processing',completed:'Completed',rejected:'Rejected',cancelled:'Cancelled'})[o.status] %></span></td>
+          <td><span class="pill <%= o.status %>"><%= t('ostatus.'+o.status) %></span></td>
           <td class="small"><%= o.total_seconds!=null ? (o.total_seconds<60? o.total_seconds+'s' : Math.floor(o.total_seconds/60)+'m') : '—' %></td>
-          <td><a class="btn btn-ghost btn-sm" href="/order/<%= o.code %>">View</a></td>
+          <td><a class="btn btn-ghost btn-sm" href="/order/<%= o.code %>"><%= t('btn.view') %></a></td>
         </tr>
       <% }); %>
     </tbody>
   </table>
 </div>
 
-<div class="section-head"><h2>Top-ups</h2></div>
+<div class="section-head"><h2><%= t('topups.title') %></h2></div>
 <div class="panel" style="overflow-x:auto;margin-bottom:24px">
   <table class="table">
-    <thead><tr><th>Top-up</th><th>Amount</th><th>Network</th><th>Status</th><th></th></tr></thead>
+    <thead><tr><th><%= t('col.topup') %></th><th><%= t('col.amount') %></th><th><%= t('col.network') %></th><th><%= t('col.status') %></th><th></th></tr></thead>
     <tbody>
-      <% if (topups.length === 0) { %><tr><td colspan="5" class="muted">No top-ups yet.</td></tr><% } %>
-      <% topups.forEach(function(t){ %>
+      <% if (topups.length === 0) { %><tr><td colspan="5" class="muted"><%= t('acct.noTopups') %></td></tr><% } %>
+      <% topups.forEach(function(tp){ %>
         <tr>
-          <td><strong><%= t.code %></strong><br><span class="muted small"><%= t.created_at %></span></td>
-          <td><%= t.expected_amount %> USDT</td>
-          <td><%= t.chain.toUpperCase() %></td>
-          <td><span class="pill <%= t.status === 'confirmed' ? 'completed' : (t.status==='expired'?'rejected':'queued') %>"><%= ({pending:'Pending',confirmed:'Confirmed',expired:'Expired'})[t.status] %></span></td>
-          <td><% if (t.status==='pending') { %><a class="btn btn-ghost btn-sm" href="/topup/<%= t.code %>">Pay</a><% } %></td>
+          <td><strong><%= tp.code %></strong><br><span class="muted small"><%= tp.created_at %></span></td>
+          <td><%= tp.expected_amount %> USDT</td>
+          <td><%= tp.chain.toUpperCase() %></td>
+          <td><span class="pill <%= tp.status === 'confirmed' ? 'completed' : (tp.status==='expired'?'rejected':'queued') %>"><%= t('tstatus.'+tp.status) %></span></td>
+          <td><% if (tp.status==='pending') { %><a class="btn btn-ghost btn-sm" href="/topup/<%= tp.code %>"><%= t('btn.pay') %></a><% } %></td>
         </tr>
       <% }); %>
     </tbody>
   </table>
 </div>
 
-<div class="section-head"><h2>Balance history</h2></div>
+<div class="section-head"><h2><%= t('user.balanceHistory') %></h2></div>
 <div class="panel" style="overflow-x:auto">
   <table class="table">
-    <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Balance</th><th>Ref</th></tr></thead>
+    <thead><tr><th><%= t('col.date') %></th><th><%= t('col.type') %></th><th><%= t('col.amount') %></th><th><%= t('col.balance') %></th><th><%= t('col.ref') %></th></tr></thead>
     <tbody>
-      <% if (ledger.length === 0) { %><tr><td colspan="5" class="muted">No activity.</td></tr><% } %>
+      <% if (ledger.length === 0) { %><tr><td colspan="5" class="muted"><%= t('user.noActivity') %></td></tr><% } %>
       <% ledger.forEach(function(m){ %>
         <tr>
           <td class="small"><%= m.created_at %></td>
-          <td><%= ({topup:'Top-up',order:'Purchase',refund:'Refund',admin_credit:'Adjustment +',admin_debit:'Adjustment −'})[m.type] || m.type %></td>
+          <td><%= t('ltype.'+m.type) %></td>
           <td style="color:<%= m.amount>=0 ? 'var(--primary)' : 'var(--danger)' %>"><%= m.amount>=0?'+':'' %><%= m.amount.toFixed(2) %></td>
           <td>$<%= m.balance_after.toFixed(2) %></td>
           <td class="small muted"><%= m.ref || '' %></td>

@@ -1,21 +1,21 @@
 <%- include('partials/header') %>
 <div class="form-wrap">
   <div class="panel">
-    <h1>Log in</h1>
-    <p class="muted" style="margin-top:0">Sign in to view your orders and place new ones.</p>
+    <h1><%= t('site.login') %></h1>
+    <p class="muted" style="margin-top:0"><%= t('login.sub') %></p>
     <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
     <form action="/login" method="post">
       <div class="field">
-        <label>Email</label>
+        <label><%= t('field.email') %></label>
         <input class="input" type="email" name="email" value="<%= form.email || '' %>" required autofocus>
       </div>
       <div class="field">
-        <label>Password</label>
+        <label><%= t('field.password') %></label>
         <input class="input" type="password" name="password" required>
       </div>
-      <button class="btn btn-primary btn-lg" type="submit">Log in</button>
+      <button class="btn btn-primary btn-lg" type="submit"><%= t('site.login') %></button>
     </form>
-    <p class="form-foot">Don't have an account? <a href="/register">Sign up</a></p>
+    <p class="form-foot"><%= t('login.noAccount') %> <a href="/register"><%= t('site.signup') %></a></p>
   </div>
 </div>
 <%- include('partials/footer') %>

@@ -1,52 +1,52 @@
 <%- include('partials/header') %>
-<a class="back" href="/">← Back to services</a>
+<a class="back" href="/"><%= t('svc.back') %></a>
 
 <div class="order-grid">
   <div class="panel">
     <h1 style="font-size:20px;margin:0 0 14px;line-height:1.3"><%= service.title %></h1>
     <div class="svc-meta" style="margin-bottom:16px">
       <% if (service.delivery_time) { %><span class="badge badge-time">⏱ <%= service.delivery_time %></span><% } %>
-      <span class="badge badge-id"><%= service.identifier_type === 'serial' ? 'Serial required' : 'IMEI required' %></span>
-      <% if (service.auto_fulfill) { %><span class="badge badge-ok">⚡ Automatic</span><% } %>
+      <span class="badge badge-id"><%= service.identifier_type === 'serial' ? t('svc.serialRequired') : t('svc.imeiRequired') %></span>
+      <% if (service.auto_fulfill) { %><span class="badge badge-ok"><%= t('svc.automatic') %></span><% } %>
     </div>
 
     <div class="kv" style="border:none;padding:4px 0 16px">
-      <span>Price</span><strong style="font-size:22px;color:var(--primary)">$<%= service.price.toFixed(2) %> USDT</strong>
+      <span><%= t('col.price') %></span><strong style="font-size:22px;color:var(--primary)">$<%= service.price.toFixed(2) %> USDT</strong>
     </div>
 
     <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
     <% if (!user) { %>
-      <div class="alert alert-info">Log in to order. It's free.</div>
-      <a class="btn btn-primary btn-lg" href="/login">Log in</a>
-      <p class="form-foot">Don't have an account? <a href="/register">Create one here</a></p>
+      <div class="alert alert-info"><%= t('svc.loginToOrder') %></div>
+      <a class="btn btn-primary btn-lg" href="/login"><%= t('site.login') %></a>
+      <p class="form-foot"><%= t('svc.noAccount') %> <a href="/register"><%= t('svc.createHere') %></a></p>
     <% } else { %>
-      <div class="kv"><span>Your balance</span><strong>$<%= (userBalance||0).toFixed(2) %> USDT</strong></div>
+      <div class="kv"><span><%= t('svc.yourBalance') %></span><strong>$<%= (userBalance||0).toFixed(2) %> USDT</strong></div>
       <% if ((userBalance||0) < service.price) { %>
-        <div class="alert alert-warn" style="margin-top:12px">Insufficient balance. You need $<%= (service.price - (userBalance||0)).toFixed(2) %> more.</div>
-        <a class="btn btn-primary btn-lg" href="/topup">Add funds</a>
+        <div class="alert alert-warn" style="margin-top:12px"><%= t('svc.insufficient', { amt: (service.price - (userBalance||0)).toFixed(2) }) %></div>
+        <a class="btn btn-primary btn-lg" href="/topup"><%= t('svc.addFunds') %></a>
       <% } else { %>
         <form action="/order/create" method="post" style="margin-top:10px">
           <input type="hidden" name="service_id" value="<%= service.id %>">
           <div class="field">
-            <label><%= service.identifier_type === 'serial' ? 'Device serial number' : 'Device IMEI' %></label>
+            <label><%= service.identifier_type === 'serial' ? t('svc.deviceSerial') : t('svc.deviceImei') %></label>
             <input class="input" type="text" name="identifier" value="<%= form.identifier || '' %>"
                    placeholder="<%= service.identifier_type === 'serial' ? 'e.g. F2LXXXXXXXXX' : 'e.g. 356789104567890' %>" autocomplete="off" required>
-            <div class="hint"><% if (service.identifier_type === 'serial') { %>In Settings → General → About, or on the box.<% } else { %>Dial <strong>*#06#</strong> or find it in Settings → General → About.<% } %></div>
+            <div class="hint"><% if (service.identifier_type === 'serial') { %><%= t('svc.hintSerial') %><% } else { %><%- t('svc.hintImei') %><% } %></div>
           </div>
-          <button class="btn btn-primary btn-lg" type="submit">Order now · −$<%= service.price.toFixed(2) %> from balance</button>
+          <button class="btn btn-primary btn-lg" type="submit"><%= t('svc.orderDeduct', { amt: service.price.toFixed(2) }) %></button>
         </form>
       <% } %>
     <% } %>
   </div>
 
   <aside class="panel">
-    <h3 style="margin-top:0">How it works</h3>
-    <div class="kv"><span>1. Enter your <%= service.identifier_type === 'serial' ? 'serial' : 'IMEI' %></span><span>📱</span></div>
-    <div class="kv"><span>2. Charged from your balance</span><span>💳</span></div>
-    <div class="kv"><span>3. We process your order</span><span>⚙️</span></div>
-    <div class="kv"><span>4. You get the result</span><span>✅</span></div>
-    <p class="hint" style="margin-top:14px">If it can't be completed for any reason, your <strong>balance is refunded</strong> automatically.</p>
+    <h3 style="margin-top:0"><%= t('site.howItWorks') %></h3>
+    <div class="kv"><span><%= service.identifier_type === 'serial' ? t('svc.step1serial') : t('svc.step1imei') %></span><span>📱</span></div>
+    <div class="kv"><span><%= t('svc.step2') %></span><span>💳</span></div>
+    <div class="kv"><span><%= t('svc.step3') %></span><span>⚙️</span></div>
+    <div class="kv"><span><%= t('svc.step4') %></span><span>✅</span></div>
+    <p class="hint" style="margin-top:14px"><%- t('svc.refundNote') %></p>
   </aside>
 </div>
 <%- include('partials/footer') %>

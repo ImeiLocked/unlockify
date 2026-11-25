@@ -12,9 +12,9 @@ const parseSql = (s) => Date.parse(String(s).replace(' ', 'T') + 'Z');
 function createUser({ email, password, name, is_admin = 0 }) {
   email = String(email || '').trim().toLowerCase();
   name = String(name || '').trim();
-  if (!EMAIL_RE.test(email)) throw new Error('Invalid email');
-  if (!password || password.length < 6) throw new Error('Password must be at least 6 characters');
-  if (db.prepare('SELECT id FROM users WHERE email=?').get(email)) throw new Error('An account with that email already exists');
+  if (!EMAIL_RE.test(email)) throw new Error('auth.invalidEmail');
+  if (!password || password.length < 6) throw new Error('auth.passwordMin');
+  if (db.prepare('SELECT id FROM users WHERE email=?').get(email)) throw new Error('auth.emailExists');
   const hash = bcrypt.hashSync(password, 10);
   const info = db.prepare('INSERT INTO users (email,password_hash,name,is_admin,active) VALUES (?,?,?,?,1)')
     .run(email, hash, name || null, is_admin ? 1 : 0);
@@ -34,7 +34,7 @@ function getUserById(id) {
 }
 
 function setPassword(userId, newPassword) {
-  if (!newPassword || newPassword.length < 6) throw new Error('Password must be at least 6 characters');
+  if (!newPassword || newPassword.length < 6) throw new Error('auth.passwordMin');
   db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(bcrypt.hashSync(newPassword, 10), userId);
 }
 function setActive(userId, active) { db.prepare('UPDATE users SET active=? WHERE id=?').run(active ? 1 : 0, userId); }
@@ -88,12 +88,12 @@ function attachUser(req, res, next) {
 function requireLogin(req, res, next) {
   if (!req.user) { req.session.returnTo = req.originalUrl; return res.redirect('/login'); }
   if (!req.user.is_admin && !req.user.active) {
-    return res.status(403).render('error', { title: 'Account disabled', message: 'Your account is disabled. Contact support.' });
+    return res.status(403).render('error', { title: req.t('err.accountDisabled'), message: req.t('err.accountDisabledMsg') });
   }
   next();
 }
 function requireAdmin(req, res, next) {
-  if (!req.user || !req.user.is_admin) return res.status(403).render('error', { title: 'Access denied', message: 'Admins only.' });
+  if (!req.user || !req.user.is_admin) return res.status(403).render('error', { title: req.t('err.accessDenied'), message: req.t('err.adminsOnly') });
   next();
 }
 

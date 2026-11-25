@@ -3,13 +3,13 @@
   <div class="container footer-inner">
     <div>
       <strong><%= brand %></strong>
-      <p class="muted">Unlock and software services. Payments in USDT (TRC20 / ERC20).</p>
+      <p class="muted"><%= t('footer.tagline') %></p>
     </div>
     <div class="footer-links">
-      <a href="/how-it-works">How it works</a>
-      <a href="/account">My account</a>
+      <a href="/how-it-works"><%= t('site.howItWorks') %></a>
+      <a href="/account"><%= t('site.myAccount') %></a>
     </div>
-    <div class="muted small">© <%= year %> <%= brand %>. All rights reserved.</div>
+    <div class="muted small">© <%= year %> <%= brand %>. <%= t('footer.rights') %></div>
   </div>
 </footer>
 </body>

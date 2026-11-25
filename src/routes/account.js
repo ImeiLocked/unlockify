@@ -13,7 +13,7 @@ function landing(user) { return user.is_admin ? '/admin' : '/account'; }
 
 router.get('/register', (req, res) => {
   if (req.user) return res.redirect('/account');
-  res.render('register', { title: 'Create account', error: null, form: {} });
+  res.render('register', { title: req.t('reg.title'), error: null, form: {} });
 });
 router.post('/register', (req, res) => {
   const { name, email, password } = req.body;
@@ -22,18 +22,18 @@ router.post('/register', (req, res) => {
     req.session.userId = user.id;
     const to = req.session.returnTo || '/account'; delete req.session.returnTo;
     res.redirect(to);
-  } catch (e) { res.status(400).render('register', { title: 'Create account', error: e.message, form: { name, email } }); }
+  } catch (e) { res.status(400).render('register', { title: req.t('reg.title'), error: req.t(e.message), form: { name, email } }); }
 });
 
 router.get('/login', (req, res) => {
   if (req.user) return res.redirect('/account');
-  res.render('login', { title: 'Log in', error: null, form: {} });
+  res.render('login', { title: req.t('site.login'), error: null, form: {} });
 });
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = auth.verifyUser(email, password);
-  if (!user) return res.status(401).render('login', { title: 'Log in', error: 'Incorrect email or password', form: { email } });
-  if (!user.is_admin && !user.active) return res.status(403).render('login', { title: 'Log in', error: 'Your account is disabled. Contact support.', form: { email } });
+  if (!user) return res.status(401).render('login', { title: req.t('site.login'), error: req.t('login.errBadCreds'), form: { email } });
+  if (!user.is_admin && !user.active) return res.status(403).render('login', { title: req.t('site.login'), error: req.t('login.errDisabled'), form: { email } });
 
   // no OTP (or no email configured): log in directly
   if (!otpActive()) { req.session.userId = user.id; const to = req.session.returnTo || landing(user); delete req.session.returnTo; return res.redirect(to); }
@@ -53,7 +53,7 @@ router.get('/login/otp', (req, res) => {
   if (req.user) return res.redirect('/account');
   if (!req.session.pendingUserId) return res.redirect('/login');
   const u = auth.getUserById(req.session.pendingUserId);
-  res.render('otp', { title: 'Verification', email: u ? u.email : '', error: null, resend: config.otp.resendSeconds });
+  res.render('otp', { title: req.t('otp.title'), email: u ? u.email : '', error: null, resend: config.otp.resendSeconds });
 });
 router.post('/login/otp', (req, res) => {
   const uid = req.session.pendingUserId;
@@ -61,9 +61,9 @@ router.post('/login/otp', (req, res) => {
   const code = Array.isArray(req.body.d) ? req.body.d.join('') : String(req.body.code || '');
   const r = auth.verifyOtp(uid, code);
   if (!r.ok) {
-    const msg = { expired: 'The code expired. Request a new one.', blocked: 'Too many attempts. Request a new code.', wrong: 'Incorrect code.' }[r.reason] || 'Invalid code.';
+    const msg = { expired: req.t('otp.errExpired'), blocked: req.t('otp.errBlocked'), wrong: req.t('otp.errWrong') }[r.reason] || req.t('otp.errInvalid');
     const u = auth.getUserById(uid);
-    return res.status(401).render('otp', { title: 'Verification', email: u ? u.email : '', error: msg, resend: config.otp.resendSeconds });
+    return res.status(401).render('otp', { title: req.t('otp.title'), email: u ? u.email : '', error: msg, resend: config.otp.resendSeconds });
   }
   const user = auth.getUserById(uid);
   req.session.userId = uid; delete req.session.pendingUserId;
@@ -89,7 +89,7 @@ router.post('/logout', (req, res) => { req.session.destroy(() => res.redirect('/
 
 router.get('/account', auth.requireLogin, (req, res) => {
   res.render('account', {
-    title: 'My account',
+    title: req.t('site.myAccount'),
     balance: balance.getBalance(req.user.id),
     orders: orders.listForUser(req.user.id),
     topups: topups.listForUser(req.user.id),
