@@ -41,6 +41,20 @@
   </div>
 <% } %>
 
+<% if (categories.length > 0) { %>
+<div class="shop-toolbar" id="shopToolbar">
+  <div class="shop-toolbar-inner container">
+    <span class="shop-ic">🔎</span>
+    <select id="groupFilter" class="input">
+      <option value=""><%= EN ? 'All groups' : 'Todos los grupos' %></option>
+      <% categories.forEach(function(cat){ %><option value="<%= cat.slug %>"><%= cat.name %></option><% }); %>
+    </select>
+    <input id="svcSearch" class="input" placeholder="<%= EN ? 'Search service…' : 'Buscar servicio…' %>" autocomplete="off">
+    <span class="muted small" id="shopCount"></span>
+  </div>
+</div>
+<% } %>
+
 <% categories.forEach(function(cat){ %>
   <section class="section" id="<%= cat.slug %>">
     <div class="section-head">
@@ -51,7 +65,7 @@
     </div>
     <div class="grid">
       <% cat.services.forEach(function(s){ %>
-        <div class="card">
+        <div class="card" data-title="<%= s.title %>">
           <div class="svc-title"><%= s.title %></div>
           <div class="svc-meta">
             <% if (s.delivery_time) { %><span class="badge badge-time">⏱ <%= s.delivery_time %></span><% } %>
@@ -73,5 +87,51 @@
     </div>
   </section>
 <% }); %>
+
+<div id="noResults" class="panel" style="display:none;margin-top:16px">
+  <p class="muted" style="margin:0"><%= EN ? 'No services match your search.' : 'Ningún servicio coincide con tu búsqueda.' %></p>
+</div>
+
+<style>
+.shop-toolbar{position:sticky;top:0;z-index:20;background:var(--bg,#f6f8fb);padding:10px 0;margin:6px 0 10px;border-bottom:1px solid var(--border,#e5e7eb)}
+.shop-toolbar-inner{display:flex;gap:10px;align-items:center}
+.shop-ic{opacity:.5}
+#groupFilter{max-width:280px}
+#svcSearch{flex:1;min-width:160px}
+#shopCount{white-space:nowrap}
+@media(max-width:620px){ .shop-toolbar-inner{flex-wrap:wrap} #groupFilter{max-width:none;flex:1} }
+</style>
+<script>
+(function(){
+  var sel = document.getElementById('groupFilter');
+  var q = document.getElementById('svcSearch');
+  if (!sel || !q) return;
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section.section'));
+  var count = document.getElementById('shopCount');
+  var none = document.getElementById('noResults');
+  function apply(){
+    var g = sel.value;
+    var term = (q.value||'').trim().toLowerCase();
+    var shown = 0;
+    sections.forEach(function(sec){
+      var groupOk = !g || g === sec.id;
+      var vis = 0;
+      sec.querySelectorAll('.card').forEach(function(c){
+        var t = (c.getAttribute('data-title')||'').toLowerCase();
+        var ok = groupOk && (!term || t.indexOf(term) !== -1);
+        c.style.display = ok ? '' : 'none';
+        if (ok) vis++;
+      });
+      sec.style.display = vis ? '' : 'none';
+      shown += vis;
+    });
+    if (none) none.style.display = shown ? 'none' : '';
+    if (count) count.textContent = shown + (/* label */ '<%= EN ? " services" : " servicios" %>');
+  }
+  sel.addEventListener('change', apply);
+  q.addEventListener('input', apply);
+  apply();
+})();
+</script>
 
 <%- include('partials/footer') %>

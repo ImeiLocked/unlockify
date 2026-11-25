@@ -126,6 +126,21 @@ function adminList({ status } = {}) {
   sql += ' ORDER BY o.id DESC LIMIT 500';
   return db.prepare(sql).all(...p);
 }
+/** Resumen de órdenes de un cliente para su panel. */
+function userStats(userId) {
+  const r = db.prepare(`SELECT
+      COUNT(*) AS total,
+      SUM(status='completed') AS completed,
+      SUM(status IN ('queued','processing')) AS processing,
+      SUM(status='rejected') AS rejected,
+      COALESCE(SUM(CASE WHEN status='completed' THEN price ELSE 0 END),0) AS spent
+    FROM orders WHERE user_id=?`).get(userId);
+  return {
+    total: r.total || 0, completed: r.completed || 0,
+    processing: r.processing || 0, rejected: r.rejected || 0, spent: r.spent || 0,
+  };
+}
+
 function stats() {
   return db.prepare(`SELECT
       COUNT(*) AS total,
@@ -143,5 +158,5 @@ module.exports = {
   setStatus, assignProvider, complete, reject, markRefunded,
   holdFunds, clearHeld, listHeld, countHeld,
   createAttempt, setAttemptRef, resolveAttempt, listAttempts, triedProviders, openAttemptFor,
-  listProcessingAuto, adminList, stats,
+  listProcessingAuto, adminList, stats, userStats,
 };

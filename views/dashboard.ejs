@@ -1,0 +1,114 @@
+<%- include('partials/header') %>
+
+<% var EN = (typeof lang !== 'undefined' && lang === 'en');
+   var name = (user && (user.name || user.email)) || '';
+   var tot = stats.total || 0;
+   var pct = function(n){ return tot ? Math.round((n/tot)*100) : 0; };
+%>
+
+<section class="hero" style="padding-bottom:6px">
+  <h1 style="margin-bottom:4px"><%= EN ? 'Client Area' : 'Área de Cliente' %></h1>
+  <p class="muted" style="margin:0"><%= EN ? 'Welcome back' : 'Bienvenido' %><%= name ? ', ' + name : '' %> 👋</p>
+</section>
+
+<!-- Tarjetas superiores -->
+<div class="dash-top">
+  <div class="panel dash-balance">
+    <div class="muted small"><%= EN ? 'Your current balance' : 'Tu saldo actual' %></div>
+    <div class="dash-bal-amount">$<%= Number(balance).toFixed(2) %> <small>USDT</small></div>
+    <% if (canBuy) { %><a href="/topup" class="btn btn-primary btn-sm">🛒 <%= EN ? 'Buy credit' : 'Recargar saldo' %></a><% } %>
+  </div>
+  <div class="panel dash-kpi">
+    <div class="muted small"><%= EN ? 'Total spent' : 'Total gastado' %></div>
+    <div class="dash-kpi-num">$<%= Number(stats.spent).toFixed(2) %></div>
+  </div>
+  <div class="panel dash-kpi">
+    <div class="muted small"><%= EN ? 'Total orders' : 'Órdenes totales' %></div>
+    <div class="dash-kpi-num"><%= tot %></div>
+  </div>
+</div>
+
+<!-- Estadísticas de órdenes -->
+<div class="dash-stats">
+  <div class="panel stat-card">
+    <div class="stat-top"><span class="stat-num ok"><%= stats.completed %></span><span class="muted small">/ <%= tot %></span></div>
+    <div class="bar"><span class="bar-fill ok" style="width:<%= pct(stats.completed) %>%"></span></div>
+    <div class="muted small"><%= EN ? 'Completed successfully' : 'Completadas con éxito' %></div>
+  </div>
+  <div class="panel stat-card">
+    <div class="stat-top"><span class="stat-num warn"><%= stats.processing %></span><span class="muted small">/ <%= tot %></span></div>
+    <div class="bar"><span class="bar-fill warn" style="width:<%= pct(stats.processing) %>%"></span></div>
+    <div class="muted small"><%= EN ? 'In process' : 'En proceso' %></div>
+  </div>
+  <div class="panel stat-card">
+    <div class="stat-top"><span class="stat-num bad"><%= stats.rejected %></span><span class="muted small">/ <%= tot %></span></div>
+    <div class="bar"><span class="bar-fill bad" style="width:<%= pct(stats.rejected) %>%"></span></div>
+    <div class="muted small"><%= EN ? 'Failed (refunded)' : 'Fallidas (reembolsadas)' %></div>
+  </div>
+</div>
+
+<!-- Accesos rápidos + anuncios -->
+<div class="dash-main">
+  <div class="dash-actions">
+    <a href="/" class="action-card">
+      <div class="action-ic f-green">🛒</div>
+      <div><div class="action-t"><%= EN ? 'Place an order' : 'Hacer un pedido' %></div><div class="muted small"><%= EN ? 'Browse and buy a service' : 'Explora y compra un servicio' %></div></div>
+    </a>
+    <a href="/account" class="action-card">
+      <div class="action-ic f-blue">🧾</div>
+      <div><div class="action-t"><%= EN ? 'Order history' : 'Historial de pedidos' %></div><div class="muted small"><%= EN ? 'Your past and active orders' : 'Tus órdenes pasadas y activas' %></div></div>
+    </a>
+    <% if (canBuy) { %>
+    <a href="/topup" class="action-card">
+      <div class="action-ic f-amber">💰</div>
+      <div><div class="action-t"><%= EN ? 'Add funds' : 'Recargar saldo' %></div><div class="muted small"><%= EN ? 'Top up with USDT' : 'Recarga con USDT' %></div></div>
+    </a>
+    <% } %>
+  </div>
+
+  <div class="panel dash-news">
+    <h3 style="margin:0 0 10px"><%= EN ? 'Announcements' : 'Novedades' %></h3>
+    <% if (!announcements || !announcements.length) { %>
+      <p class="muted small" style="margin:0"><%= EN ? 'No announcements right now.' : 'No hay novedades por ahora.' %></p>
+    <% } else { %>
+      <div class="news-list">
+        <% announcements.forEach(function(a){ %>
+          <div class="news-item">
+            <div class="news-body"><%= a.body %></div>
+            <div class="muted small"><%= (a.created_at || '').slice(0,10) %></div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<style>
+.dash-top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:14px;margin:8px 0 14px}
+.dash-balance{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.dash-bal-amount{font-size:34px;font-weight:800;line-height:1}
+.dash-bal-amount small{font-size:14px;font-weight:600;opacity:.6}
+.dash-kpi{display:flex;flex-direction:column;justify-content:center;gap:4px}
+.dash-kpi-num{font-size:26px;font-weight:700}
+.dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.stat-card{display:flex;flex-direction:column;gap:8px}
+.stat-top{display:flex;align-items:baseline;gap:8px}
+.stat-num{font-size:30px;font-weight:800;line-height:1}
+.stat-num.ok{color:#16a34a}.stat-num.warn{color:#d97706}.stat-num.bad{color:#dc2626}
+.bar{height:7px;border-radius:999px;background:#eef1f5;overflow:hidden}
+.bar-fill{display:block;height:100%}
+.bar-fill.ok{background:#16a34a}.bar-fill.warn{background:#d97706}.bar-fill.bad{background:#dc2626}
+.dash-main{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;align-items:start}
+.dash-actions{display:flex;flex-direction:column;gap:12px}
+.action-card{display:flex;gap:14px;align-items:center;padding:16px;border:1px solid var(--border,#e5e7eb);border-radius:14px;background:var(--card,#fff);text-decoration:none;color:inherit;transition:.15s}
+.action-card:hover{border-color:var(--primary,#16a34a);transform:translateY(-1px)}
+.action-ic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}
+.f-green{background:#dcfce7}.f-blue{background:#dbeafe}.f-amber{background:#fef3c7}
+.action-t{font-weight:700}
+.dash-news{max-height:420px;overflow:auto}
+.news-list{display:flex;flex-direction:column;gap:12px}
+.news-item{border-bottom:1px solid var(--border,#f1f5f9);padding-bottom:10px}
+.news-body{font-size:14px;line-height:1.45}
+@media(max-width:820px){ .dash-top,.dash-stats,.dash-main{grid-template-columns:1fr} }
+</style>
+<%- include('partials/footer') %>

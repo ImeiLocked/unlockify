@@ -7,6 +7,7 @@ const notify = require('../notify');
 const orders = require('../orders');
 const topups = require('../topups');
 const balance = require('../balance');
+const announcements = require('../announcements');
 const { getSetting } = require('../db');
 
 function otpActive() { return config.otp.enabled && config.email.enabled; }
@@ -92,6 +93,15 @@ router.post('/logout', (req, res) => {
   // Reset the public site to English on logout (language choice is per-session).
   res.clearCookie('site_lang', { httpOnly: true, sameSite: 'lax', secure: config.isProd });
   req.session.destroy(() => res.redirect('/'));
+});
+
+router.get('/dashboard', auth.requireLogin, (req, res) => {
+  res.render('dashboard', {
+    title: req.t('site.dashboard'),
+    balance: balance.getBalance(req.user.id),
+    stats: orders.userStats(req.user.id),
+    announcements: announcements.listActive(30),
+  });
 });
 
 router.get('/account', auth.requireLogin, (req, res) => {
