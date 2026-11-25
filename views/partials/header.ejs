@@ -24,8 +24,9 @@
       <a href="/how-it-works" class="<%= currentPath === '/how-it-works' ? 'active' : '' %>"><%= t('site.howItWorks') %></a>
       <% if (user) { %>
         <% if (user.is_admin) { %>
-          <a href="/admin"><%= t('site.dashboard') %></a>
+          <a href="/admin" class="<%= currentPath.indexOf('/admin') === 0 ? 'active' : '' %>">⚙ <%= lang === 'en' ? 'Admin' : 'Admin' %></a>
         <% } else { %>
+          <a href="/dashboard" class="<%= currentPath === '/dashboard' ? 'active' : '' %>"><%= t('site.dashboard') %></a>
           <% if (canBuy) { %>
             <% if (typeof userBalance === 'number') { %><a href="/dashboard" class="bal-chip" title="<%= t('site.dashboard') %>">💰 $<%= userBalance.toFixed(2) %></a><% } %>
             <a href="/topup" class="btn btn-primary btn-sm"><%= t('site.addFunds') %></a>
