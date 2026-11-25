@@ -28,8 +28,18 @@ function getTransporter() {
 }
 
 async function email(subject, text, to = config.email.to, html = null) {
+  if (!to) return false;
+  // 1) Preferir la API de Zoho (HTTPS) — evita los puertos SMTP bloqueados por DO.
+  if (config.zoho.enabled) {
+    try {
+      const zoho = require('./zohomail');
+      if (await zoho.send({ to, subject, text, html })) return true;
+      console.error('[notify] zoho send falló; intento SMTP');
+    } catch (e) { console.error('[notify] zoho:', e.message); }
+  }
+  // 2) Fallback: SMTP (si los puertos estuvieran abiertos).
   const t = getTransporter();
-  if (!t || !to) return false;
+  if (!t) return false;
   try {
     await t.sendMail({ from: config.email.from || config.email.user, to, subject, text, ...(html ? { html } : {}) });
     return true;
@@ -75,7 +85,7 @@ async function notifyAdminTopup(topup, newBalance) {
 // --- CUSTOMER ------------------------------------------------------------
 async function notifyOrderCompleted(order, to) {
   await telegram(`✅ Order <b>${order.code}</b> completed (${order.provider_key || '-'}) in ${fmtDuration(order.total_seconds)}.`);
-  if (!config.email.enabled || !to) return;
+  if (!config.mailEnabled || !to) return;
   const url = `${config.publicUrl}/order/${order.code}`;
   const text = `Hi,\n\nYour order ${order.code} (${order.service_title}) is ready.\n\nResult:\n${order.result_text || 'Processed successfully.'}\n\n${url}\n\n${config.brandName}`;
   await email(`Your order ${order.code} is ready`, text, to, customerHtml({
@@ -86,7 +96,7 @@ async function notifyOrderCompleted(order, to) {
 }
 async function notifyOrderRejected(order, to) {
   await telegram(`⛔ Order <b>${order.code}</b> rejected. Balance refunded to customer.`);
-  if (!config.email.enabled || !to) return;
+  if (!config.mailEnabled || !to) return;
   const url = `${config.publicUrl}/order/${order.code}`;
   const text = `Hi,\n\nYour order ${order.code} (${order.service_title}) couldn't be completed and we refunded ${order.price} to your balance.\n\n${url}\n\n${config.brandName}`;
   await email(`Order ${order.code} — refunded`, text, to, customerHtml({
@@ -96,7 +106,7 @@ async function notifyOrderRejected(order, to) {
   }));
 }
 async function notifyTopupConfirmed(topup, newBalance, to) {
-  if (!config.email.enabled || !to) return;
+  if (!config.mailEnabled || !to) return;
   const url = `${config.publicUrl}/account`;
   const text = `Hi,\n\nYour top-up ${topup.code} of ${topup.expected_amount} USDT was confirmed.\nCurrent balance: ${newBalance} USDT.\n\n${url}\n\n${config.brandName}`;
   await email(`Top-up confirmed — balance ${newBalance} USDT`, text, to, customerHtml({
@@ -107,7 +117,7 @@ async function notifyTopupConfirmed(topup, newBalance, to) {
 }
 
 async function sendOtp(to, code) {
-  if (!config.email.enabled || !to) return false;
+  if (!config.mailEnabled || !to) return false;
   const text = `Your access code for ${config.brandName} is: ${code}\n\nIt expires in ${config.otp.expiryMinutes} minutes. If you didn't try to log in, ignore this email.`;
   const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:420px;margin:0 auto;background:#fff;border:1px solid #e5e9f0;border-radius:12px;overflow:hidden">
     <div style="background:#0b0f14;color:#fff;padding:16px 22px;font-size:17px;font-weight:700">🔓 ${esc(config.brandName)}</div>

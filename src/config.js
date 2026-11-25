@@ -104,6 +104,21 @@ const config = {
     retentionDays: num(process.env.SUPPORT_RETENTION_DAYS, 30),
   },
 
+  // Envío por la API de Zoho Mail (HTTPS). Evita los puertos SMTP (que
+  // DigitalOcean bloquea). Si está configurado, notify.email() envía por aquí.
+  //  accountsHost: US=accounts.zoho.com, EU=accounts.zoho.eu, IN=accounts.zoho.in...
+  //  apiHost:      US=mail.zoho.com,     EU=mail.zoho.eu,     IN=mail.zoho.in...
+  zoho: {
+    clientId: (process.env.ZOHO_CLIENT_ID || '').trim(),
+    clientSecret: (process.env.ZOHO_CLIENT_SECRET || '').trim(),
+    refreshToken: (process.env.ZOHO_REFRESH_TOKEN || '').trim(),
+    accountId: (process.env.ZOHO_ACCOUNT_ID || '').trim(),
+    from: (process.env.ZOHO_FROM || process.env.SMTP_FROM || process.env.SMTP_USER || '').trim(),
+    accountsHost: (process.env.ZOHO_ACCOUNTS_HOST || 'https://accounts.zoho.com').replace(/\/+$/, ''),
+    apiHost: (process.env.ZOHO_API_HOST || 'https://mail.zoho.com').replace(/\/+$/, ''),
+    get enabled() { return !!(this.clientId && this.clientSecret && this.refreshToken && this.accountId && this.from); },
+  },
+
   providers, // array
   getProvider(key) { return providers.find((p) => p.key === key) || null; },
   enabledProviders() { return providers.filter((p) => p.enabled && p.apiUrl && p.apiKey); },
@@ -114,6 +129,9 @@ const config = {
   },
 
   isProd: process.env.NODE_ENV === 'production',
+
+  // ¿Podemos enviar correo por algún canal? (Zoho API por HTTPS o SMTP)
+  get mailEnabled() { return this.zoho.enabled || this.email.enabled; },
 };
 
 module.exports = config;
