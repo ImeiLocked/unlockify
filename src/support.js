@@ -100,21 +100,23 @@ async function pollOnce() {
     const lock = await client.getMailboxLock('INBOX');
     try {
       // Rastreo por UID (no por estado leído/no leído): si el buzón se abre en
-      // el webmail de Zoho, el correo igual entra al panel. storeIncoming dedup
-      // por message_id como segunda red.
+      // el webmail de Zoho, el correo igual entra al panel. Usamos search(since)
+      // + fetchOne (método estable) y filtramos por UID. storeIncoming dedup por
+      // message_id como segunda red.
       const lastUid = parseInt(getSetting('support_last_uid', '0'), 10) || 0;
       let maxUid = lastUid;
-      // "N:*" en IMAP siempre devuelve al menos el UID más alto; filtramos <= lastUid.
-      for await (const msg of client.fetch(`${lastUid + 1}:*`, { uid: true, source: true }, { uid: true })) {
-        if (!msg || !msg.uid || msg.uid <= lastUid) continue;
-        if (msg.source) {
+      const uids = await client.search({ since: new Date('2000-01-01T00:00:00Z') }, { uid: true });
+      for (const uid of (uids || [])) {
+        if (uid <= lastUid) continue;
+        const msg = await client.fetchOne(uid, { source: true }, { uid: true });
+        if (msg && msg.source) {
           try {
             const parsed = await simpleParser(msg.source);
             await storeIncoming(parsed);
           } catch (e) { console.error('[support] parse/store:', e.message); }
         }
-        if (msg.uid > maxUid) maxUid = msg.uid;
-        try { await client.messageFlagsAdd(msg.uid, ['\\Seen'], { uid: true }); } catch (_) {}
+        if (uid > maxUid) maxUid = uid;
+        try { await client.messageFlagsAdd(uid, ['\\Seen'], { uid: true }); } catch (_) {}
       }
       if (maxUid > lastUid) setSetting('support_last_uid', String(maxUid));
     } finally { lock.release(); }
