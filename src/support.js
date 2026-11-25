@@ -49,6 +49,30 @@ function normSubject(s) {
   return out || '(sin asunto)';
 }
 
+// Quita la cadena citada de una respuesta (el "On ... wrote:" / "El ... escribió:"
+// y las líneas con ">") para traducir y mostrar SOLO el mensaje nuevo del cliente.
+function stripQuoted(text) {
+  const original = String(text || '');
+  let t = original.replace(/\r\n/g, '\n');
+  const markers = [
+    /^\s*On .+ wrote:\s*$/im,
+    /^\s*El .+ escribió:\s*$/im,
+    /^\s*-{2,}\s*Original Message\s*-{2,}\s*$/im,
+    /^\s*_{5,}\s*$/im,
+    /^\s*(From|De|Von|Da):\s.+$/im,
+    /^\s*>.*$/m, // primera línea citada
+  ];
+  let cut = t.length;
+  for (const re of markers) {
+    const m = t.match(re);
+    if (m && m.index < cut) cut = m.index;
+  }
+  t = t.slice(0, cut);
+  t = t.split('\n').filter((l) => !/^\s*>/.test(l)).join('\n');
+  t = t.replace(/\n{3,}/g, '\n\n').trim();
+  return t || original.trim();
+}
+
 function findOrCreateThread(clientEmail, clientName, subject) {
   const key = normSubject(subject);
   const found = db.prepare('SELECT * FROM support_threads WHERE client_email=? AND subject_key=?').get(clientEmail, key);
@@ -72,6 +96,7 @@ async function storeIncoming(parsed) {
   const subject = parsed.subject || '(sin asunto)';
   let body = (parsed.text || '').trim();
   if (!body && parsed.html) body = String(parsed.html).replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+\n/g, '\n').trim();
+  body = stripQuoted(body); // solo el mensaje nuevo (sin la cadena citada)
   const lang = guessLang(body);
   const bodyEs = lang === 'es' ? body : await translate(body, 'en', 'es');
 
