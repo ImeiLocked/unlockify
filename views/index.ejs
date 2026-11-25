@@ -1,7 +1,29 @@
 <%- include('partials/header') %>
 <%- include('partials/announcements-modal') %>
 
+<% var EN = (typeof lang !== 'undefined' && lang === 'en'); %>
 <section class="hero">
+  <div class="hero-banner" id="heroBanner" aria-hidden="true">
+    <% var slides = EN ? [
+      { ic:'🔓', t:'Unlock your iPhone & iPad', s:'FMI OFF · MDM bypass · Network unlock', g:'g1' },
+      { ic:'⚡', t:'Delivered in minutes',       s:'Automatic processing, 24/7',          g:'g2' },
+      { ic:'✅', t:'100% success or refund',     s:'Eligible fails are credited back',    g:'g3' },
+      { ic:'🌍', t:'Apple · Xiaomi · Samsung',   s:'Worldwide coverage',                  g:'g4' }
+    ] : [
+      { ic:'🔓', t:'Desbloquea tu iPhone y iPad', s:'FMI OFF · MDM bypass · Liberación de red', g:'g1' },
+      { ic:'⚡', t:'Entrega en minutos',          s:'Procesamiento automático, 24/7',           g:'g2' },
+      { ic:'✅', t:'100% de éxito o reembolso',   s:'Si falla un servicio elegible, se te acredita', g:'g3' },
+      { ic:'🌍', t:'Apple · Xiaomi · Samsung',    s:'Cobertura en todo el mundo',               g:'g4' }
+    ]; %>
+    <% slides.forEach(function(sl, i){ %>
+      <div class="hero-slide <%= sl.g %> <%= i === 0 ? 'active' : '' %>">
+        <span class="hs-ic"><%= sl.ic %></span>
+        <div class="hs-txt"><b><%= sl.t %></b><em><%= sl.s %></em></div>
+      </div>
+    <% }); %>
+    <div class="hero-dots"><% slides.forEach(function(_, i){ %><i class="<%= i === 0 ? 'on' : '' %>" data-i="<%= i %>"></i><% }); %></div>
+  </div>
+
   <h1><%- t('home.h1') %></h1>
   <p><%= t('home.sub') %></p>
   <div class="hero-badges">
@@ -11,9 +33,24 @@
     <span class="chip"><%- t('home.badge4') %></span>
   </div>
 </section>
+<script>
+(function(){
+  var el = document.getElementById('heroBanner'); if (!el) return;
+  var slides = el.querySelectorAll('.hero-slide');
+  var dots = el.querySelectorAll('.hero-dots i');
+  var i = 0, timer;
+  function go(n){
+    slides[i].classList.remove('active'); if (dots[i]) dots[i].classList.remove('on');
+    i = (n + slides.length) % slides.length;
+    slides[i].classList.add('active'); if (dots[i]) dots[i].classList.add('on');
+  }
+  function start(){ timer = setInterval(function(){ go(i + 1); }, 4500); }
+  dots.forEach(function(d){ d.addEventListener('click', function(){ go(+d.dataset.i); clearInterval(timer); start(); }); });
+  start();
+})();
+</script>
 
-<% var EN = (typeof lang !== 'undefined' && lang === 'en');
-   var feats = [
+<% var feats = [
      { ic:'🗄️', c:'f-blue',   t: EN?'Verified Sources':'Fuentes verificadas', d: EN?'IMEI and GSX data pulled from verified global databases for accurate, reliable results.':'Datos IMEI y GSX de bases globales verificadas, para resultados precisos y confiables.' },
      { ic:'⚡', c:'f-green',  t: EN?'Instant Response':'Respuesta inmediata', d: EN?'Receive IMEI results and unlock confirmations fast, around the clock.':'Recibe resultados y confirmaciones de desbloqueo rápido, las 24 horas.' },
      { ic:'📈', c:'f-violet', t: EN?'99.9% Uptime':'99.9% disponible', d: EN?'Distributed infrastructure keeps the platform fast and stable for every order.':'Infraestructura distribuida que mantiene la plataforma rápida y estable.' },
