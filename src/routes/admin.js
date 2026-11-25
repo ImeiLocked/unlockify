@@ -280,6 +280,13 @@ router.get('/support/:id', (req, res) => {
   });
 });
 
+// Marcar como respondido sin enviar correo (mensajes que no requieren respuesta).
+router.post('/support/:id/resolve', (req, res) => {
+  const data = support.getThread(req.params.id);
+  if (data) support.markResolved(data.thread.id);
+  res.redirect('/admin/support');
+});
+
 router.post('/support/:id/reply', async (req, res) => {
   const data = support.getThread(req.params.id);
   if (!data) return res.redirect('/admin/support');

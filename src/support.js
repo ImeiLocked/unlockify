@@ -40,6 +40,8 @@ function ensureSchema() {
     );
     CREATE INDEX IF NOT EXISTS idx_smsgs_thread ON support_messages(thread_id);
   `);
+  // migración: watermark de "atendido hasta" (marcar como respondido sin enviar)
+  try { db.exec('ALTER TABLE support_threads ADD COLUMN acked_id INTEGER NOT NULL DEFAULT 0'); } catch (_) {}
 }
 
 function normSubject(s) {
@@ -179,22 +181,19 @@ function cleanupOld() {
 }
 
 // ---------- panel helpers ----------
+// pending = mensajes entrantes del cliente con id mayor que el "atendido hasta":
+// el máximo entre tu última respuesta y el watermark acked_id (marcar como
+// respondido). Un mensaje nuevo del cliente lo vuelve a marcar como pendiente.
+const PENDING_EXPR = `(SELECT COUNT(*) FROM support_messages m
+   WHERE m.thread_id = t.id AND m.direction = 'in'
+     AND m.id > MAX(
+       COALESCE((SELECT MAX(o.id) FROM support_messages o WHERE o.thread_id = t.id AND o.direction = 'out'), 0),
+       t.acked_id))`;
 function listThreads(limit = 200) {
-  // pending = mensajes entrantes del cliente que llegaron DESPUÉS de tu última
-  // respuesta (o todos si aún no respondes). Solo se limpia al responder.
   return db.prepare(`
-    SELECT t.*,
-      (SELECT COUNT(*) FROM support_messages m
-        WHERE m.thread_id = t.id AND m.direction = 'in'
-          AND m.id > COALESCE((SELECT MAX(o.id) FROM support_messages o
-                               WHERE o.thread_id = t.id AND o.direction = 'out'), 0)
-      ) AS pending
+    SELECT t.*, ${PENDING_EXPR} AS pending
     FROM support_threads t
-    ORDER BY (SELECT COUNT(*) FROM support_messages m
-              WHERE m.thread_id = t.id AND m.direction = 'in'
-                AND m.id > COALESCE((SELECT MAX(o.id) FROM support_messages o
-                                     WHERE o.thread_id = t.id AND o.direction = 'out'), 0)) > 0 DESC,
-             t.last_at DESC
+    ORDER BY (${PENDING_EXPR}) > 0 DESC, t.last_at DESC
     LIMIT ?
   `).all(limit);
 }
@@ -209,17 +208,22 @@ function unreadCount() {
   try { return db.prepare("SELECT COUNT(*) n FROM support_threads WHERE unread>0").get().n; }
   catch (_) { return 0; }
 }
-// Hilos cuyo ÚLTIMO mensaje es del cliente (entrante) => pendientes de responder.
-// Cuenta aunque el admin ya haya abierto el hilo, hasta que responda.
+// Hilos con mensajes del cliente aún sin atender (ni respondidos ni marcados).
 function pendingReplyCount() {
   try {
     return db.prepare(`
       SELECT COUNT(*) n FROM support_threads t
-      WHERE (SELECT m.direction FROM support_messages m
-             WHERE m.thread_id = t.id
-             ORDER BY datetime(m.created_at) DESC, m.id DESC LIMIT 1) = 'in'
+      WHERE ${PENDING_EXPR} > 0
     `).get().n;
   } catch (_) { return 0; }
+}
+
+// Marcar un hilo como respondido/atendido SIN enviar nada (p. ej. un "gracias").
+// Mueve el watermark al último mensaje; si el cliente escribe de nuevo, reaparece.
+function markResolved(id) {
+  const row = db.prepare('SELECT MAX(id) mx FROM support_messages WHERE thread_id=?').get(id);
+  const mx = (row && row.mx) || 0;
+  db.prepare('UPDATE support_threads SET acked_id=?, unread=0 WHERE id=?').run(mx, id);
 }
 
 function startPoller() {
@@ -236,4 +240,4 @@ function startPoller() {
   setTimeout(cleanupOld, 15000);
 }
 
-module.exports = { startPoller, pollOnce, sendReply, cleanupOld, ensureSchema, listThreads, getThread, markRead, unreadCount, pendingReplyCount };
+module.exports = { startPoller, pollOnce, sendReply, cleanupOld, ensureSchema, listThreads, getThread, markRead, markResolved, unreadCount, pendingReplyCount };

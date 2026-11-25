@@ -1,12 +1,21 @@
 <%- include('../partials/header') %>
 <%- include('../partials/adminnav') %>
 
+<%
+  var lastMsg = messages[messages.length - 1];
+  var needsAck = !!(lastMsg && lastMsg.direction === 'in' && lastMsg.id > (thread.acked_id || 0));
+%>
 <div style="display:flex;align-items:center;gap:12px;margin:6px 0 14px">
   <a href="/admin/support" class="btn btn-sm">← <%= t('support.back') %></a>
   <div>
     <div style="font-weight:800;font-size:18px"><%= thread.subject || '—' %></div>
     <div class="muted small"><%= thread.client_name ? thread.client_name + ' · ' : '' %><%= thread.client_email %></div>
   </div>
+  <% if (needsAck) { %>
+    <form action="/admin/support/<%= thread.id %>/resolve" method="post" style="margin-left:auto">
+      <button class="btn btn-sm" type="submit" title="<%= lang === 'en' ? 'Mark as handled without sending a reply' : 'Marcar como respondido sin enviar correo' %>" style="border-color:#16a34a;color:#16a34a">✓ <%= lang === 'en' ? 'Mark as answered' : 'Marcar como respondido' %></button>
+    </form>
+  <% } %>
 </div>
 
 <% if (ok) { %><div class="alert alert-ok"><%= t('support.sent') %></div><% } %>
