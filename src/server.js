@@ -84,6 +84,7 @@ async function onTopupConfirmed(topup) {
 payments.startWatcher(onTopupConfirmed);
 fulfillment.startPoller();
 support.startPoller();
+require('./catalognews').startCatalogNews();
 
 app.listen(config.port, () => {
   console.log(`\n🚀 ${config.brandName} on port ${config.port}  |  ${config.publicUrl}`);

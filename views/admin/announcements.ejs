@@ -4,7 +4,8 @@
 
 <div class="panel" style="margin-bottom:18px">
   <h3 style="margin:0 0 4px"><%= lang === 'en' ? 'Add announcement' : 'Agregar novedad' %></h3>
-  <p class="muted small" style="margin-top:0"><%= lang === 'en' ? 'New services, price changes or notices. Shown to customers in a pop-up.' : 'Nuevos servicios, cambios de precio o avisos. Se muestran a los clientes en un recuadro.' %></p>
+  <p class="muted small" style="margin-top:0"><%= lang === 'en' ? 'New services, price changes or notices. Shown to customers in a pop-up.' : 'Nuevos servicios, cambios de precio o avisos. Se muestran a los clientes en un recuadro.' %>
+    <br>🤖 <%= lang === 'en' ? 'Price changes and newly published services are added automatically every day — you can hide or delete any of them.' : 'Los cambios de precio y los servicios recién publicados se agregan solos cada día — puedes ocultar o eliminar cualquiera.' %></p>
   <form action="/admin/announcements" method="post">
     <div class="field">
       <textarea class="input" name="body" rows="2" required placeholder="<%= lang === 'en' ? 'e.g. Xiaomi Mi Account Remove (Argentina) — now 19 USD' : 'ej. Xiaomi Mi Account Remove (Argentina) — ahora 19 USD' %>" style="resize:vertical"></textarea>
@@ -37,7 +38,7 @@
         <% items.forEach(function(a){ %>
           <tr style="border-bottom:1px solid var(--border);<%= a.active ? '' : 'opacity:.5' %>">
             <td style="padding:12px 16px" class="muted small" ><%= (a.created_at || '').slice(0,10) %></td>
-            <td style="padding:12px 16px"><%= a.body %></td>
+            <td style="padding:12px 16px"><%= a.body %><% if (a.source === 'auto') { %> <span class="news-tag" style="background:#eef2ff;color:#4338ca" title="<%= lang==='en'?'Generated automatically from provider changes':'Generada automáticamente por cambios del proveedor' %>">🤖 auto</span><% } %></td>
             <td style="padding:12px 16px">
               <span class="news-tag news-<%= a.kind %>"><%= a.kind === 'price' ? (lang==='en'?'price':'precio') : (a.kind === 'new' ? (lang==='en'?'new':'nuevo') : (lang==='en'?'notice':'aviso')) %></span>
             </td>

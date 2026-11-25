@@ -156,7 +156,7 @@ router.post('/services/:id/sources', (req, res) => {
   res.redirect('/admin/services');
 });
 router.post('/sync/:provider', async (req, res) => {
-  try { const r = await providers.syncCatalog(req.params.provider); res.redirect(`/admin/services?synced=${encodeURIComponent(JSON.stringify(r))}`); }
+  try { const r = await require('../catalognews').syncAndAnnounce(req.params.provider); res.redirect(`/admin/services?synced=${encodeURIComponent(JSON.stringify(r))}`); }
   catch (e) { res.status(400).render('error', { title: 'Sync error', message: e.message }); }
 });
 
@@ -178,8 +178,17 @@ router.get('/providers', (req, res) => {
 // Publicar un servicio a la tienda surtido por ESTE proveedor
 router.post('/providers/:provider/:id/publish', (req, res) => {
   const { provider, id } = req.params;
+  const svc = db.prepare('SELECT id, title, active FROM services WHERE id=?').get(id);
   db.prepare('UPDATE service_sources SET active=1 WHERE service_id=? AND provider_key=?').run(id, provider);
   db.prepare('UPDATE services SET active=1, auto_fulfill=1, primary_provider=? WHERE id=?').run(provider, id);
+  if (svc && !svc.active) {
+    try {
+      const src = db.prepare('SELECT cost FROM service_sources WHERE service_id=? AND provider_key=?').get(id, provider);
+      const s = db.prepare('SELECT markup_type, markup_value FROM services WHERE id=?').get(id);
+      const price = require('../markup').sellPrice(src ? src.cost : 0, { markupType: s.markup_type, markupValue: s.markup_value });
+      require('../catalognews').announceNewService(svc.title, price);
+    } catch (_) {}
+  }
   res.redirect('/admin/providers?p=' + encodeURIComponent(provider) + (req.query.pub ? '&pub=1' : '') + '#s' + id);
 });
 

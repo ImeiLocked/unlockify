@@ -161,6 +161,10 @@ function init() {
   oadd('held_provider', 'TEXT');                    // proveedor cuyo saldo no alcanzó
   oadd('held_cost', 'REAL');                        // costo que no se pudo cubrir
   oadd('held_at', 'TEXT');
+
+  // --- migraciones: origen de las novedades (manual vs automática) ---
+  const acols = db.prepare('PRAGMA table_info(announcements)').all().map((c) => c.name);
+  if (!acols.includes('source')) db.exec("ALTER TABLE announcements ADD COLUMN source TEXT NOT NULL DEFAULT 'manual'");
 }
 
 // --- simple key/value settings (auto_approve, etc.) ----------------------
