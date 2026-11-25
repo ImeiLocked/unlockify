@@ -22,17 +22,28 @@
         </tr>
       </thead>
       <tbody>
-        <% threads.forEach(function(th){ %>
-          <tr style="border-bottom:1px solid #f1f4f7;<%= th.unread ? 'background:#f0fdf4' : '' %>">
+        <% threads.forEach(function(th){ var pend = th.pending || 0; %>
+          <tr style="border-bottom:1px solid #f1f4f7;<%= pend ? 'background:#fff1f2' : '' %>">
             <td style="padding:12px 16px">
-              <a href="/admin/support/<%= th.id %>" style="font-weight:700;color:#0e1420;text-decoration:none"><%= th.client_name || th.client_email %></a>
-              <% if (th.client_name) { %><div class="muted small"><%= th.client_email %></div><% } %>
+              <div style="display:flex;align-items:center;gap:9px">
+                <% if (pend) { %>
+                  <span title="<%= lang === 'en' ? 'messages awaiting your reply' : 'mensajes sin responder' %>"
+                        style="flex:0 0 auto;min-width:22px;height:22px;box-sizing:border-box;padding:0 6px;background:#ef4444;color:#fff;border-radius:999px;font-size:12px;font-weight:800;line-height:22px;text-align:center;box-shadow:0 2px 6px rgba(239,68,68,.4)"><%= pend %></span>
+                <% } %>
+                <a href="/admin/support/<%= th.id %>" style="font-weight:700;color:#0e1420;text-decoration:none"><%= th.client_name || th.client_email %></a>
+              </div>
+              <% if (th.client_name) { %><div class="muted small" style="margin-left:<%= pend ? '31px' : '0' %>"><%= th.client_email %></div><% } %>
             </td>
             <td style="padding:12px 16px"><%= th.subject || '—' %></td>
             <td style="padding:12px 16px" class="muted small"><%= th.last_at %></td>
-            <td style="padding:12px 16px;text-align:right">
-              <% if (th.unread) { %><span style="background:#16a34a;color:#fff;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700"><%= th.unread %> <%= t('support.newBadge') %></span><% } %>
-              <a href="/admin/support/<%= th.id %>" class="btn btn-sm" style="margin-left:8px"><%= t('support.open') %></a>
+            <td style="padding:12px 16px;text-align:right;white-space:nowrap">
+              <% if (pend) { %>
+                <span style="color:#b91c1c;font-size:12px;font-weight:700;margin-right:8px"><%= pend %> <%= lang === 'en' ? (pend === 1 ? 'to reply' : 'to reply') : 'sin responder' %></span>
+                <a href="/admin/support/<%= th.id %>" class="btn btn-sm" style="background:#ef4444;color:#fff;border-color:#ef4444"><%= lang === 'en' ? 'Reply' : 'Responder' %></a>
+              <% } else { %>
+                <span style="color:#16a34a;font-size:12px;font-weight:700;margin-right:8px">✓ <%= lang === 'en' ? 'answered' : 'respondido' %></span>
+                <a href="/admin/support/<%= th.id %>" class="btn btn-sm"><%= t('support.open') %></a>
+              <% } %>
             </td>
           </tr>
         <% }); %>

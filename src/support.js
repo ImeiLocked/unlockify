@@ -180,7 +180,23 @@ function cleanupOld() {
 
 // ---------- panel helpers ----------
 function listThreads(limit = 200) {
-  return db.prepare('SELECT * FROM support_threads ORDER BY last_at DESC LIMIT ?').all(limit);
+  // pending = mensajes entrantes del cliente que llegaron DESPUÉS de tu última
+  // respuesta (o todos si aún no respondes). Solo se limpia al responder.
+  return db.prepare(`
+    SELECT t.*,
+      (SELECT COUNT(*) FROM support_messages m
+        WHERE m.thread_id = t.id AND m.direction = 'in'
+          AND m.id > COALESCE((SELECT MAX(o.id) FROM support_messages o
+                               WHERE o.thread_id = t.id AND o.direction = 'out'), 0)
+      ) AS pending
+    FROM support_threads t
+    ORDER BY (SELECT COUNT(*) FROM support_messages m
+              WHERE m.thread_id = t.id AND m.direction = 'in'
+                AND m.id > COALESCE((SELECT MAX(o.id) FROM support_messages o
+                                     WHERE o.thread_id = t.id AND o.direction = 'out'), 0)) > 0 DESC,
+             t.last_at DESC
+    LIMIT ?
+  `).all(limit);
 }
 function getThread(id) {
   const thread = db.prepare('SELECT * FROM support_threads WHERE id=?').get(id);
