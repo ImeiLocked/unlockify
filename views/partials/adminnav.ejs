@@ -4,6 +4,7 @@
   <a href="/admin/services" class="<%= currentPath === '/admin/services' ? 'active' : '' %>"><%= t('nav.services') %></a>
   <a href="/admin/providers" class="<%= currentPath.indexOf('/admin/providers') === 0 ? 'active' : '' %>"><%= adminLang === 'en' ? '🔌 Providers' : '🔌 Proveedores' %></a>
   <a href="/admin/held" class="nav-has-badge <%= currentPath.indexOf('/admin/held') === 0 ? 'active' : '' %>"><%= adminLang === 'en' ? '⏳ Pending' : '⏳ Pendientes' %><span id="held-badge" class="nav-badge<%= (typeof heldCount !== 'undefined' && heldCount > 0) ? '' : ' hidden' %>"><%= (typeof heldCount !== 'undefined' && heldCount > 0) ? (heldCount > 99 ? '99+' : heldCount) : '' %></span></a>
+  <a href="/admin/unmatched" class="nav-has-badge <%= currentPath.indexOf('/admin/unmatched') === 0 ? 'active' : '' %>"><%= adminLang === 'en' ? '🔍 Payments' : '🔍 Pagos' %><span id="unmatched-badge" class="nav-badge<%= (typeof unmatchedCount !== 'undefined' && unmatchedCount > 0) ? '' : ' hidden' %>"><%= (typeof unmatchedCount !== 'undefined' && unmatchedCount > 0) ? (unmatchedCount > 99 ? '99+' : unmatchedCount) : '' %></span></a>
   <a href="/admin/users" class="<%= currentPath.indexOf('/admin/users') === 0 ? 'active' : '' %>"><%= t('nav.users') %></a>
   <a href="/admin/topups" class="<%= currentPath === '/admin/topups' ? 'active' : '' %>"><%= t('nav.topups') %></a>
   <a href="/admin/support" class="nav-has-badge <%= currentPath.indexOf('/admin/support') === 0 ? 'active' : '' %>"><%= t('nav.support') %><span id="support-badge" class="nav-badge<%= (typeof supportPending !== 'undefined' && supportPending > 0) ? '' : ' hidden' %>"><%= (typeof supportPending !== 'undefined' && supportPending > 0) ? (supportPending > 99 ? '99+' : supportPending) : '' %></span></a>
@@ -33,9 +34,11 @@
   }
   var sb = document.getElementById('support-badge');
   var hb = document.getElementById('held-badge');
+  var ub = document.getElementById('unmatched-badge');
   function refresh() {
     poll('/admin/support/pending-count', 'pending', sb);
     poll('/admin/held/count', 'held', hb);
+    poll('/admin/unmatched/count', 'unmatched', ub);
   }
   setInterval(refresh, 30000);
 })();

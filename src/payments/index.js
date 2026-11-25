@@ -2,6 +2,8 @@
 const config = require('../config');
 const topups = require('../topups');
 const balance = require('../balance');
+const unmatched = require('../unmatched');
+const { getSetting, setSetting } = require('../db');
 const tron = require('./tron');
 const eth = require('./eth');
 
@@ -50,25 +52,28 @@ async function tick(onConfirmed) {
   running = true;
   try {
     topups.expireStale();
-    const pending = topups.listPendingForWatch();
-    if (!pending.length) return;
 
-    const byChain = {};
-    for (const t of pending) {
-      if (!CHAINS[t.chain] || !CHAINS[t.chain].address) continue;
-      (byChain[t.chain] = byChain[t.chain] || []).push(t);
-    }
-    for (const [chain, list] of Object.entries(byChain)) {
-      const c = CHAINS[chain];
+    // Corte para no inundar con pagos históricos la primera vez que corre.
+    let cutoff = Number(getSetting('unmatched_cutoff') || 0);
+    if (!cutoff) { cutoff = Date.now(); setSetting('unmatched_cutoff', String(cutoff)); }
+
+    const pending = topups.listPendingForWatch();
+    const pendingByChain = {};
+    for (const t of pending) (pendingByChain[t.chain] = pendingByChain[t.chain] || []).push(t);
+
+    for (const [chain, c] of Object.entries(CHAINS)) {
+      if (!c.address) continue;                       // solo redes con wallet configurada
+      const list = pendingByChain[chain] || [];
+
+      // Ventana de búsqueda: últimas 3h, o más atrás si hay facturas pendientes viejas.
+      let sinceMs = Date.now() - 3 * 3600 * 1000;
+      if (list.length) sinceMs = Math.min(sinceMs, Math.min(...list.map((t) => parseSql(t.created_at))) - 10 * 60 * 1000);
+
       let txs = [];
-      try {
-        const oldest = Math.min(...list.map((t) => parseSql(t.created_at)));
-        txs = await c.fetch(c.address, Math.max(0, oldest - 10 * 60 * 1000));
-      } catch (e) { console.error(`[pay] ${chain}:`, e.message); continue; }
+      try { txs = await c.fetch(c.address, Math.max(0, sinceMs)); }
+      catch (e) { console.error(`[pay] ${chain}:`, e.message); continue; }
 
       const used = new Set();
-      list.sort((a, b) => parseSql(a.created_at) - parseSql(b.created_at)); // más viejas primero
-
       const findTx = (t, matcher) => {
         const created = parseSql(t.created_at) - 5 * 60 * 1000;
         const cands = txs.filter((x) => !used.has(x.txHash) && !topups.isTxUsed(x.txHash) && x.timestamp >= created && matcher(x.amount, t.expected_amount));
@@ -88,11 +93,29 @@ async function tick(onConfirmed) {
         }
       };
 
-      // Pase 1: coincidencia EXACTA (desambigua entre clientes distintos a la misma wallet)
-      const leftover = [];
-      for (const t of list) { const m = findTx(t, amountMatches); if (m) settle(t, m); else leftover.push(t); }
-      // Pase 2: tolerante (llegó de menos por comisión) → acredita el monto real
-      for (const t of leftover) { const m = findTx(t, withinBand); if (m) settle(t, m); }
+      // ---- Emparejar con facturas pendientes ----
+      if (list.length) {
+        list.sort((a, b) => parseSql(a.created_at) - parseSql(b.created_at)); // más viejas primero
+        const leftover = [];
+        // Pase 1: coincidencia EXACTA (desambigua entre clientes distintos a la misma wallet)
+        for (const t of list) { const m = findTx(t, amountMatches); if (m) settle(t, m); else leftover.push(t); }
+        // Pase 2: tolerante (llegó de menos por comisión) → acredita el monto real
+        for (const t of leftover) { const m = findTx(t, withinBand); if (m) settle(t, m); }
+      }
+
+      // ---- Pagos sin emparejar → a revisión manual + alerta ----
+      for (const x of txs) {
+        if (used.has(x.txHash)) continue;             // ya se acreditó a una factura
+        if (x.timestamp < cutoff) continue;           // histórico previo al feature
+        if (topups.isTxUsed(x.txHash)) continue;      // ya usado por una recarga
+        if (unmatched.exists(x.txHash)) continue;     // ya registrado
+        const rec = unmatched.record({ chain, txHash: x.txHash, amount: Math.round(Number(x.amount) * 100) / 100, from: x.from, txTime: sqlDate(x.timestamp) });
+        if (rec) {
+          const guess = unmatched.guessClient(rec);
+          console.warn(`[pay] ⚠️ Pago sin emparejar: ${rec.amount} USDT (${chain}) tx=${rec.tx_hash}`);
+          try { require('../notify').notifyAdminUnmatched(rec, guess); } catch (e) { console.error('[pay] alerta:', e.message); }
+        }
+      }
     }
   } finally { running = false; }
 }

@@ -134,6 +134,22 @@ async function notifyTopupConfirmed(topup, newBalance, to) {
   }));
 }
 
+/** Alerta al admin: llegó un pago USDT que no calzó con ninguna factura. */
+async function notifyAdminUnmatched(p, guess) {
+  const guessText = guess ? `${guess.code} — ${esc(guess.user_email)} (pidió ${guess.expected_amount} USDT)` : 'No identificado';
+  await telegram(`⚠️ <b>PAGO SIN EMPAREJAR</b>\n💵 ${p.amount} USDT (${p.chain.toUpperCase()})\n🔗 <code>${esc(p.tx_hash)}</code>\n👤 Probable: ${guessText}\n👉 ${config.publicUrl}/admin/unmatched`);
+  const to = config.email.to || config.zoho.from;
+  if (!config.mailEnabled || !to) return;
+  const url = `${config.publicUrl}/admin/unmatched`;
+  const text = `Llegó un pago USDT que no calzó con ninguna factura.\n\nMonto: ${p.amount} USDT (${p.chain.toUpperCase()})\nTx: ${p.tx_hash}\nCliente probable: ${guess ? `${guess.code} - ${guess.user_email} (pidió ${guess.expected_amount} USDT)` : 'No identificado'}\n\nRevisa y acredita manualmente:\n${url}`;
+  await email(`⚠️ Pago sin emparejar — ${p.amount} USDT`, text, to, customerHtml({
+    heading: '⚠️ Pago sin emparejar',
+    intro: `Llegó ${p.amount} USDT que no calzó con ninguna factura. Revísalo y acredítalo al cliente correcto desde el panel.`,
+    rows: [['Monto', `${p.amount} USDT`], ['Red', p.chain.toUpperCase()], ['Tx', p.tx_hash], ['Cliente probable', guess ? `${guess.code} — ${guess.user_email}` : 'No identificado']],
+    ctaUrl: url, ctaText: 'Revisar pagos',
+  }));
+}
+
 async function sendOtp(to, code) {
   if (!config.mailEnabled || !to) return false;
   const text = `Your access code for ${config.brandName} is: ${code}\n\nIt expires in ${config.otp.expiryMinutes} minutes. If you didn't try to log in, ignore this email.`;
@@ -149,6 +165,6 @@ async function sendOtp(to, code) {
 
 module.exports = {
   telegram, email, fmtDuration, sendOtp,
-  notifyAdminNewOrder, notifyAdminTopup, notifyAdminFundsHold,
+  notifyAdminNewOrder, notifyAdminTopup, notifyAdminFundsHold, notifyAdminUnmatched,
   notifyOrderCompleted, notifyOrderRejected, notifyTopupConfirmed,
 };

@@ -139,6 +139,19 @@ function init() {
       active     INTEGER NOT NULL DEFAULT 1,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    -- Pagos USDT que llegaron pero no calzaron con ninguna factura (para revisión manual)
+    CREATE TABLE IF NOT EXISTS unmatched_payments (
+      id               INTEGER PRIMARY KEY AUTOINCREMENT,
+      chain            TEXT NOT NULL,
+      tx_hash          TEXT NOT NULL UNIQUE,
+      amount           REAL NOT NULL,
+      from_address     TEXT,
+      tx_time          TEXT,
+      status           TEXT NOT NULL DEFAULT 'pending',  -- pending | resolved | dismissed
+      resolved_user_id INTEGER,
+      created_at       TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   // --- migraciones ligeras: columnas de OTP / dispositivo de confianza ---

@@ -12,6 +12,7 @@ const providers = require('../providers');
 const fulfillment = require('../providers/fulfillment');
 const balance = require('../balance');
 const topups = require('../topups');
+const unmatched = require('../unmatched');
 const notify = require('../notify');
 const { makeT } = require('../i18n');
 
@@ -27,6 +28,7 @@ router.use((req, res, next) => {
   res.locals.adminLang = lang;
   try { res.locals.supportPending = require('../support').pendingReplyCount(); } catch (_) { res.locals.supportPending = 0; }
   try { res.locals.heldCount = orders.countHeld(); } catch (_) { res.locals.heldCount = 0; }
+  try { res.locals.unmatchedCount = unmatched.countPending(); } catch (_) { res.locals.unmatchedCount = 0; }
   next();
 });
 router.get('/lang/:lang', (req, res) => {
@@ -224,6 +226,34 @@ router.post('/held/:id/retry', async (req, res) => {
   try { await fulfillment.retryHeld(o.id); }
   catch (e) { console.error('[admin] retryHeld:', e.message); }
   res.redirect('/admin/held');
+});
+
+// ---------- Pagos sin emparejar: llegó USDT que no calzó con ninguna factura ----------
+router.get('/unmatched', (req, res) => {
+  const items = unmatched.listPending().map((p) => ({
+    ...p,
+    guess: unmatched.guessClient(p),
+    candidates: unmatched.candidates(p),
+  }));
+  res.render('admin/unmatched', { title: 'Pagos sin emparejar', layoutAdmin: true, items });
+});
+router.get('/unmatched/count', (req, res) => { res.json({ unmatched: unmatched.countPending() }); });
+router.post('/unmatched/:id/credit', (req, res) => {
+  const p = unmatched.getById(req.params.id);
+  const userId = Number(req.body.user_id);
+  const amount = Math.round(Number(req.body.amount) * 100) / 100;
+  if (p && p.status === 'pending' && Number.isFinite(userId) && Number.isFinite(amount) && amount > 0) {
+    const u = db.prepare('SELECT id FROM users WHERE id=?').get(userId);
+    if (u) {
+      balance.credit(u.id, amount, 'admin_payment', `USDT ${p.tx_hash}`.slice(0, 80));
+      unmatched.resolve(p.id, u.id);
+    }
+  }
+  res.redirect('/admin/unmatched');
+});
+router.post('/unmatched/:id/dismiss', (req, res) => {
+  unmatched.dismiss(req.params.id);
+  res.redirect('/admin/unmatched');
 });
 
 // ---------- Usuarios ----------

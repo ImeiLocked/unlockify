@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+<%- include('../partials/adminnav') %>
+
+<% var en = (typeof lang !== 'undefined' && lang === 'en');
+   function shortTx(h){ h=String(h||''); return h.length>18 ? h.slice(0,10)+'…'+h.slice(-6) : h; }
+%>
+
+<h1 class="page-title" style="margin:0 0 4px">🔍 <%= en ? 'Payments to review' : 'Pagos por revisar' %></h1>
+
+<% if (!items.length) { %>
+  <div class="panel" style="margin-top:12px">
+    <p class="muted" style="margin:0">✅ <%= en ? 'No payments to review. Everything matched a top-up.' : 'No hay pagos por revisar. Todo calzó con alguna recarga.' %></p>
+  </div>
+<% } else { %>
+  <div class="statusbar status-processing" style="margin:10px 0 16px;display:block">
+    ⚠️ <%= items.length %> <%= en
+      ? 'payment(s) arrived to your wallet that did not match any invoice (fee too high, wrong amount…). Credit the right client, or dismiss.'
+      : 'pago(s) llegaron a tu wallet que no calzaron con ninguna factura (comisión alta, monto distinto…). Acredítalos al cliente correcto o descártalos.' %>
+  </div>
+
+  <% items.forEach(function(p){ %>
+    <div class="panel" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:22px;font-weight:800">$<%= Number(p.amount).toFixed(2) %> <span class="muted" style="font-size:13px;font-weight:600"><%= p.chain.toUpperCase() %></span></div>
+          <div class="muted small" style="margin-top:3px">
+            <%= (p.tx_time || p.created_at || '').slice(0,16) %> ·
+            tx <a href="<%= p.chain==='trc20' ? ('https://tronscan.org/#/transaction/'+p.tx_hash) : ('https://etherscan.io/tx/'+p.tx_hash) %>" target="_blank" rel="noopener" style="font-family:monospace"><%= shortTx(p.tx_hash) %></a>
+          </div>
+        </div>
+        <form action="/admin/unmatched/<%= p.id %>/dismiss" method="post" onsubmit="return confirm('<%= en ? 'Dismiss this payment?' : '¿Descartar este pago?' %>')">
+          <button class="btn btn-ghost btn-sm" type="submit"><%= en ? 'Dismiss' : 'Descartar' %></button>
+        </form>
+      </div>
+
+      <% if (p.candidates && p.candidates.length) { %>
+        <% if (p.guess) { %>
+          <div class="hint" style="margin:10px 0 6px">💡 <%= en ? 'Most likely' : 'Más probable' %>: <strong><%= p.guess.user_email %></strong> — <%= p.guess.code %> (<%= en ? 'asked' : 'pidió' %> <%= p.guess.expected_amount %> USDT)</div>
+        <% } %>
+        <form action="/admin/unmatched/<%= p.id %>/credit" method="post" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px">
+          <select name="user_id" class="input" style="flex:1;min-width:220px">
+            <% p.candidates.forEach(function(c){ %>
+              <option value="<%= c.user_id %>" <%= (p.guess && c.user_id === p.guess.user_id) ? 'selected' : '' %>><%= c.user_email %> — <%= c.code %> (<%= c.expected_amount %> USDT)</option>
+            <% }); %>
+          </select>
+          <div style="display:flex;align-items:center;gap:4px"><span class="muted small">$</span><input name="amount" class="input" value="<%= Number(p.amount).toFixed(2) %>" style="width:100px" required></div>
+          <button class="btn btn-primary btn-sm" type="submit"><%= en ? 'Credit client →' : 'Acreditar al cliente →' %></button>
+        </form>
+        <div class="muted small" style="margin-top:6px"><%= en ? 'By default it credits the exact amount received. Pick the right client and adjust if needed.' : 'Por defecto acredita el monto exacto recibido. Elige el cliente correcto y ajusta si hace falta.' %></div>
+      <% } else { %>
+        <div class="hint" style="margin-top:10px"><%= en ? 'No nearby client found. Credit manually from' : 'No se encontró un cliente cercano. Acredítalo manualmente en' %> <a href="/admin/users">Admin → <%= en ? 'Users' : 'Usuarios' %></a> <%= en ? 'and then dismiss this.' : 'y luego descarta este aviso.' %></div>
+      <% } %>
+    </div>
+  <% }); %>
+<% } %>
+<%- include('../partials/footer') %>
