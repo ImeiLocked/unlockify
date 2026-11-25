@@ -46,7 +46,7 @@ a { color: inherit; text-decoration: none; }
 .brand-mark { display: inline-flex; align-items: center; }
 .brand-mark svg { display: block; }
 .brand-name { color: var(--text); }
-.brand-accent { background: linear-gradient(90deg, #1f7fd8, #19b6d6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.brand-accent { background: linear-gradient(90deg, #16a34a, #4dfacb); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .nav-links { display: flex; align-items: center; gap: 18px; font-size: 15px; }
 .nav-links a.active { color: var(--primary); }
 .nav-links a:hover { color: var(--text); }
