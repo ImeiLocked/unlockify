@@ -1,20 +1,20 @@
 <%- include('../partials/header') %>
 <%- include('../partials/adminnav') %>
-<h1 class="page-title">Top-ups</h1>
+<h1 class="page-title"><%= t('topups.title') %></h1>
 <div class="panel" style="overflow-x:auto">
   <table class="table">
-    <thead><tr><th>Top-up</th><th>Customer</th><th>Amount</th><th>Network</th><th>Status</th><th>TX</th><th>Date</th></tr></thead>
+    <thead><tr><th><%= t('col.topup') %></th><th><%= t('col.customer') %></th><th><%= t('col.amount') %></th><th><%= t('col.network') %></th><th><%= t('col.status') %></th><th><%= t('col.tx') %></th><th><%= t('col.date') %></th></tr></thead>
     <tbody>
-      <% if (topups.length===0) { %><tr><td colspan="7" class="muted">No top-ups.</td></tr><% } %>
-      <% topups.forEach(function(t){ %>
+      <% if (topups.length===0) { %><tr><td colspan="7" class="muted"><%= t('topups.none') %></td></tr><% } %>
+      <% topups.forEach(function(t2){ %>
         <tr>
-          <td><strong><%= t.code %></strong></td>
-          <td class="small"><%= t.user_email %></td>
-          <td><%= t.expected_amount %> USDT</td>
-          <td><%= t.chain.toUpperCase() %></td>
-          <td><span class="pill <%= t.status==='confirmed'?'completed':(t.status==='expired'?'rejected':'queued') %>"><%= t.status %></span></td>
-          <td class="small" style="max-width:160px;word-break:break-all"><%= t.tx_hash || '—' %></td>
-          <td class="small"><%= t.created_at %></td>
+          <td><strong><%= t2.code %></strong></td>
+          <td class="small"><%= t2.user_email %></td>
+          <td><%= t2.expected_amount %> USDT</td>
+          <td><%= t2.chain.toUpperCase() %></td>
+          <td><span class="pill <%= t2.status==='confirmed'?'completed':(t2.status==='expired'?'rejected':'queued') %>"><%= t2.status %></span></td>
+          <td class="small" style="max-width:160px;word-break:break-all"><%= t2.tx_hash || '—' %></td>
+          <td class="small"><%= t2.created_at %></td>
         </tr>
       <% }); %>
     </tbody>

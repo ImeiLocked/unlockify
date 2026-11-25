@@ -1,37 +1,37 @@
 <%- include('../partials/header') %>
 <%- include('../partials/adminnav') %>
-<a class="back" href="/admin/orders">← All orders</a>
+<a class="back" href="/admin/orders"><%= t('order.allOrders') %></a>
 
 <div class="order-grid">
   <div class="panel">
     <div style="display:flex;justify-content:space-between;align-items:center">
-      <h1 style="margin:0;font-size:22px">Order <%= order.code %></h1>
+      <h1 style="margin:0;font-size:22px"><%= t('order.title') %> <%= order.code %></h1>
       <span class="pill <%= order.status %>"><%= order.status %></span>
     </div>
     <div style="margin-top:16px">
-      <div class="kv"><span>Service</span><span style="text-align:right;max-width:60%"><%= order.service_title %></span></div>
-      <div class="kv"><span><%= order.identifier_type === 'serial' ? 'Serial' : 'IMEI' %></span><strong><%= order.identifier %></strong></div>
-      <div class="kv"><span>Customer</span><span><%= customer ? customer.email : '-' %></span></div>
-      <div class="kv"><span>Charged from balance</span><strong>$<%= order.price.toFixed(2) %></strong><% if (order.refunded) { %> <span class="pill refunded">refunded</span><% } %></div>
-      <div class="kv"><span>Mode</span><span><%= order.auto ? 'Automatic' : 'Manual' %></span></div>
-      <div class="kv"><span>Current provider</span><span><%= order.provider_key ? providerName(order.provider_key) : '—' %></span></div>
-      <% if (order.total_seconds != null) { %><div class="kv"><span>Total time (customer)</span><strong><%= order.total_seconds<60?order.total_seconds+'s':Math.floor(order.total_seconds/60)+'m '+(order.total_seconds%60)+'s' %></strong></div><% } %>
-      <div class="kv"><span>Created</span><span class="small"><%= order.created_at %></span></div>
+      <div class="kv"><span><%= t('col.service') %></span><span style="text-align:right;max-width:60%"><%= order.service_title %></span></div>
+      <div class="kv"><span><%= order.identifier_type === 'serial' ? t('label.serial') : t('label.imei') %></span><strong><%= order.identifier %></strong></div>
+      <div class="kv"><span><%= t('col.customer') %></span><span><%= customer ? customer.email : '-' %></span></div>
+      <div class="kv"><span><%= t('order.chargedBalance') %></span><strong>$<%= order.price.toFixed(2) %></strong><% if (order.refunded) { %> <span class="pill refunded"><%= t('order.refunded') %></span><% } %></div>
+      <div class="kv"><span><%= t('order.mode') %></span><span><%= order.auto ? t('order.modeAutomatic') : t('order.modeManual') %></span></div>
+      <div class="kv"><span><%= t('order.currentProvider') %></span><span><%= order.provider_key ? providerName(order.provider_key) : '—' %></span></div>
+      <% if (order.total_seconds != null) { %><div class="kv"><span><%= t('order.totalTime') %></span><strong><%= order.total_seconds<60?order.total_seconds+'s':Math.floor(order.total_seconds/60)+'m '+(order.total_seconds%60)+'s' %></strong></div><% } %>
+      <div class="kv"><span><%= t('order.created') %></span><span class="small"><%= order.created_at %></span></div>
     </div>
     <% if (order.result_text) { %>
-      <label class="muted small" style="margin-top:14px;display:block">Delivered result:</label>
+      <label class="muted small" style="margin-top:14px;display:block"><%= t('order.deliveredResult') %></label>
       <div class="result-box"><%= order.result_text %></div>
     <% } %>
 
-    <h3 style="margin:22px 0 8px">Provider attempts</h3>
-    <% if (attempts.length === 0) { %><p class="muted small">No automatic attempts (manual order).</p><% } else { %>
+    <h3 style="margin:22px 0 8px"><%= t('order.providerAttempts') %></h3>
+    <% if (attempts.length === 0) { %><p class="muted small"><%= t('order.noAttempts') %></p><% } else { %>
       <ul class="timeline">
         <% attempts.forEach(function(a){ %>
           <li class="<%= a.status==='success'?'ok':(a.status==='sent'?'wait':'bad') %>">
-            <div class="t-prov"><%= providerName(a.provider_key) %> — <%= ({sent:'sent (in progress)',success:'✅ resolved',rejected:'⛔ rejected',error:'⚠️ error'})[a.status] %></div>
+            <div class="t-prov"><%= providerName(a.provider_key) %> — <%= t('attempt.'+a.status) %></div>
             <div class="t-meta">
-              cost $<%= (a.cost||0).toFixed(2) %>
-              <% if (a.seconds!=null) { %> · took <%= a.seconds<60?a.seconds+'s':Math.floor(a.seconds/60)+'m '+(a.seconds%60)+'s' %><% } %>
+              <%= t('attempt.cost') %> $<%= (a.cost||0).toFixed(2) %>
+              <% if (a.seconds!=null) { %> · <%= t('attempt.took') %> <%= a.seconds<60?a.seconds+'s':Math.floor(a.seconds/60)+'m '+(a.seconds%60)+'s' %><% } %>
               <% if (a.result_text) { %> · <%= a.result_text %><% } %>
             </div>
           </li>
@@ -41,22 +41,22 @@
   </div>
 
   <aside class="panel">
-    <h3 style="margin-top:0">Process</h3>
+    <h3 style="margin-top:0"><%= t('order.process') %></h3>
     <form action="/admin/orders/<%= order.id %>/complete" method="post">
       <div class="field">
-        <label>Result / code for the customer</label>
-        <textarea class="input" name="result_text" rows="4" placeholder="e.g. Unlock completed. Code: 1234-5678"></textarea>
+        <label><%= t('order.resultForCustomer') %></label>
+        <textarea class="input" name="result_text" rows="4" placeholder="<%= t('order.resultPlaceholder') %>"></textarea>
       </div>
-      <button class="btn btn-primary btn-block" type="submit">✅ Mark completed & notify</button>
+      <button class="btn btn-primary btn-block" type="submit"><%= t('order.markCompleted') %></button>
     </form>
 
     <div style="height:1px;background:var(--border);margin:16px 0"></div>
 
     <form action="/admin/orders/<%= order.id %>/retry" method="post" style="margin-bottom:10px">
-      <button class="btn btn-ghost btn-block" type="submit">🤖 Send to provider (auto, cheapest)</button>
+      <button class="btn btn-ghost btn-block" type="submit"><%= t('order.sendProvider') %></button>
     </form>
-    <form action="/admin/orders/<%= order.id %>/reject" method="post" onsubmit="return confirm('Reject and refund the balance to the customer?');">
-      <button class="btn btn-danger btn-block" type="submit">⛔ Reject & refund</button>
+    <form action="/admin/orders/<%= order.id %>/reject" method="post" onsubmit="return confirm('<%= t('order.confirmReject') %>');">
+      <button class="btn btn-danger btn-block" type="submit"><%= t('order.rejectRefund') %></button>
     </form>
   </aside>
 </div>

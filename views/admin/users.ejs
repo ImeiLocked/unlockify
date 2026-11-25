@@ -1,31 +1,31 @@
 <%- include('../partials/header') %>
 <%- include('../partials/adminnav') %>
-<h1 class="page-title">Users</h1>
+<h1 class="page-title"><%= t('users.title') %></h1>
 
 <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
 <div class="panel" style="margin-bottom:18px">
-  <h3 style="margin:0 0 10px">Create user</h3>
+  <h3 style="margin:0 0 10px"><%= t('users.create') %></h3>
   <form action="/admin/users" method="post" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
-    <div><label class="small muted">Name</label><input class="input" name="name" placeholder="Optional"></div>
-    <div><label class="small muted">Email</label><input class="input" type="email" name="email" required></div>
-    <div><label class="small muted">Password</label><input class="input" name="password" minlength="6" required></div>
-    <button class="btn btn-primary" type="submit">Create</button>
+    <div><label class="small muted"><%= t('field.name') %></label><input class="input" name="name" placeholder="<%= t('common.optional') %>"></div>
+    <div><label class="small muted"><%= t('field.email') %></label><input class="input" type="email" name="email" required></div>
+    <div><label class="small muted"><%= t('field.password') %></label><input class="input" name="password" minlength="6" required></div>
+    <button class="btn btn-primary" type="submit"><%= t('btn.create') %></button>
   </form>
-  <p class="hint">Useful when a customer prefers you create the account. Share these details and they can change their password later.</p>
+  <p class="hint"><%= t('users.createHint') %></p>
 </div>
 
 <div class="panel" style="overflow-x:auto">
   <table class="table">
-    <thead><tr><th>User</th><th>Balance</th><th>Status</th><th>Joined</th><th></th></tr></thead>
+    <thead><tr><th><%= t('col.user') %></th><th><%= t('col.balance') %></th><th><%= t('col.status') %></th><th><%= t('col.joined') %></th><th></th></tr></thead>
     <tbody>
       <% users.forEach(function(u){ %>
         <tr>
           <td><strong><%= u.email %></strong><% if (u.is_admin) { %> <span class="tag-prov">admin</span><% } %><br><span class="muted small"><%= u.name || '' %></span></td>
           <td>$<%= u.balance.toFixed(2) %></td>
-          <td><% if (u.is_admin) { %><span class="muted">—</span><% } else { %><span class="pill <%= u.active?'completed':'rejected' %>"><%= u.active?'Active':'Disabled' %></span><% } %></td>
+          <td><% if (u.is_admin) { %><span class="muted">—</span><% } else { %><span class="pill <%= u.active?'completed':'rejected' %>"><%= u.active?t('status.active'):t('status.disabled') %></span><% } %></td>
           <td class="small"><%= u.created_at %></td>
-          <td><a class="btn btn-ghost btn-sm" href="/admin/users/<%= u.id %>">Open</a></td>
+          <td><a class="btn btn-ghost btn-sm" href="/admin/users/<%= u.id %>"><%= t('btn.open') %></a></td>
         </tr>
       <% }); %>
     </tbody>

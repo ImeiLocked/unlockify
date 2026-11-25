@@ -2,17 +2,17 @@
 <%- include('../partials/adminnav') %>
 
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-  <h1 class="page-title" style="margin:0">Services</h1>
+  <h1 class="page-title" style="margin:0"><%= t('services.title') %></h1>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <% providers.forEach(function(p){ if (p.enabled && p.apiUrl && p.apiKey) { %>
-      <form action="/admin/sync/<%= p.key %>" method="post"><button class="btn btn-primary btn-sm" type="submit">🔄 Sync <%= p.name %></button></form>
+      <form action="/admin/sync/<%= p.key %>" method="post"><button class="btn btn-primary btn-sm" type="submit"><%= t('services.sync') %> <%= p.name %></button></form>
     <% } }); %>
   </div>
 </div>
 
 <div class="alert alert-info" style="margin-top:10px">
-  Global markup: <strong><%= markup.type === 'percent' ? '+'+markup.value+'%' : '+$'+markup.value %></strong> (edit it in <code>.env</code>).
-  Imported services arrive <strong>off</strong>: turn them on when you want to sell them. Customers never see providers or costs.
+  <%= t('services.globalMarkup') %> <strong><%= markup.type === 'percent' ? '+'+markup.value+'%' : '+$'+markup.value %></strong> (<%= t('services.editIn') %> <code>.env</code>).
+  <%= t('services.importedOff') %>
   <% if (synced) { %><br><span style="color:var(--primary)">✓ <%= synced %></span><% } %>
 </div>
 
@@ -22,40 +22,40 @@
     <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
       <div style="flex:1;min-width:240px">
         <input class="input" form="<%= f %>" name="title" value="<%= s.title %>">
-        <div class="muted small" style="margin-top:4px"><%= s.category_name %> · sale price <strong style="color:var(--primary)">$<%= s.price.toFixed(2) %></strong> (effective cost $<%= s.cost.toFixed(2) %>)</div>
+        <div class="muted small" style="margin-top:4px"><%= s.category_name %> · <%= t('services.salePrice') %> <strong style="color:var(--primary)">$<%= s.price.toFixed(2) %></strong> (<%= t('services.effectiveCost') %> $<%= s.cost.toFixed(2) %>)</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <label class="small" style="display:flex;gap:4px;align-items:center"><input type="checkbox" form="<%= f %>" name="active" <%= s.active?'checked':'' %>> Visible</label>
-        <label class="small" style="display:flex;gap:4px;align-items:center"><input type="checkbox" form="<%= f %>" name="auto_fulfill" <%= s.auto_fulfill?'checked':'' %>> ⚡ Automatic</label>
+        <label class="small" style="display:flex;gap:4px;align-items:center"><input type="checkbox" form="<%= f %>" name="active" <%= s.active?'checked':'' %>> <%= t('services.visible') %></label>
+        <label class="small" style="display:flex;gap:4px;align-items:center"><input type="checkbox" form="<%= f %>" name="auto_fulfill" <%= s.auto_fulfill?'checked':'' %>> <%= t('services.automatic') %></label>
       </div>
     </div>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
       <select class="input" form="<%= f %>" name="identifier_type" style="width:110px">
-        <option value="imei" <%= s.identifier_type==='imei'?'selected':'' %>>IMEI</option>
-        <option value="serial" <%= s.identifier_type==='serial'?'selected':'' %>>Serial</option>
+        <option value="imei" <%= s.identifier_type==='imei'?'selected':'' %>><%= t('label.imei') %></option>
+        <option value="serial" <%= s.identifier_type==='serial'?'selected':'' %>><%= t('label.serial') %></option>
       </select>
-      <select class="input" form="<%= f %>" name="markup_type" style="width:120px">
-        <option value="" <%= !s.markup_type?'selected':'' %>>global markup</option>
+      <select class="input" form="<%= f %>" name="markup_type" style="width:130px">
+        <option value="" <%= !s.markup_type?'selected':'' %>><%= t('opt.globalMarkup') %></option>
         <option value="percent" <%= s.markup_type==='percent'?'selected':'' %>>%</option>
-        <option value="fixed" <%= s.markup_type==='fixed'?'selected':'' %>>fixed $</option>
+        <option value="fixed" <%= s.markup_type==='fixed'?'selected':'' %>><%= t('opt.fixedDollar') %></option>
       </select>
       <input class="input" form="<%= f %>" name="markup_value" value="<%= s.markup_value!=null?s.markup_value:'' %>" placeholder="auto" style="width:80px">
-      <select class="input" form="<%= f %>" name="primary_provider" style="width:180px">
-        <option value="">Provider: cheapest</option>
-        <% s.sources.forEach(function(src){ %><option value="<%= src.provider_key %>" <%= s.primary_provider===src.provider_key?'selected':'' %>>Fixed: <%= providerName(src.provider_key) %></option><% }); %>
+      <select class="input" form="<%= f %>" name="primary_provider" style="width:190px">
+        <option value=""><%= t('opt.providerCheapest') %></option>
+        <% s.sources.forEach(function(src){ %><option value="<%= src.provider_key %>" <%= s.primary_provider===src.provider_key?'selected':'' %>><%= t('opt.fixed') %> <%= providerName(src.provider_key) %></option><% }); %>
       </select>
-      <button class="btn btn-primary btn-sm" type="submit" form="<%= f %>">Save</button>
+      <button class="btn btn-primary btn-sm" type="submit" form="<%= f %>"><%= t('btn.save') %></button>
     </div>
 
     <div style="margin-top:12px">
-      <div class="muted small" style="margin-bottom:4px">Sources (providers that supply it):</div>
+      <div class="muted small" style="margin-bottom:4px"><%= t('services.sources') %></div>
       <% s.sources.forEach(function(src){ var sf='src'+src.id; %>
         <div class="src-row">
           <span class="tag-prov"><%= providerName(src.provider_key) %></span>
           <form id="<%= sf %>" action="/admin/sources/<%= src.id %>" method="post"></form>
-          <input class="input" form="<%= sf %>" name="cost" value="<%= src.cost %>" title="cost" inputmode="decimal">
-          <input class="input" form="<%= sf %>" name="provider_service_id" value="<%= src.provider_service_id||'' %>" placeholder="Service ID">
+          <input class="input" form="<%= sf %>" name="cost" value="<%= src.cost %>" title="<%= t('services.cost') %>" inputmode="decimal">
+          <input class="input" form="<%= sf %>" name="provider_service_id" value="<%= src.provider_service_id||'' %>" placeholder="<%= t('services.serviceId') %>">
           <label class="small" style="display:flex;gap:4px;align-items:center"><input type="checkbox" form="<%= sf %>" name="active" <%= src.active?'checked':'' %>> on</label>
           <button class="btn btn-ghost btn-sm" type="submit" form="<%= sf %>">✓</button>
         </div>
@@ -65,14 +65,14 @@
           <select class="input" name="provider_key">
             <% providers.forEach(function(p){ if (!s.sources.find(function(x){return x.provider_key===p.key;})) { %><option value="<%= p.key %>"><%= p.name %></option><% } }); %>
           </select>
-          <input class="input" name="cost" placeholder="cost" inputmode="decimal">
-          <input class="input" name="provider_service_id" placeholder="Service ID">
+          <input class="input" name="cost" placeholder="<%= t('services.cost') %>" inputmode="decimal">
+          <input class="input" name="provider_service_id" placeholder="<%= t('services.serviceId') %>">
           <span></span>
-          <button class="btn btn-ghost btn-sm" type="submit">+ source</button>
+          <button class="btn btn-ghost btn-sm" type="submit"><%= t('services.addSource') %></button>
         </form>
       <% } %>
     </div>
   </div>
 <% }); %>
-<% if (services.length === 0) { %><div class="panel"><p class="muted">No services. Sync from a provider or wait for the catalog to load.</p></div><% } %>
+<% if (services.length === 0) { %><div class="panel"><p class="muted"><%= t('services.none') %></p></div><% } %>
 <%- include('../partials/footer') %>

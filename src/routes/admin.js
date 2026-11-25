@@ -12,15 +12,32 @@ const fulfillment = require('../providers/fulfillment');
 const balance = require('../balance');
 const topups = require('../topups');
 const notify = require('../notify');
+const { makeT } = require('../i18n');
 
 router.use(auth.requireLogin, auth.requireAdmin);
+
+// --- Panel language (ES/EN). Default Spanish; saved in `panel_lang` cookie. ---
+router.use((req, res, next) => {
+  const lang = (req.cookies && req.cookies.panel_lang === 'en') ? 'en' : 'es';
+  req.t = makeT(lang);
+  res.locals.t = req.t;
+  res.locals.adminLang = lang;
+  next();
+});
+router.get('/lang/:lang', (req, res) => {
+  const lang = req.params.lang === 'en' ? 'en' : 'es';
+  res.cookie('panel_lang', lang, { maxAge: 365 * 86400000, httpOnly: true, sameSite: 'lax', secure: config.isProd });
+  let back = '/admin';
+  try { const u = new URL(req.get('referer')); if (u.pathname.indexOf('/admin') === 0) back = u.pathname + (u.search || ''); } catch (e) {}
+  res.redirect(back);
+});
 
 function genPassword() { return crypto.randomBytes(5).toString('base64').replace(/[^a-zA-Z0-9]/g, '').slice(0, 8) + '7x'; }
 
 // ---------- Dashboard ----------
 router.get('/', (req, res) => {
   res.render('admin/dashboard', {
-    title: 'Dashboard', layoutAdmin: true,
+    title: req.t('dash.title'), layoutAdmin: true,
     stats: orders.stats(),
     recent: orders.adminList({ status: 'all' }).slice(0, 12),
     providers: config.providers,
@@ -32,14 +49,14 @@ router.get('/', (req, res) => {
 // ---------- Ordenes ----------
 router.get('/orders', (req, res) => {
   const status = req.query.status || 'all';
-  res.render('admin/orders', { title: 'Orders', layoutAdmin: true, orders: orders.adminList({ status }), status, providerName: providers.providerName });
+  res.render('admin/orders', { title: req.t('orders.title'), layoutAdmin: true, orders: orders.adminList({ status }), status, providerName: providers.providerName });
 });
 router.get('/orders/:code', (req, res) => {
   const order = orders.getByCode(req.params.code);
   if (!order) return res.status(404).render('error', { title: 'Not found', message: 'Order not found.' });
   const customer = db.prepare('SELECT email,name FROM users WHERE id=?').get(order.user_id);
   res.render('admin/order', {
-    title: `Order ${order.code}`, layoutAdmin: true, order, customer,
+    title: `${req.t('order.title')} ${order.code}`, layoutAdmin: true, order, customer,
     attempts: orders.listAttempts(order.id), providerName: providers.providerName,
   });
 });
@@ -72,7 +89,7 @@ router.post('/orders/:id/retry', async (req, res) => {
 // ---------- Servicios ----------
 router.get('/services', (req, res) => {
   res.render('admin/services', {
-    title: 'Services', layoutAdmin: true,
+    title: req.t('services.title'), layoutAdmin: true,
     services: catalog.getAllServicesAdmin(), markup: config.markup,
     providers: config.providers, synced: req.query.synced, providerName: providers.providerName,
   });
@@ -113,7 +130,7 @@ router.post('/sync/:provider', async (req, res) => {
 // ---------- Usuarios ----------
 router.get('/users', (req, res) => {
   const users = db.prepare('SELECT id,email,name,active,balance,is_admin,created_at FROM users ORDER BY is_admin DESC, id DESC').all();
-  res.render('admin/users', { title: 'Users', layoutAdmin: true, users, error: req.query.error || null });
+  res.render('admin/users', { title: req.t('users.title'), layoutAdmin: true, users, error: req.query.error || null });
 });
 router.post('/users', (req, res) => {
   try { auth.createUser({ email: req.body.email, password: req.body.password, name: req.body.name }); res.redirect('/admin/users'); }
@@ -157,7 +174,7 @@ router.post('/users/:id/balance', (req, res) => {
 
 // ---------- Recargas ----------
 router.get('/topups', (req, res) => {
-  res.render('admin/topups', { title: 'Top-ups', layoutAdmin: true, topups: topups.adminList(300) });
+  res.render('admin/topups', { title: req.t('topups.title'), layoutAdmin: true, topups: topups.adminList(300) });
 });
 
 module.exports = router;

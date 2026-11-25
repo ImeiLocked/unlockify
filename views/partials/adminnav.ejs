@@ -1,8 +1,14 @@
 <div class="admin-nav">
-  <a href="/admin" class="<%= currentPath === '/admin' ? 'active' : '' %>">📊 Overview</a>
-  <a href="/admin/orders" class="<%= currentPath.indexOf('/admin/orders') === 0 ? 'active' : '' %>">🧾 Orders</a>
-  <a href="/admin/services" class="<%= currentPath === '/admin/services' ? 'active' : '' %>">🛠 Services</a>
-  <a href="/admin/users" class="<%= currentPath.indexOf('/admin/users') === 0 ? 'active' : '' %>">👥 Users</a>
-  <a href="/admin/topups" class="<%= currentPath === '/admin/topups' ? 'active' : '' %>">💰 Top-ups</a>
-  <a href="/">↗ View store</a>
+  <a href="/admin" class="<%= currentPath === '/admin' ? 'active' : '' %>"><%= t('nav.overview') %></a>
+  <a href="/admin/orders" class="<%= currentPath.indexOf('/admin/orders') === 0 ? 'active' : '' %>"><%= t('nav.orders') %></a>
+  <a href="/admin/services" class="<%= currentPath === '/admin/services' ? 'active' : '' %>"><%= t('nav.services') %></a>
+  <a href="/admin/users" class="<%= currentPath.indexOf('/admin/users') === 0 ? 'active' : '' %>"><%= t('nav.users') %></a>
+  <a href="/admin/topups" class="<%= currentPath === '/admin/topups' ? 'active' : '' %>"><%= t('nav.topups') %></a>
+  <a href="/"><%= t('nav.viewStore') %></a>
+  <span class="admin-lang" title="<%= t('nav.language') %>" style="margin-left:auto;display:inline-flex;gap:4px;align-items:center">
+    <span style="opacity:.6">🌐</span>
+    <a href="/admin/lang/es" class="<%= adminLang==='es' ? 'active' : '' %>">ES</a>
+    <span style="opacity:.4">·</span>
+    <a href="/admin/lang/en" class="<%= adminLang==='en' ? 'active' : '' %>">EN</a>
+  </span>
 </div>

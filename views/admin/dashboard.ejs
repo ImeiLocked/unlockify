@@ -1,37 +1,37 @@
 <%- include('../partials/header') %>
 <%- include('../partials/adminnav') %>
-<h1 class="page-title">Overview</h1>
+<h1 class="page-title"><%= t('dash.title') %></h1>
 
 <div class="stats">
-  <div class="stat"><div class="n"><%= stats.total || 0 %></div><div class="l">Orders</div></div>
-  <div class="stat"><div class="n" style="color:var(--warn)"><%= stats.queued || 0 %></div><div class="l">Queued (manual)</div></div>
-  <div class="stat"><div class="n" style="color:var(--accent)"><%= stats.processing || 0 %></div><div class="l">Processing</div></div>
-  <div class="stat good"><div class="n"><%= stats.completed || 0 %></div><div class="l">Completed</div></div>
-  <div class="stat"><div class="n" style="color:var(--danger)"><%= stats.rejected || 0 %></div><div class="l">Rejected</div></div>
-  <div class="stat"><div class="n">$<%= (stats.revenue || 0).toFixed(2) %></div><div class="l">Completed sales</div></div>
-  <div class="stat"><div class="n"><%= usersCount %></div><div class="l">Customers</div></div>
-  <div class="stat"><div class="n" style="color:var(--warn)"><%= pendingTopups %></div><div class="l">Pending top-ups</div></div>
+  <div class="stat"><div class="n"><%= stats.total || 0 %></div><div class="l"><%= t('dash.orders') %></div></div>
+  <div class="stat"><div class="n" style="color:var(--warn)"><%= stats.queued || 0 %></div><div class="l"><%= t('dash.queuedManual') %></div></div>
+  <div class="stat"><div class="n" style="color:var(--accent)"><%= stats.processing || 0 %></div><div class="l"><%= t('dash.processing') %></div></div>
+  <div class="stat good"><div class="n"><%= stats.completed || 0 %></div><div class="l"><%= t('dash.completed') %></div></div>
+  <div class="stat"><div class="n" style="color:var(--danger)"><%= stats.rejected || 0 %></div><div class="l"><%= t('dash.rejected') %></div></div>
+  <div class="stat"><div class="n">$<%= (stats.revenue || 0).toFixed(2) %></div><div class="l"><%= t('dash.completedSales') %></div></div>
+  <div class="stat"><div class="n"><%= usersCount %></div><div class="l"><%= t('dash.customers') %></div></div>
+  <div class="stat"><div class="n" style="color:var(--warn)"><%= pendingTopups %></div><div class="l"><%= t('dash.pendingTopups') %></div></div>
 </div>
 
 <div class="panel" style="margin-bottom:20px">
-  <h3 style="margin:0 0 10px">Providers</h3>
+  <h3 style="margin:0 0 10px"><%= t('dash.providers') %></h3>
   <% if (providers.length === 0) { %>
-    <p class="muted">No providers configured. Add them in <code>.env</code> (PROVIDER_1_*, PROVIDER_2_* blocks).</p>
+    <p class="muted"><%= t('dash.noProviders') %></p>
   <% } else { %>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <% providers.forEach(function(p){ %>
-        <span class="chip"><%= p.name %> · <%= (p.enabled && p.apiUrl && p.apiKey) ? '🟢 active' : '⚪ no API' %></span>
+        <span class="chip"><%= p.name %> · <%= (p.enabled && p.apiUrl && p.apiKey) ? '🟢 ' + t('common.active') : '⚪ ' + t('common.noApi') %></span>
       <% }); %>
     </div>
   <% } %>
 </div>
 
 <div class="panel" style="overflow-x:auto">
-  <h3 style="margin:0 0 10px">Latest orders</h3>
+  <h3 style="margin:0 0 10px"><%= t('dash.latestOrders') %></h3>
   <table class="table">
-    <thead><tr><th>Order</th><th>Service</th><th>Customer</th><th>Price</th><th>Provider</th><th>Status</th><th></th></tr></thead>
+    <thead><tr><th><%= t('col.order') %></th><th><%= t('col.service') %></th><th><%= t('col.customer') %></th><th><%= t('col.price') %></th><th><%= t('col.provider') %></th><th><%= t('col.status') %></th><th></th></tr></thead>
     <tbody>
-      <% if (recent.length === 0) { %><tr><td colspan="7" class="muted">No orders yet.</td></tr><% } %>
+      <% if (recent.length === 0) { %><tr><td colspan="7" class="muted"><%= t('dash.noOrders') %></td></tr><% } %>
       <% recent.forEach(function(o){ %>
         <tr>
           <td><strong><%= o.code %></strong></td>
@@ -40,7 +40,7 @@
           <td>$<%= o.price.toFixed(2) %></td>
           <td class="small"><%= o.provider_key || '—' %></td>
           <td><span class="pill <%= o.status %>"><%= o.status %></span></td>
-          <td><a class="btn btn-ghost btn-sm" href="/admin/orders/<%= o.code %>">Open</a></td>
+          <td><a class="btn btn-ghost btn-sm" href="/admin/orders/<%= o.code %>"><%= t('btn.open') %></a></td>
         </tr>
       <% }); %>
     </tbody>
