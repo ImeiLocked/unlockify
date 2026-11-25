@@ -51,7 +51,7 @@ const config = {
     trc20Address: (process.env.USDT_TRC20_ADDRESS || '').trim(),
     erc20Address: (process.env.USDT_ERC20_ADDRESS || '').trim(),
     invoiceExpiryMinutes: num(process.env.INVOICE_EXPIRY_MINUTES, 40),
-    minTopup: num(process.env.MIN_TOPUP, 10),
+    minTopup: num(process.env.MIN_TOPUP, 20),
     decimals: 6,
     trc20Contract: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
     erc20Contract: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
