@@ -3,9 +3,14 @@ const express = require('express');
 const router = express.Router();
 const catalog = require('../catalog');
 const balance = require('../balance');
+const announcements = require('../announcements');
 
 router.get('/', (req, res) => {
-  res.render('index', { title: req.t('site.services'), categories: catalog.getCatalog() });
+  res.render('index', {
+    title: req.t('site.services'),
+    categories: catalog.getCatalog(),
+    announcements: announcements.listActive(60),
+  });
 });
 
 router.get('/category/:slug', (req, res) => {

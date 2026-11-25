@@ -292,3 +292,27 @@ h1.page-title { font-size: 26px; margin: 0 0 18px; }
   .footer-grid { grid-template-columns: 1fr; gap: 22px; }
   .footer-bar-inner { flex-direction: column; align-items: flex-start; }
 }
+
+/* ---------- Novedades (modal de anuncios) ---------- */
+.news-overlay { position: fixed; inset: 0; background: rgba(8,12,20,.55); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+.news-modal { background: var(--surface); border-radius: 16px; width: 100%; max-width: 680px; max-height: 82vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 24px 60px rgba(8,12,20,.3); }
+.news-head { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: linear-gradient(135deg, #16a34a, #0891b2); color: #fff; font-weight: 800; font-size: 17px; }
+.news-close { background: rgba(255,255,255,.18); border: none; color: #fff; width: 30px; height: 30px; border-radius: 8px; font-size: 22px; line-height: 1; cursor: pointer; }
+.news-close:hover { background: rgba(255,255,255,.34); }
+.news-body { overflow: auto; }
+.news-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.news-table th { text-align: left; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; padding: 11px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 1; }
+.news-table td { padding: 13px 20px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; }
+.news-table tr:last-child td { border-bottom: none; }
+.news-table tbody tr:hover { background: var(--surface-2); }
+.news-date { white-space: nowrap; color: var(--muted); font-size: 13px; }
+.news-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-left: 6px; vertical-align: middle; }
+.news-tag.news-price { background: #fef3c7; color: #b45309; }
+.news-tag.news-new { background: #dcfce7; color: #15803d; }
+.news-tag.news-news { background: var(--surface-2); color: var(--muted); }
+.news-foot { padding: 14px 20px; border-top: 1px solid var(--border); text-align: right; }
+.news-foot .btn { width: auto; }
+@media (max-width: 760px) {
+  .news-head { font-size: 16px; }
+  .news-table th, .news-table td { padding: 10px 14px; }
+}

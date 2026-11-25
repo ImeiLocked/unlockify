@@ -130,6 +130,15 @@ function init() {
     CREATE INDEX IF NOT EXISTS idx_ledger_user ON balance_ledger(user_id);
 
     CREATE TABLE IF NOT EXISTS settings ( key TEXT PRIMARY KEY, value TEXT );
+
+    -- Novedades / anuncios (nuevos servicios, cambios de precio, avisos)
+    CREATE TABLE IF NOT EXISTS announcements (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      body       TEXT NOT NULL,
+      kind       TEXT NOT NULL DEFAULT 'news',   -- news | price | new
+      active     INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   // --- migraciones ligeras: columnas de OTP / dispositivo de confianza ---

@@ -1,0 +1,45 @@
+<% if (typeof announcements !== 'undefined' && announcements && announcements.length) { %>
+<div id="news-modal" class="news-overlay" data-latest="<%= announcements[0].id %>" style="display:none">
+  <div class="news-modal">
+    <div class="news-head">
+      <span>📢 <%= lang === 'en' ? "What's new" : 'Novedades' %></span>
+      <button type="button" class="news-close" aria-label="Close" onclick="window.__closeNews&&window.__closeNews()">&times;</button>
+    </div>
+    <div class="news-body">
+      <table class="news-table">
+        <thead>
+          <tr>
+            <th><%= lang === 'en' ? 'Date' : 'Fecha' %></th>
+            <th><%= lang === 'en' ? 'News' : 'Novedad' %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% announcements.forEach(function(a){ %>
+            <tr>
+              <td class="news-date"><%= (a.created_at || '').slice(0,10) %></td>
+              <td>
+                <%= a.body %>
+                <% if (a.kind && a.kind !== 'news') { %><span class="news-tag news-<%= a.kind %>"><%= a.kind === 'price' ? (lang==='en'?'price':'precio') : (lang==='en'?'new':'nuevo') %></span><% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+    <div class="news-foot">
+      <button type="button" class="btn btn-primary" onclick="window.__closeNews&&window.__closeNews()"><%= lang === 'en' ? 'Got it' : 'Entendido' %></button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var m = document.getElementById('news-modal'); if (!m) return;
+  var latest = m.getAttribute('data-latest');
+  window.__closeNews = function(){ m.style.display='none'; try{ sessionStorage.setItem('news-seen', latest); }catch(e){} };
+  try { if (sessionStorage.getItem('news-seen') === latest) return; } catch(e){}
+  m.style.display = 'flex';
+  m.addEventListener('click', function(e){ if (e.target === m) window.__closeNews(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') window.__closeNews(); });
+})();
+</script>
+<% } %>

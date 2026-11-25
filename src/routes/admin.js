@@ -303,4 +303,16 @@ router.post('/support/:id/reply', async (req, res) => {
   res.redirect('/admin/support/' + data.thread.id + '?ok=1');
 });
 
+// ---------- Novedades / anuncios ----------
+const announcements = require('../announcements');
+router.get('/announcements', (req, res) => {
+  res.render('admin/announcements', { title: 'Novedades', layoutAdmin: true, items: announcements.listAll(300) });
+});
+router.post('/announcements', (req, res) => {
+  announcements.add(req.body.body, req.body.kind);
+  res.redirect('/admin/announcements');
+});
+router.post('/announcements/:id/toggle', (req, res) => { announcements.toggle(req.params.id); res.redirect('/admin/announcements'); });
+router.post('/announcements/:id/delete', (req, res) => { announcements.remove(req.params.id); res.redirect('/admin/announcements'); });
+
 module.exports = router;
