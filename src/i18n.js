@@ -170,7 +170,7 @@ const dict = {
 
     // ---------- admin nav ----------
     'nav.overview': '📊 Overview', 'nav.orders': '🧾 Orders', 'nav.services': '🛠 Services',
-    'nav.users': '👥 Users', 'nav.topups': '💰 Top-ups', 'nav.account': '⚙ My account', 'nav.viewStore': '↗ View store',
+    'nav.users': '👥 Users', 'nav.topups': '💰 Top-ups', 'nav.support': '💬 Support', 'nav.account': '⚙ My account', 'nav.viewStore': '↗ View store',
 
     // ---------- admin dashboard ----------
     'dash.title': 'Overview', 'dash.orders': 'Orders', 'dash.queuedManual': 'Queued (manual)',
@@ -250,6 +250,14 @@ const dict = {
 
     // ---------- admin topups ----------
     'topups.title': 'Top-ups', 'topups.none': 'No top-ups.',
+    'support.title': 'Support', 'support.imapOff': 'The mailbox isn\'t connected yet. Once we set the app password, client emails will show up here automatically.',
+    'support.empty': 'No support messages yet.', 'support.client': 'Client', 'support.subject': 'Subject', 'support.lastAt': 'Last activity',
+    'support.newBadge': 'new', 'support.open': 'Open', 'support.retentionNote': 'Panel copies auto-delete after 30 days. The full thread stays archived in Zoho.',
+    'support.back': 'Back', 'support.sent': 'Reply sent in English.', 'support.noMessages': 'No messages in this conversation.',
+    'support.you': 'You', 'support.showOriginal': 'Show original', 'support.sentEn': 'sent in English', 'support.showSent': 'see what was sent',
+    'support.replyTitle': 'Reply (write in Spanish)', 'support.replyHint': 'Write your reply in Spanish — we translate it to English and send it to the client.',
+    'support.replyPlaceholder': 'Write your reply in Spanish…', 'support.send': 'Translate & send',
+    'support.errEmpty': 'Write a reply first.', 'support.errSend': 'Couldn\'t send the email. Check the mailbox connection.',
 
     // ---------- admin: my account (change own password) ----------
     'acctAdmin.title': 'My account', 'acctAdmin.changePassword': 'Change my password',
@@ -422,7 +430,7 @@ const dict = {
 
     // ---------- admin nav ----------
     'nav.overview': '📊 Resumen', 'nav.orders': '🧾 Órdenes', 'nav.services': '🛠 Servicios',
-    'nav.users': '👥 Usuarios', 'nav.topups': '💰 Recargas', 'nav.account': '⚙ Mi cuenta', 'nav.viewStore': '↗ Ver tienda',
+    'nav.users': '👥 Usuarios', 'nav.topups': '💰 Recargas', 'nav.support': '💬 Soporte', 'nav.account': '⚙ Mi cuenta', 'nav.viewStore': '↗ Ver tienda',
 
     // ---------- admin dashboard ----------
     'dash.title': 'Resumen', 'dash.orders': 'Pedidos', 'dash.queuedManual': 'En cola (manual)',
@@ -502,6 +510,14 @@ const dict = {
 
     // ---------- admin topups ----------
     'topups.title': 'Recargas', 'topups.none': 'Sin recargas.',
+    'support.title': 'Soporte', 'support.imapOff': 'El buzón aún no está conectado. En cuanto pongamos la contraseña de aplicación, los correos de tus clientes aparecerán aquí automáticamente.',
+    'support.empty': 'Todavía no hay mensajes de soporte.', 'support.client': 'Cliente', 'support.subject': 'Asunto', 'support.lastAt': 'Última actividad',
+    'support.newBadge': 'nuevo', 'support.open': 'Abrir', 'support.retentionNote': 'Las copias del panel se borran solas a los 30 días. El hilo completo queda archivado en Zoho.',
+    'support.back': 'Volver', 'support.sent': 'Respuesta enviada en inglés.', 'support.noMessages': 'No hay mensajes en esta conversación.',
+    'support.you': 'Tú', 'support.showOriginal': 'Ver original', 'support.sentEn': 'enviado en inglés', 'support.showSent': 'ver lo enviado',
+    'support.replyTitle': 'Responder (escribe en español)', 'support.replyHint': 'Escribe tu respuesta en español — la traducimos al inglés y se la enviamos al cliente.',
+    'support.replyPlaceholder': 'Escribe tu respuesta en español…', 'support.send': 'Traducir y enviar',
+    'support.errEmpty': 'Escribe una respuesta primero.', 'support.errSend': 'No se pudo enviar el correo. Revisa la conexión del buzón.',
 
     // ---------- admin: mi cuenta (cambiar su propia contraseña) ----------
     'acctAdmin.title': 'Mi cuenta', 'acctAdmin.changePassword': 'Cambiar mi contraseña',

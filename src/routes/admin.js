@@ -253,4 +253,41 @@ router.get('/topups', (req, res) => {
   res.render('admin/topups', { title: req.t('topups.title'), layoutAdmin: true, topups: topups.adminList(300) });
 });
 
+// ---------- Soporte (buzón traducido) ----------
+const support = require('../support');
+
+router.get('/support', (req, res) => {
+  res.render('admin/support', {
+    title: req.t('support.title'), layoutAdmin: true,
+    threads: support.listThreads(200), imapOn: config.imap.enabled,
+  });
+});
+
+router.get('/support/:id', (req, res) => {
+  const data = support.getThread(req.params.id);
+  if (!data) return res.redirect('/admin/support');
+  support.markRead(data.thread.id);
+  res.render('admin/support_thread', {
+    title: data.thread.subject || req.t('support.title'), layoutAdmin: true,
+    thread: data.thread, messages: data.messages,
+    ok: req.query.ok === '1', error: null, imapOn: config.imap.enabled,
+  });
+});
+
+router.post('/support/:id/reply', async (req, res) => {
+  const data = support.getThread(req.params.id);
+  if (!data) return res.redirect('/admin/support');
+  const body = String(req.body.body || '').trim();
+  const fail = (error) => res.render('admin/support_thread', {
+    title: data.thread.subject, layoutAdmin: true, thread: data.thread,
+    messages: support.getThread(data.thread.id).messages, ok: false, error, imapOn: config.imap.enabled,
+  });
+  if (!body) return fail(req.t('support.errEmpty'));
+  try {
+    const ok = await support.sendReply(data.thread.id, body);
+    if (!ok) return fail(req.t('support.errSend'));
+  } catch (e) { console.error('[support reply]', e.message); return fail(req.t('support.errSend')); }
+  res.redirect('/admin/support/' + data.thread.id + '?ok=1');
+});
+
 module.exports = router;

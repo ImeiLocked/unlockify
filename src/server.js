@@ -12,6 +12,7 @@ const notify = require('./notify');
 const payments = require('./payments');
 const balance = require('./balance');
 const fulfillment = require('./providers/fulfillment');
+const support = require('./support');
 const { makeT } = require('./i18n');
 
 dbModule.init();
@@ -81,6 +82,7 @@ async function onTopupConfirmed(topup) {
 
 payments.startWatcher(onTopupConfirmed);
 fulfillment.startPoller();
+support.startPoller();
 
 app.listen(config.port, () => {
   console.log(`\n🚀 ${config.brandName} on port ${config.port}  |  ${config.publicUrl}`);

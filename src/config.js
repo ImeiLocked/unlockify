@@ -80,6 +80,30 @@ const config = {
     get enabled() { return !!(this.host && this.from); },
   },
 
+  // Soporte: lectura del buzón por IMAP (Zoho por defecto). Si no hay credenciales,
+  // el panel funciona pero la sincronización del buzón queda apagada.
+  imap: {
+    host: process.env.IMAP_HOST || 'imap.zoho.com',
+    port: num(process.env.IMAP_PORT, 993),
+    secure: bool(process.env.IMAP_SECURE, true),
+    user: process.env.IMAP_USER || process.env.SMTP_USER || '',
+    pass: process.env.IMAP_PASS || process.env.SMTP_PASS || '',
+    get enabled() { return !!(this.host && this.user && this.pass); },
+  },
+
+  // Traducción (cliente<->admin). Por defecto MyMemory (gratis, sin clave).
+  // Para más calidad/volumen, define DEEPL_API_KEY.
+  translate: {
+    email: (process.env.TRANSLATE_EMAIL || process.env.NOTIFY_EMAIL || '').trim(),
+    deeplKey: (process.env.DEEPL_API_KEY || '').trim(),
+    deeplHost: (process.env.DEEPL_API_HOST || 'https://api-free.deepl.com').trim(),
+  },
+
+  support: {
+    pollSeconds: num(process.env.SUPPORT_POLL_SECONDS, 60),
+    retentionDays: num(process.env.SUPPORT_RETENTION_DAYS, 30),
+  },
+
   providers, // array
   getProvider(key) { return providers.find((p) => p.key === key) || null; },
   enabledProviders() { return providers.filter((p) => p.enabled && p.apiUrl && p.apiKey); },

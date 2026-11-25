@@ -1,0 +1,45 @@
+<%- include('../partials/header') %>
+<%- include('../partials/adminnav') %>
+
+<div style="display:flex;align-items:center;gap:12px;margin:6px 0 14px">
+  <a href="/admin/support" class="btn btn-sm">← <%= t('support.back') %></a>
+  <div>
+    <div style="font-weight:800;font-size:18px"><%= thread.subject || '—' %></div>
+    <div class="muted small"><%= thread.client_name ? thread.client_name + ' · ' : '' %><%= thread.client_email %></div>
+  </div>
+</div>
+
+<% if (ok) { %><div class="alert alert-ok"><%= t('support.sent') %></div><% } %>
+<% if (typeof error !== 'undefined' && error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="panel" style="display:flex;flex-direction:column;gap:12px;max-height:60vh;overflow:auto">
+  <% if (!messages.length) { %>
+    <div class="muted" style="text-align:center;padding:20px"><%= t('support.noMessages') %></div>
+  <% } %>
+  <% messages.forEach(function(m){ var inbound = m.direction === 'in'; %>
+    <div style="max-width:78%;<%= inbound ? '' : 'align-self:flex-end' %>">
+      <div class="small muted" style="margin:0 2px 4px;<%= inbound ? '' : 'text-align:right' %>">
+        <%= inbound ? (thread.client_name || thread.client_email) : t('support.you') %> · <%= m.created_at %>
+      </div>
+      <div style="padding:12px 14px;border-radius:14px;line-height:1.5;white-space:pre-wrap;<%= inbound ? 'background:#f1f5f9;border:1px solid #e6eaef;border-top-left-radius:4px' : 'background:#e7f6ec;border:1px solid #bfe6cc;border-top-right-radius:4px' %>"><%= (m.body_es || m.body_orig || '').trim() %></div>
+      <% if (inbound && m.lang_orig && m.lang_orig !== 'es') { %>
+        <details class="small muted" style="margin:4px 2px"><summary style="cursor:pointer"><%= t('support.showOriginal') %></summary><div style="white-space:pre-wrap;margin-top:4px;color:#667085"><%= (m.body_orig || '').trim() %></div></details>
+      <% } %>
+      <% if (!inbound) { %>
+        <div class="small muted" style="text-align:right;margin:4px 2px">✓ <%= t('support.sentEn') %><% if (m.body_sent) { %> · <details style="display:inline"><summary style="cursor:pointer;display:inline"><%= t('support.showSent') %></summary><div style="white-space:pre-wrap;margin-top:4px;color:#667085;text-align:left"><%= (m.body_sent || '').trim() %></div></details><% } %></div>
+      <% } %>
+    </div>
+  <% }); %>
+</div>
+
+<div class="panel" style="margin-top:14px">
+  <h3 style="margin:0 0 4px"><%= t('support.replyTitle') %></h3>
+  <p class="muted small" style="margin-top:0"><%= t('support.replyHint') %></p>
+  <form action="/admin/support/<%= thread.id %>/reply" method="post">
+    <div class="field">
+      <textarea class="input" name="body" rows="5" required placeholder="<%= t('support.replyPlaceholder') %>" style="resize:vertical"></textarea>
+    </div>
+    <button class="btn btn-primary btn-lg" type="submit"><%= t('support.send') %></button>
+  </form>
+</div>
+<%- include('../partials/footer') %>
