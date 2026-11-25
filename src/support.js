@@ -59,10 +59,13 @@ function findOrCreateThread(clientEmail, clientName, subject) {
 }
 
 // ---------- incoming ----------
+const SYSTEM_SENDER = /^(mailer-daemon|postmaster|no-?reply|noreply|donotreply|do-not-reply|bounce|bounces|abuse|mailer)@/i;
 async function storeIncoming(parsed) {
   const fromAddr = (parsed.from && parsed.from.value && parsed.from.value[0]) || {};
   const clientEmail = String(fromAddr.address || '').toLowerCase();
   if (!clientEmail) return;
+  // Ignora rebotes y remitentes de sistema (no son clientes)
+  if (SYSTEM_SENDER.test(clientEmail) || clientEmail === 'welcome@zoho.com' || clientEmail === config.imap.user.toLowerCase()) return;
   const messageId = parsed.messageId || null;
   if (messageId && db.prepare('SELECT id FROM support_messages WHERE message_id=?').get(messageId)) return;
 
@@ -88,6 +91,7 @@ async function pollOnce() {
   try {
     const { ImapFlow } = require('imapflow');
     const { simpleParser } = require('mailparser');
+    const { getSetting, setSetting } = require('./db');
     client = new ImapFlow({
       host: config.imap.host, port: config.imap.port, secure: config.imap.secure,
       auth: { user: config.imap.user, pass: config.imap.pass }, logger: false,
@@ -95,16 +99,24 @@ async function pollOnce() {
     await client.connect();
     const lock = await client.getMailboxLock('INBOX');
     try {
-      const uids = await client.search({ seen: false }, { uid: true });
-      for (const uid of (uids || [])) {
-        const msg = await client.fetchOne(uid, { source: true }, { uid: true });
-        if (!msg || !msg.source) continue;
-        try {
-          const parsed = await simpleParser(msg.source);
-          await storeIncoming(parsed);
-        } catch (e) { console.error('[support] parse/store:', e.message); }
-        try { await client.messageFlagsAdd(uid, ['\\Seen'], { uid: true }); } catch (_) {}
+      // Rastreo por UID (no por estado leído/no leído): si el buzón se abre en
+      // el webmail de Zoho, el correo igual entra al panel. storeIncoming dedup
+      // por message_id como segunda red.
+      const lastUid = parseInt(getSetting('support_last_uid', '0'), 10) || 0;
+      let maxUid = lastUid;
+      // "N:*" en IMAP siempre devuelve al menos el UID más alto; filtramos <= lastUid.
+      for await (const msg of client.fetch(`${lastUid + 1}:*`, { uid: true, source: true }, { uid: true })) {
+        if (!msg || !msg.uid || msg.uid <= lastUid) continue;
+        if (msg.source) {
+          try {
+            const parsed = await simpleParser(msg.source);
+            await storeIncoming(parsed);
+          } catch (e) { console.error('[support] parse/store:', e.message); }
+        }
+        if (msg.uid > maxUid) maxUid = msg.uid;
+        try { await client.messageFlagsAdd(msg.uid, ['\\Seen'], { uid: true }); } catch (_) {}
       }
+      if (maxUid > lastUid) setSetting('support_last_uid', String(maxUid));
     } finally { lock.release(); }
     await client.logout();
   } catch (e) {
