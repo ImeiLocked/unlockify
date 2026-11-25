@@ -22,8 +22,10 @@
         <% if (user.is_admin) { %>
           <a href="/admin"><%= t('site.dashboard') %></a>
         <% } else { %>
-          <% if (typeof userBalance === 'number') { %><a href="/account" class="bal-chip">💰 $<%= userBalance.toFixed(2) %></a><% } %>
-          <a href="/topup" class="btn btn-primary btn-sm"><%= t('site.addFunds') %></a>
+          <% if (canBuy) { %>
+            <% if (typeof userBalance === 'number') { %><a href="/account" class="bal-chip">💰 $<%= userBalance.toFixed(2) %></a><% } %>
+            <a href="/topup" class="btn btn-primary btn-sm"><%= t('site.addFunds') %></a>
+          <% } %>
         <% } %>
         <a href="/account" class="<%= currentPath === '/account' ? 'active' : '' %>"><%= t('site.myAccount') %></a>
         <form action="/logout" method="post" class="inline"><button class="btn btn-ghost btn-sm"><%= t('site.logout') %></button></form>

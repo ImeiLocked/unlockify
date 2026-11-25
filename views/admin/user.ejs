@@ -12,6 +12,7 @@
     <p class="muted" style="margin-top:4px"><%= u.name || t('user.noName') %> · <%= t('user.joined') %> <%= u.created_at %></p>
     <div class="kv"><span><%= t('col.balance') %></span><strong style="color:var(--primary);font-size:20px">$<%= u.balance.toFixed(2) %></strong></div>
     <div class="kv"><span><%= t('user.status') %></span><% if (u.is_admin) { %><span><%= t('role.administrator') %></span><% } else { %><span class="pill <%= u.active?'completed':'rejected' %>"><%= u.active?t('status.active'):t('status.disabled') %></span><% } %></div>
+    <% if (!u.is_admin) { %><div class="kv"><span><%= t('col.approval') %></span><span class="pill <%= u.approved?'completed':'queued' %>"><%= u.approved?t('status.approved'):t('status.pending') %></span></div><% } %>
 
     <div class="stats" style="margin:16px 0">
       <div class="stat"><div class="n">$<%= (stats.recharged||0).toFixed(2) %></div><div class="l"><%= t('user.lifetimeRecharged') %></div></div>
@@ -42,6 +43,10 @@
   <aside class="panel">
     <h3 style="margin-top:0"><%= t('user.actions') %></h3>
     <% if (!u.is_admin) { %>
+      <form action="/admin/users/<%= u.id %>/approve" method="post" style="margin-bottom:14px">
+        <button class="btn <%= u.approved ? 'btn-ghost' : 'btn-primary' %> btn-block" type="submit"><%= u.approved ? t('user.unapprove') : t('user.approve') %></button>
+        <% if (!u.approved) { %><p class="hint" style="color:var(--warn)"><%= t('user.approvalPending') %></p><% } %>
+      </form>
       <form action="/admin/users/<%= u.id %>/active" method="post" style="margin-bottom:14px">
         <button class="btn <%= u.active?'btn-danger':'btn-primary' %> btn-block" type="submit"><%= u.active ? t('user.disableBan') : t('user.activate') %></button>
       </form>

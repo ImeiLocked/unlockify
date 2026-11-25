@@ -14,6 +14,9 @@ function validIdentifier(type, value) {
 }
 
 router.post('/order/create', auth.requireLogin, (req, res) => {
+  if (!req.user.is_admin && !req.user.approved) {
+    return res.status(403).render('error', { title: req.t('err.accessDenied'), message: req.t('gate.notApproved') });
+  }
   const { service_id, identifier } = req.body;
   const service = catalog.getServiceById(service_id);
   if (!service || !service.active || !service.hasSource) {

@@ -5,6 +5,14 @@
 <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
 <div class="panel" style="margin-bottom:18px">
+  <h3 style="margin:0 0 8px"><%= t('users.autoApproveTitle') %></h3>
+  <p class="muted small" style="margin:0 0 10px"><%= autoApprove ? t('users.autoApproveOn') : t('users.autoApproveOff') %></p>
+  <form action="/admin/settings/auto-approve" method="post">
+    <button class="btn <%= autoApprove ? 'btn-ghost' : 'btn-primary' %>" type="submit"><%= autoApprove ? t('users.autoApproveTurnOff') : t('users.autoApproveTurnOn') %></button>
+  </form>
+</div>
+
+<div class="panel" style="margin-bottom:18px">
   <h3 style="margin:0 0 10px"><%= t('users.create') %></h3>
   <form action="/admin/users" method="post" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
     <div><label class="small muted"><%= t('field.name') %></label><input class="input" name="name" placeholder="<%= t('common.optional') %>"></div>
@@ -17,12 +25,13 @@
 
 <div class="panel" style="overflow-x:auto">
   <table class="table">
-    <thead><tr><th><%= t('col.user') %></th><th><%= t('col.balance') %></th><th><%= t('col.status') %></th><th><%= t('col.joined') %></th><th></th></tr></thead>
+    <thead><tr><th><%= t('col.user') %></th><th><%= t('col.balance') %></th><th><%= t('col.approval') %></th><th><%= t('col.status') %></th><th><%= t('col.joined') %></th><th></th></tr></thead>
     <tbody>
       <% users.forEach(function(u){ %>
         <tr>
           <td><strong><%= u.email %></strong><% if (u.is_admin) { %> <span class="tag-prov">admin</span><% } %><br><span class="muted small"><%= u.name || '' %></span></td>
           <td>$<%= u.balance.toFixed(2) %></td>
+          <td><% if (u.is_admin) { %><span class="muted">—</span><% } else { %><span class="pill <%= u.approved?'completed':'queued' %>"><%= u.approved?t('status.approved'):t('status.pending') %></span><% } %></td>
           <td><% if (u.is_admin) { %><span class="muted">—</span><% } else { %><span class="pill <%= u.active?'completed':'rejected' %>"><%= u.active?t('status.active'):t('status.disabled') %></span><% } %></td>
           <td class="small"><%= u.created_at %></td>
           <td><a class="btn btn-ghost btn-sm" href="/admin/users/<%= u.id %>"><%= t('btn.open') %></a></td>

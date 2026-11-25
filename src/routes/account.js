@@ -7,6 +7,7 @@ const notify = require('../notify');
 const orders = require('../orders');
 const topups = require('../topups');
 const balance = require('../balance');
+const { getSetting } = require('../db');
 
 function otpActive() { return config.otp.enabled && config.email.enabled; }
 function landing(user) { return user.is_admin ? '/admin' : '/account'; }
@@ -18,7 +19,9 @@ router.get('/register', (req, res) => {
 router.post('/register', (req, res) => {
   const { name, email, password } = req.body;
   try {
-    const user = auth.createUser({ name, email, password });
+    // auto_approve ON -> new users can buy immediately; OFF -> pending until admin approves
+    const autoApprove = getSetting('auto_approve', '0') === '1';
+    const user = auth.createUser({ name, email, password, approved: autoApprove ? 1 : 0 });
     req.session.userId = user.id;
     const to = req.session.returnTo || '/account'; delete req.session.returnTo;
     res.redirect(to);

@@ -19,6 +19,9 @@ router.get('/topup', auth.requireLogin, (req, res) => {
 });
 
 router.post('/topup/create', auth.requireLogin, (req, res) => {
+  if (!req.user.is_admin && !req.user.approved) {
+    return res.status(403).render('error', { title: req.t('err.accessDenied'), message: req.t('gate.notApproved') });
+  }
   const chains = payments.availableChains();
   const amount = Math.round(Number(req.body.amount) * 100) / 100;
   const chain = req.body.chain;

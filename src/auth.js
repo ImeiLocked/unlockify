@@ -9,15 +9,15 @@ const sha = (s) => crypto.createHash('sha256').update(String(s)).digest('hex');
 const sqlDate = (ms) => new Date(ms).toISOString().slice(0, 19).replace('T', ' ');
 const parseSql = (s) => Date.parse(String(s).replace(' ', 'T') + 'Z');
 
-function createUser({ email, password, name, is_admin = 0 }) {
+function createUser({ email, password, name, is_admin = 0, approved = 1 }) {
   email = String(email || '').trim().toLowerCase();
   name = String(name || '').trim();
   if (!EMAIL_RE.test(email)) throw new Error('auth.invalidEmail');
   if (!password || password.length < 6) throw new Error('auth.passwordMin');
   if (db.prepare('SELECT id FROM users WHERE email=?').get(email)) throw new Error('auth.emailExists');
   const hash = bcrypt.hashSync(password, 10);
-  const info = db.prepare('INSERT INTO users (email,password_hash,name,is_admin,active) VALUES (?,?,?,?,1)')
-    .run(email, hash, name || null, is_admin ? 1 : 0);
+  const info = db.prepare('INSERT INTO users (email,password_hash,name,is_admin,active,approved) VALUES (?,?,?,?,1,?)')
+    .run(email, hash, name || null, is_admin ? 1 : 0, approved ? 1 : 0);
   return getUserById(info.lastInsertRowid);
 }
 
@@ -30,7 +30,7 @@ function verifyUser(email, password) {
 }
 
 function getUserById(id) {
-  return db.prepare('SELECT id,email,name,is_admin,active,balance,created_at FROM users WHERE id=?').get(id);
+  return db.prepare('SELECT id,email,name,is_admin,active,approved,balance,created_at FROM users WHERE id=?').get(id);
 }
 
 function setPassword(userId, newPassword) {
@@ -38,6 +38,7 @@ function setPassword(userId, newPassword) {
   db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(bcrypt.hashSync(newPassword, 10), userId);
 }
 function setActive(userId, active) { db.prepare('UPDATE users SET active=? WHERE id=?').run(active ? 1 : 0, userId); }
+function setApproved(userId, approved) { db.prepare('UPDATE users SET approved=? WHERE id=?').run(approved ? 1 : 0, userId); }
 
 // --- OTP (codigo por correo) --------------------------------------------
 function createOtp(userId) {
@@ -98,7 +99,7 @@ function requireAdmin(req, res, next) {
 }
 
 module.exports = {
-  createUser, verifyUser, getUserById, setPassword, setActive,
+  createUser, verifyUser, getUserById, setPassword, setActive, setApproved,
   createOtp, verifyOtp, canResend, setTrustedDevice, checkTrustedDevice,
   attachUser, requireLogin, requireAdmin,
 };

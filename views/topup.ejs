@@ -9,7 +9,9 @@
     <h1 style="margin:0 0 4px"><%= t('top.addFunds') %></h1>
     <p class="muted" style="margin-top:0"><%= t('top.sub') %></p>
     <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
-    <% if (chains.length === 0) { %>
+    <% if (!canBuy) { %>
+      <div class="alert alert-warn"><%= t('gate.topupPending') %></div>
+    <% } else if (chains.length === 0) { %>
       <div class="alert alert-warn"><%= t('top.notAvailable') %></div>
     <% } else { %>
     <form action="/topup/create" method="post">

@@ -19,6 +19,7 @@ const dict = {
     'btn.pay': 'Pay', 'btn.copy': 'Copy',
     'common.optional': 'Optional', 'common.active': 'active', 'common.noApi': 'no API',
     'status.active': 'Active', 'status.disabled': 'Disabled',
+    'status.pending': 'Pending', 'status.approved': 'Approved', 'col.approval': 'Approval',
     'label.serial': 'Serial', 'label.imei': 'IMEI',
     'field.name': 'Name', 'field.email': 'Email', 'field.password': 'Password',
     'nav.language': 'Language',
@@ -159,6 +160,13 @@ const dict = {
     'auth.invalidEmail': 'Invalid email',
     'auth.passwordMin': 'Password must be at least 6 characters',
     'auth.emailExists': 'An account with that email already exists',
+    // approval gate (public)
+    'gate.cardGuest': '🔒 Log in to see prices', 'gate.cardPending': '🔒 Pending approval',
+    'gate.pendingBanner': "Your account is pending approval. You'll be able to see prices, add funds and order once we approve it.",
+    'gate.serviceGuest': 'Log in to see the price and order. It is free.',
+    'gate.servicePending': "Your account is pending approval. You'll be able to order once we approve it.",
+    'gate.topupPending': 'Your account is pending approval. You can add funds once we approve it.',
+    'gate.notApproved': 'Your account is pending approval.',
 
     // ---------- admin nav ----------
     'nav.overview': '📊 Overview', 'nav.orders': '🧾 Orders', 'nav.services': '🛠 Services',
@@ -209,6 +217,13 @@ const dict = {
     // ---------- admin users ----------
     'users.title': 'Users', 'users.create': 'Create user',
     'users.createHint': 'Useful when a customer prefers you create the account. Share these details and they can change their password later.',
+    'users.autoApproveTitle': 'New-user approval',
+    'users.autoApproveOn': '🟢 Auto-approve: ON — new users can see prices and buy right away',
+    'users.autoApproveOff': '🔒 Auto-approve: OFF — you approve each new user before they can buy',
+    'users.autoApproveTurnOn': 'Turn ON auto-approve',
+    'users.autoApproveTurnOff': 'Turn OFF (require my approval)',
+    'user.approve': '✅ Approve', 'user.unapprove': '⛔ Remove approval',
+    'user.approvalPending': 'Pending — cannot see prices or buy yet',
 
     // ---------- admin user detail ----------
     'user.allUsers': '← All users', 'user.newPassword1': 'New password for',
@@ -246,6 +261,7 @@ const dict = {
     'btn.pay': 'Pagar', 'btn.copy': 'Copiar',
     'common.optional': 'Opcional', 'common.active': 'activo', 'common.noApi': 'sin API',
     'status.active': 'Activo', 'status.disabled': 'Desactivado',
+    'status.pending': 'Pendiente', 'status.approved': 'Aprobado', 'col.approval': 'Aprobación',
     'label.serial': 'N° Serie', 'label.imei': 'IMEI',
     'field.name': 'Nombre', 'field.email': 'Correo', 'field.password': 'Contraseña',
     'nav.language': 'Idioma',
@@ -382,6 +398,13 @@ const dict = {
     'auth.invalidEmail': 'Correo inválido',
     'auth.passwordMin': 'La contraseña debe tener al menos 6 caracteres',
     'auth.emailExists': 'Ya existe una cuenta con ese correo',
+    // candado de aprobación (público)
+    'gate.cardGuest': '🔒 Inicia sesión para ver precios', 'gate.cardPending': '🔒 Pendiente de aprobación',
+    'gate.pendingBanner': 'Tu cuenta está pendiente de aprobación. Podrás ver precios, recargar saldo y ordenar en cuanto la aprobemos.',
+    'gate.serviceGuest': 'Inicia sesión para ver el precio y ordenar. Es gratis.',
+    'gate.servicePending': 'Tu cuenta está pendiente de aprobación. Podrás ordenar en cuanto la aprobemos.',
+    'gate.topupPending': 'Tu cuenta está pendiente de aprobación. Podrás recargar en cuanto la aprobemos.',
+    'gate.notApproved': 'Tu cuenta está pendiente de aprobación.',
 
     // ---------- admin nav ----------
     'nav.overview': '📊 Resumen', 'nav.orders': '🧾 Órdenes', 'nav.services': '🛠 Servicios',
@@ -432,6 +455,13 @@ const dict = {
     // ---------- admin users ----------
     'users.title': 'Usuarios', 'users.create': 'Crear usuario',
     'users.createHint': 'Útil cuando un cliente prefiere que tú le crees la cuenta. Le pasas estos datos y luego él puede cambiar su contraseña.',
+    'users.autoApproveTitle': 'Aprobación de nuevos usuarios',
+    'users.autoApproveOn': '🟢 Aprobación automática: ACTIVADA — los nuevos usuarios ven precios y compran de inmediato',
+    'users.autoApproveOff': '🔒 Aprobación automática: DESACTIVADA — apruebas a cada nuevo usuario antes de que pueda comprar',
+    'users.autoApproveTurnOn': 'Activar aprobación automática',
+    'users.autoApproveTurnOff': 'Desactivar (requerir mi aprobación)',
+    'user.approve': '✅ Aprobar', 'user.unapprove': '⛔ Quitar aprobación',
+    'user.approvalPending': 'Pendiente — aún no puede ver precios ni comprar',
 
     // ---------- admin user detail ----------
     'user.allUsers': '← Todos los usuarios', 'user.newPassword1': 'Nueva contraseña para',

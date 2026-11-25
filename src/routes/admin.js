@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const router = express.Router();
 const auth = require('../auth');
 const config = require('../config');
-const { db } = require('../db');
+const { db, getSetting, setSetting } = require('../db');
 const orders = require('../orders');
 const catalog = require('../catalog');
 const providers = require('../providers');
@@ -131,15 +131,25 @@ router.post('/sync/:provider', async (req, res) => {
 
 // ---------- Usuarios ----------
 router.get('/users', (req, res) => {
-  const users = db.prepare('SELECT id,email,name,active,balance,is_admin,created_at FROM users ORDER BY is_admin DESC, id DESC').all();
-  res.render('admin/users', { title: req.t('users.title'), layoutAdmin: true, users, error: req.query.error || null });
+  const users = db.prepare('SELECT id,email,name,active,approved,balance,is_admin,created_at FROM users ORDER BY is_admin DESC, id DESC').all();
+  res.render('admin/users', {
+    title: req.t('users.title'), layoutAdmin: true, users,
+    autoApprove: getSetting('auto_approve', '0') === '1',
+    error: req.query.error || null,
+  });
 });
 router.post('/users', (req, res) => {
-  try { auth.createUser({ email: req.body.email, password: req.body.password, name: req.body.name }); res.redirect('/admin/users'); }
+  try { auth.createUser({ email: req.body.email, password: req.body.password, name: req.body.name, approved: 1 }); res.redirect('/admin/users'); }
   catch (e) { res.redirect('/admin/users?error=' + encodeURIComponent(req.t(e.message))); }
 });
+// Toggle global auto-approval of new registrations.
+router.post('/settings/auto-approve', (req, res) => {
+  const cur = getSetting('auto_approve', '0') === '1';
+  setSetting('auto_approve', cur ? '0' : '1');
+  res.redirect('/admin/users');
+});
 router.get('/users/:id', (req, res) => {
-  const u = db.prepare('SELECT id,email,name,active,balance,is_admin,created_at FROM users WHERE id=?').get(req.params.id);
+  const u = db.prepare('SELECT id,email,name,active,approved,balance,is_admin,created_at FROM users WHERE id=?').get(req.params.id);
   if (!u) return res.redirect('/admin/users');
   let newPassword = null;
   if (req.session.resetPwUser && String(req.session.resetPwUser) === String(u.id)) { newPassword = req.session.resetPw; req.session.resetPwUser = null; req.session.resetPw = null; }
@@ -162,6 +172,11 @@ router.get('/users/:id', (req, res) => {
 router.post('/users/:id/active', (req, res) => {
   const u = db.prepare('SELECT id,is_admin,active FROM users WHERE id=?').get(req.params.id);
   if (u && !u.is_admin) auth.setActive(u.id, u.active ? 0 : 1);
+  res.redirect('/admin/users/' + req.params.id);
+});
+router.post('/users/:id/approve', (req, res) => {
+  const u = db.prepare('SELECT id,is_admin,approved FROM users WHERE id=?').get(req.params.id);
+  if (u && !u.is_admin) auth.setApproved(u.id, u.approved ? 0 : 1);
   res.redirect('/admin/users/' + req.params.id);
 });
 router.post('/users/:id/password', (req, res) => {

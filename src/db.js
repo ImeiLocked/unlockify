@@ -141,6 +141,19 @@ function init() {
   add('otp_expires', 'TEXT');
   add('otp_attempts', 'INTEGER DEFAULT 0');
   add('otp_sent_at', 'TEXT');
+  // approval gate: 1 = can see prices / top up / buy. New registrations may be 0
+  // (pending) depending on the auto_approve setting. Existing rows default to 1.
+  add('approved', 'INTEGER NOT NULL DEFAULT 1');
+}
+
+// --- simple key/value settings (auto_approve, etc.) ----------------------
+function getSetting(key, def = null) {
+  const r = db.prepare('SELECT value FROM settings WHERE key=?').get(key);
+  return r ? r.value : def;
+}
+function setSetting(key, value) {
+  db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value')
+    .run(key, String(value));
 }
 
 function ensureAdmin() {
@@ -188,7 +201,7 @@ function seedCatalog(force = false) {
   console.log(`[db] Catalogo demo sembrado: ${db.prepare('SELECT COUNT(*) AS n FROM services').get().n} servicios.`);
 }
 
-module.exports = { db, init, ensureAdmin, seedCatalog, normalizeTitle, DB_PATH };
+module.exports = { db, init, ensureAdmin, seedCatalog, normalizeTitle, getSetting, setSetting, DB_PATH };
 
 if (require.main === module) {
   init(); ensureAdmin();

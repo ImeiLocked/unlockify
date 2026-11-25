@@ -10,16 +10,20 @@
       <% if (service.auto_fulfill) { %><span class="badge badge-ok"><%= t('svc.automatic') %></span><% } %>
     </div>
 
-    <div class="kv" style="border:none;padding:4px 0 16px">
-      <span><%= t('col.price') %></span><strong style="font-size:22px;color:var(--primary)">$<%= service.price.toFixed(2) %> USDT</strong>
-    </div>
+    <% if (canBuy) { %>
+      <div class="kv" style="border:none;padding:4px 0 16px">
+        <span><%= t('col.price') %></span><strong style="font-size:22px;color:var(--primary)">$<%= service.price.toFixed(2) %> USDT</strong>
+      </div>
+    <% } %>
 
     <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
     <% if (!user) { %>
-      <div class="alert alert-info"><%= t('svc.loginToOrder') %></div>
+      <div class="alert alert-info"><%= t('gate.serviceGuest') %></div>
       <a class="btn btn-primary btn-lg" href="/login"><%= t('site.login') %></a>
       <p class="form-foot"><%= t('svc.noAccount') %> <a href="/register"><%= t('svc.createHere') %></a></p>
+    <% } else if (!canBuy) { %>
+      <div class="alert alert-warn"><%= t('gate.servicePending') %></div>
     <% } else { %>
       <div class="kv"><span><%= t('svc.yourBalance') %></span><strong>$<%= (userBalance||0).toFixed(2) %> USDT</strong></div>
       <% if ((userBalance||0) < service.price) { %>

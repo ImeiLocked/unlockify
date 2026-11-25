@@ -47,6 +47,9 @@ app.use((req, res, next) => {
   res.locals.currentPath = req.path;
   res.locals.layoutAdmin = false;
   res.locals.userBalance = req.user && !req.user.is_admin ? balance.getBalance(req.user.id) : null;
+  // canBuy: may see prices, add funds and order. Admins always; customers only once approved.
+  res.locals.canBuy = !!(req.user && (req.user.is_admin || req.user.approved));
+  res.locals.pending = !!(req.user && !req.user.is_admin && !req.user.approved);
   next();
 });
 

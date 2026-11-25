@@ -11,6 +11,10 @@
   </div>
 </section>
 
+<% if (pending) { %>
+  <div class="alert alert-warn" style="margin-top:20px"><%= t('gate.pendingBanner') %></div>
+<% } %>
+
 <% if (categories.length === 0) { %>
   <div class="panel" style="margin-top:30px">
     <p class="muted"><%= t('home.noServices') %></p>
@@ -33,10 +37,15 @@
             <% if (s.delivery_time) { %><span class="badge badge-time">⏱ <%= s.delivery_time %></span><% } %>
             <span class="badge badge-id"><%= s.identifier_type === 'serial' ? t('badge.serial') : 'IMEI' %></span>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-            <div class="price">$<%= s.price.toFixed(2) %> <small>USDT</small></div>
-          </div>
-          <a class="btn btn-primary" href="/service/<%= s.id %>"><%= t('home.orderNow') %></a>
+          <% if (canBuy) { %>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div class="price">$<%= s.price.toFixed(2) %> <small>USDT</small></div>
+            </div>
+            <a class="btn btn-primary" href="/service/<%= s.id %>"><%= t('home.orderNow') %></a>
+          <% } else { %>
+            <div class="muted small" style="padding:8px 0"><%= user ? t('gate.cardPending') : t('gate.cardGuest') %></div>
+            <% if (!user) { %><a class="btn btn-ghost btn-sm" href="/login"><%= t('site.login') %></a><% } %>
+          <% } %>
         </div>
       <% }); %>
     </div>

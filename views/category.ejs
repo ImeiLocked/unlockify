@@ -6,6 +6,7 @@
     <% if (category.description) { %><p class="muted"><%= category.description %></p><% } %>
   </div>
 </div>
+<% if (pending) { %><div class="alert alert-warn" style="margin-bottom:16px"><%= t('gate.pendingBanner') %></div><% } %>
 <div class="grid">
   <% category.services.forEach(function(s){ %>
     <div class="card">
@@ -14,8 +15,13 @@
         <% if (s.delivery_time) { %><span class="badge badge-time">⏱ <%= s.delivery_time %></span><% } %>
         <span class="badge badge-id"><%= s.identifier_type === 'serial' ? t('badge.serial') : 'IMEI' %></span>
       </div>
-      <div class="price">$<%= s.price.toFixed(2) %> <small>USDT</small></div>
-      <a class="btn btn-primary" href="/service/<%= s.id %>"><%= t('home.orderNow') %></a>
+      <% if (canBuy) { %>
+        <div class="price">$<%= s.price.toFixed(2) %> <small>USDT</small></div>
+        <a class="btn btn-primary" href="/service/<%= s.id %>"><%= t('home.orderNow') %></a>
+      <% } else { %>
+        <div class="muted small" style="padding:8px 0"><%= user ? t('gate.cardPending') : t('gate.cardGuest') %></div>
+        <% if (!user) { %><a class="btn btn-ghost btn-sm" href="/login"><%= t('site.login') %></a><% } %>
+      <% } %>
     </div>
   <% }); %>
   <% if (category.services.length === 0) { %>
