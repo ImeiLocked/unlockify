@@ -14,7 +14,7 @@
   --warn: #c2700a;
   --radius: 14px;
   --shadow: 0 10px 30px rgba(16,22,40,.10);
-  --maxw: 1120px;
+  --maxw: 1440px;
 }
 
 * { box-sizing: border-box; }
