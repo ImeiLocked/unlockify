@@ -29,6 +29,10 @@ body {
 }
 a { color: inherit; text-decoration: none; }
 .container { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+
+/* Red de seguridad anti-desborde horizontal (móvil) */
+.card, .feature, .section, .grid > *, .hs-txt { min-width: 0; }
+.feature p, .hs-txt b, .hs-txt em { overflow-wrap: anywhere; }
 .page { padding-top: 28px; padding-bottom: 60px; min-height: 60vh; }
 .muted { color: var(--muted); }
 .small { font-size: 13px; }
@@ -96,8 +100,8 @@ a { color: inherit; text-decoration: none; }
 /* ---------- Category sections ---------- */
 .section { margin-top: 42px; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
-.section-head h2 { font-size: 22px; margin: 0; }
-.section-head p { margin: 2px 0 0; }
+.section-head h2 { font-size: 22px; margin: 0; overflow-wrap: anywhere; }
+.section-head p { margin: 2px 0 0; overflow-wrap: anywhere; }
 
 /* ---------- Service grid / cards (compactas) ---------- */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(278px, 1fr)); gap: 13px; }
@@ -108,7 +112,7 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 1px 2px rgba(16,22,40,.04);
 }
 .card:hover { border-color: #bfe9cf; transform: translateY(-2px); box-shadow: 0 10px 22px rgba(16,22,40,.08); }
-.card .svc-title { font-weight: 700; font-size: 14px; line-height: 1.3; min-height: 36px; color: var(--text); }
+.card .svc-title { font-weight: 700; font-size: 14px; line-height: 1.3; min-height: 36px; color: var(--text); overflow-wrap: anywhere; }
 .card .svc-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border); }
 .card-foot-gate { gap: 8px; }
