@@ -7,13 +7,13 @@
   <meta name="description" content="<%= brand %> — <%= t('site.metaDesc') %>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="/static/css/styles.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔓</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><rect width='56' height='56' rx='14' fill='%2316a34a'/><path d='M20 26V18Q20 10 28 10Q35 10 36.5 15.5' stroke='%23ffffff' stroke-width='4.2' fill='none' stroke-linecap='round'/><rect x='13' y='25' width='30' height='22' rx='7' fill='%23ffffff'/><path d='M30 29L22.5 38H27.5L25.5 45L34 34H29Z' fill='%232563ff'/></svg>">
 </head>
 <body>
 <header class="nav">
   <div class="nav-inner container">
     <a class="brand" href="/">
-      <span class="brand-mark">🔓</span><span class="brand-name"><%= brand %></span>
+      <span class="brand-mark"><svg width="30" height="30" viewBox="0 0 56 56" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ulg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2fd9a0"/><stop offset="1" stop-color="#14a14e"/></linearGradient></defs><path d="M19 25 V16 Q19 7 28 7 Q35.5 7 37 13.5" stroke="url(#ulg)" stroke-width="4.2" fill="none" stroke-linecap="round"/><rect x="12" y="24" width="32" height="24" rx="8" fill="url(#ulg)"/><path d="M30.5 28 L22 38.5 H28 L25.5 46 L35.5 34 H29.5 Z" fill="#2563ff"/></svg></span><span class="brand-name"><%= brand %></span>
     </a>
     <nav class="nav-links">
       <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>"><%= t('site.services') %></a>

@@ -6,3 +6,4 @@ data/*.db-wal
 data/sessions.db
 *.log
 .DS_Store
+preview/
