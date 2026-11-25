@@ -22,6 +22,24 @@ function getAdapter(providerKey) {
 
 function providerName(key) { const p = config.getProvider(key); return p ? p.name : key; }
 
+/** Extrae el saldo numérico de la respuesta accountinfo (soporta varias formas de Dhru). */
+function extractCredit(info) {
+  const a = (info && info.AccountInfo) ? info.AccountInfo : info;
+  if (!a) return null;
+  let raw = a.creditraw != null ? a.creditraw : (a.credit != null ? a.credit : (a.balance != null ? a.balance : null));
+  if (raw == null) return null;
+  const n = Number(String(raw).replace(/[^0-9.\-]/g, ''));
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Saldo en vivo del proveedor (USD). null si no se puede consultar. */
+async function getCredit(providerKey) {
+  const adapter = getAdapter(providerKey);
+  if (!adapter) return null;
+  try { return extractCredit(await adapter.accountInfo()); }
+  catch (e) { console.error(`[providers] saldo ${providerKey}: ${e.message}`); return null; }
+}
+
 function slugify(s) {
   return String(s || 'general').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'general';
@@ -66,4 +84,4 @@ async function syncCatalog(providerKey) {
   return { total: list.length, servicios_nuevos: newSvc, fuentes_nuevas: newSrc, fuentes_actualizadas: updSrcN };
 }
 
-module.exports = { getAdapter, providerName, syncCatalog, slugify };
+module.exports = { getAdapter, providerName, syncCatalog, slugify, getCredit, extractCredit };

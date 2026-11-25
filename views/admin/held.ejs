@@ -1,0 +1,104 @@
+<%- include('../partials/header') %>
+<%- include('../partials/adminnav') %>
+
+<%
+  function fmtWait(sec){ sec=Number(sec)||0; if(sec<60)return sec+'s'; var m=Math.floor(sec/60); if(m<60)return m+'m'; var h=Math.floor(m/60); return h+'h '+(m%60)+'m'; }
+  var en = adminLang === 'en';
+%>
+
+<h1 class="page-title" style="margin:0 0 4px"><%= en ? 'Pending (low balance)' : 'Pendientes (saldo bajo)' %></h1>
+
+<% if (!held.length) { %>
+  <div class="panel" style="margin-top:12px">
+    <p class="muted" style="margin:0">✅ <%= en ? 'No orders waiting. Everything is being fulfilled normally.' : 'No hay órdenes en espera. Todo se está procesando con normalidad.' %></p>
+  </div>
+<% } else { %>
+  <div class="statusbar status-processing" style="margin:10px 0 16px;display:block">
+    ⚠️ <%= held.length %> <%= en
+      ? 'order(s) are held because your provider balance was not enough. Top up that provider, then press Retry — the customer still sees “processing”.'
+      : 'orden(es) en espera porque tu saldo del proveedor no alcanzó. Recarga saldo en ese proveedor y pulsa Reintentar — el cliente la sigue viendo como “procesando”.' %>
+  </div>
+
+  <div class="panel" style="padding:0;overflow:hidden">
+    <table class="prov-table">
+      <thead>
+        <tr>
+          <th><%= en ? 'Order / Customer' : 'Orden / Cliente' %></th>
+          <th class="hide-sm"><%= en ? 'Service' : 'Servicio' %></th>
+          <th>IMEI / Serial</th>
+          <th style="text-align:right"><%= en ? 'Cost' : 'Costo' %></th>
+          <th style="text-align:center"><%= en ? 'Provider' : 'Proveedor' %></th>
+          <th style="text-align:right"><%= en ? 'Live balance' : 'Saldo ahora' %></th>
+          <th style="text-align:center"><%= en ? 'Waiting' : 'Esperando' %></th>
+          <th style="text-align:right"><%= en ? 'Action' : 'Acción' %></th>
+        </tr>
+      </thead>
+      <tbody>
+      <% held.forEach(function(o){ %>
+        <tr>
+          <td>
+            <div style="font-weight:600"><%= o.code %></div>
+            <div class="muted small"><%= o.user_email %></div>
+          </td>
+          <td class="hide-sm small"><%= o.service_title %></td>
+          <td class="small" style="font-family:monospace"><%= o.identifier %></td>
+          <td style="text-align:right;font-weight:600">$<%= Number(o.held_cost||0).toFixed(2) %></td>
+          <td style="text-align:center"><span class="chip chip-off"><%= o.provider_name %></span></td>
+          <td style="text-align:right">
+            <span class="bal" data-prov="<%= o.held_provider %>" style="font-weight:600">…</span>
+          </td>
+          <td style="text-align:center" class="muted small"><%= fmtWait(o.waited) %></td>
+          <td style="text-align:right">
+            <form action="/admin/held/<%= o.id %>/retry" method="post" onsubmit="this.querySelector('button').disabled=true;this.querySelector('button').textContent='…';">
+              <button class="btn btn-primary btn-sm" type="submit"><%= en ? 'Retry purchase →' : 'Reintentar compra →' %></button>
+            </form>
+          </td>
+        </tr>
+      <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="hint" style="margin-top:12px">
+    <%= en
+      ? 'Tip: top up each provider on its own site. The “Live balance” column refreshes automatically.'
+      : 'Tip: recarga cada proveedor en su propio sitio. La columna “Saldo ahora” se actualiza sola.' %>
+  </p>
+<% } %>
+
+<style>
+.prov-table{width:100%;border-collapse:collapse;font-size:14px}
+.prov-table th{text-align:left;padding:10px 14px;font-size:12px;text-transform:uppercase;letter-spacing:.03em;opacity:.6;border-bottom:1px solid var(--border,#e5e7eb)}
+.prov-table td{padding:10px 14px;border-bottom:1px solid var(--border,#f1f5f9);vertical-align:middle}
+.prov-table form{margin:0}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.chip-off{background:#fef3c7;color:#b45309}
+.bal.low{color:#dc2626}.bal.ok{color:#15803d}
+@media(max-width:760px){ .hide-sm{display:none} }
+</style>
+
+<script>
+(function(){
+  // Carga el saldo en vivo de cada proveedor presente en la lista
+  var provs = {};
+  document.querySelectorAll('.bal').forEach(function(el){
+    var k = el.getAttribute('data-prov'); if (!k) { el.textContent='—'; return; }
+    (provs[k] = provs[k] || []).push(el);
+  });
+  Object.keys(provs).forEach(function(k){
+    fetch('/admin/providers/'+encodeURIComponent(k)+'/balance', { headers:{'X-Requested-With':'fetch'} })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){
+        var txt = (d && d.credit!=null) ? ('$'+Number(d.credit).toFixed(2)) : '—';
+        provs[k].forEach(function(el){
+          el.textContent = txt;
+          if (d && d.credit!=null){
+            var cost = parseFloat(el.closest('tr').querySelector('td:nth-child(4)').textContent.replace(/[^0-9.]/g,''))||0;
+            el.classList.add(d.credit < cost ? 'low' : 'ok');
+          }
+        });
+      })
+      .catch(function(){ provs[k].forEach(function(el){ el.textContent='—'; }); });
+  });
+})();
+</script>

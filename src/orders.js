@@ -73,6 +73,23 @@ function reject(id) {
 
 function markRefunded(id) { db.prepare('UPDATE orders SET refunded=1 WHERE id=?').run(id); return getById(id); }
 
+// --- retención por saldo de proveedor insuficiente -----------------------
+/** Marca la orden como retenida: el cliente la ve "procesando", el admin debe recargar y reintentar. */
+function holdFunds(id, providerKey, cost) {
+  db.prepare(`UPDATE orders SET held_funds=1, held_provider=?, held_cost=?, held_at=datetime('now'), status=? WHERE id=?`)
+    .run(providerKey || null, cost != null ? cost : null, STATUS.PROCESSING, id);
+  return getById(id);
+}
+function clearHeld(id) { db.prepare('UPDATE orders SET held_funds=0 WHERE id=?').run(id); return getById(id); }
+/** Órdenes retenidas esperando recarga, con datos del cliente. */
+function listHeld() {
+  return db.prepare(`SELECT o.*, u.email AS user_email FROM orders o JOIN users u ON u.id=o.user_id
+                     WHERE o.held_funds=1 ORDER BY o.held_at ASC, o.id ASC`).all();
+}
+function countHeld() {
+  return db.prepare('SELECT COUNT(*) n FROM orders WHERE held_funds=1').get().n;
+}
+
 // --- intentos por proveedor ---------------------------------------------
 function createAttempt(orderId, providerKey, cost) {
   const info = db.prepare('INSERT INTO order_attempts (order_id, provider_key, cost) VALUES (?,?,?)')
@@ -124,6 +141,7 @@ module.exports = {
   STATUS, parseSql, secondsSince,
   createOrder, getById, getByCode, getByCodeForUser, listForUser,
   setStatus, assignProvider, complete, reject, markRefunded,
+  holdFunds, clearHeld, listHeld, countHeld,
   createAttempt, setAttemptRef, resolveAttempt, listAttempts, triedProviders, openAttemptFor,
   listProcessingAuto, adminList, stats,
 };

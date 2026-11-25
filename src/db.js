@@ -153,6 +153,14 @@ function init() {
   // approval gate: 1 = can see prices / top up / buy. New registrations may be 0
   // (pending) depending on the auto_approve setting. Existing rows default to 1.
   add('approved', 'INTEGER NOT NULL DEFAULT 1');
+
+  // --- migraciones: órdenes retenidas por saldo de proveedor insuficiente ---
+  const ocols = db.prepare('PRAGMA table_info(orders)').all().map((c) => c.name);
+  const oadd = (name, def) => { if (!ocols.includes(name)) db.exec(`ALTER TABLE orders ADD COLUMN ${name} ${def}`); };
+  oadd('held_funds', 'INTEGER NOT NULL DEFAULT 0'); // 1 = esperando que el admin recargue saldo del proveedor
+  oadd('held_provider', 'TEXT');                    // proveedor cuyo saldo no alcanzó
+  oadd('held_cost', 'REAL');                        // costo que no se pudo cubrir
+  oadd('held_at', 'TEXT');
 }
 
 // --- simple key/value settings (auto_approve, etc.) ----------------------

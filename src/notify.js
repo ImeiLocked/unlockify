@@ -81,6 +81,22 @@ async function notifyAdminNewOrder(order, mode) {
 async function notifyAdminTopup(topup, newBalance) {
   await telegram(`💰 <b>TOP-UP</b> ${topup.expected_amount} USDT (${topup.chain.toUpperCase()})\n👤 ${esc(topup.user_email || '')}\n🧾 ${topup.code} — balance: ${newBalance}`);
 }
+/** Alerta al admin: una orden quedó retenida porque tu saldo en el proveedor no alcanza. */
+async function notifyAdminFundsHold(order, providerKey, credit, cost) {
+  const cr = credit == null ? '—' : `$${Number(credit).toFixed(2)}`;
+  const co = cost == null ? '—' : `$${Number(cost).toFixed(2)}`;
+  await telegram(`⚠️ <b>ORDEN EN ESPERA</b> — saldo insuficiente en ${esc(providerKey)}\n\n🧾 ${order.code}\n📦 ${esc(order.service_title)}\n🔑 ${idLabel(order)}: <code>${esc(order.identifier)}</code>\n💳 Saldo: ${cr} · Costo: ${co}\n\n👉 Recarga y reintenta: ${config.publicUrl}/admin/held`);
+  const to = config.email.to || config.zoho.from;
+  if (!config.mailEnabled || !to) return;
+  const url = `${config.publicUrl}/admin/held`;
+  const text = `Orden en espera por saldo insuficiente.\n\nOrden: ${order.code}\nServicio: ${order.service_title}\n${idLabel(order)}: ${order.identifier}\nProveedor: ${providerKey}\nSaldo proveedor: ${cr}\nCosto: ${co}\n\nEl cliente la ve como "procesando". Recarga saldo en ${providerKey} y pulsa Reintentar:\n${url}`;
+  await email(`⚠️ Orden ${order.code} en espera — recarga saldo de ${providerKey}`, text, to, customerHtml({
+    heading: '⚠️ Orden en espera por saldo',
+    intro: `La orden ${order.code} no se pudo procesar porque tu saldo en ${providerKey} no alcanza. El cliente la ve como "procesando". Recarga y reintenta desde el panel.`,
+    rows: [['Orden', order.code], ['Servicio', order.service_title], [idLabel(order), order.identifier], ['Proveedor', providerKey], ['Saldo proveedor', cr], ['Costo', co]],
+    ctaUrl: url, ctaText: 'Ver pendientes y reintentar',
+  }));
+}
 
 // --- CUSTOMER ------------------------------------------------------------
 async function notifyOrderCompleted(order, to) {
@@ -131,6 +147,6 @@ async function sendOtp(to, code) {
 
 module.exports = {
   telegram, email, fmtDuration, sendOtp,
-  notifyAdminNewOrder, notifyAdminTopup,
+  notifyAdminNewOrder, notifyAdminTopup, notifyAdminFundsHold,
   notifyOrderCompleted, notifyOrderRejected, notifyTopupConfirmed,
 };

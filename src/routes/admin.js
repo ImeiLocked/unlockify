@@ -26,6 +26,7 @@ router.use((req, res, next) => {
   res.locals.lang = lang;
   res.locals.adminLang = lang;
   try { res.locals.supportPending = require('../support').pendingReplyCount(); } catch (_) { res.locals.supportPending = 0; }
+  try { res.locals.heldCount = orders.countHeld(); } catch (_) { res.locals.heldCount = 0; }
   next();
 });
 router.get('/lang/:lang', (req, res) => {
@@ -190,6 +191,30 @@ router.post('/providers/:provider/:id/hide', (req, res) => {
   if (!other) db.prepare('UPDATE services SET active=0 WHERE id=?').run(id);
   else db.prepare('UPDATE services SET primary_provider=? WHERE id=? AND primary_provider=?').run(other.provider_key, id, provider);
   res.redirect('/admin/providers?p=' + encodeURIComponent(provider) + (req.query.pub ? '&pub=1' : '') + '#s' + id);
+});
+
+// Saldo en vivo de un proveedor (JSON, para mostrar en la pestaña)
+router.get('/providers/:key/balance', async (req, res) => {
+  try { const credit = await providers.getCredit(req.params.key); res.json({ credit }); }
+  catch (e) { res.json({ credit: null, error: e.message }); }
+});
+
+// ---------- Pendientes por saldo: órdenes retenidas esperando recarga ----------
+router.get('/held', (req, res) => {
+  const held = orders.listHeld().map((o) => ({
+    ...o,
+    waited: orders.secondsSince(o.held_at || o.created_at),
+    provider_name: providers.providerName(o.held_provider),
+  }));
+  res.render('admin/held', { title: 'Pendientes', layoutAdmin: true, held });
+});
+router.get('/held/count', (req, res) => { res.json({ held: orders.countHeld() }); });
+router.post('/held/:id/retry', async (req, res) => {
+  const o = orders.getById(req.params.id);
+  if (!o) return res.redirect('/admin/held');
+  try { await fulfillment.retryHeld(o.id); }
+  catch (e) { console.error('[admin] retryHeld:', e.message); }
+  res.redirect('/admin/held');
 });
 
 // ---------- Usuarios ----------

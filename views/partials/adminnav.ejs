@@ -3,6 +3,7 @@
   <a href="/admin/orders" class="<%= currentPath.indexOf('/admin/orders') === 0 ? 'active' : '' %>"><%= t('nav.orders') %></a>
   <a href="/admin/services" class="<%= currentPath === '/admin/services' ? 'active' : '' %>"><%= t('nav.services') %></a>
   <a href="/admin/providers" class="<%= currentPath.indexOf('/admin/providers') === 0 ? 'active' : '' %>"><%= adminLang === 'en' ? '🔌 Providers' : '🔌 Proveedores' %></a>
+  <a href="/admin/held" class="nav-has-badge <%= currentPath.indexOf('/admin/held') === 0 ? 'active' : '' %>"><%= adminLang === 'en' ? '⏳ Pending' : '⏳ Pendientes' %><span id="held-badge" class="nav-badge<%= (typeof heldCount !== 'undefined' && heldCount > 0) ? '' : ' hidden' %>"><%= (typeof heldCount !== 'undefined' && heldCount > 0) ? (heldCount > 99 ? '99+' : heldCount) : '' %></span></a>
   <a href="/admin/users" class="<%= currentPath.indexOf('/admin/users') === 0 ? 'active' : '' %>"><%= t('nav.users') %></a>
   <a href="/admin/topups" class="<%= currentPath === '/admin/topups' ? 'active' : '' %>"><%= t('nav.topups') %></a>
   <a href="/admin/support" class="nav-has-badge <%= currentPath.indexOf('/admin/support') === 0 ? 'active' : '' %>"><%= t('nav.support') %><span id="support-badge" class="nav-badge<%= (typeof supportPending !== 'undefined' && supportPending > 0) ? '' : ' hidden' %>"><%= (typeof supportPending !== 'undefined' && supportPending > 0) ? (supportPending > 99 ? '99+' : supportPending) : '' %></span></a>
@@ -18,18 +19,23 @@
 </div>
 <script>
 (function () {
-  var b = document.getElementById('support-badge');
-  if (!b) return;
-  function refresh() {
-    fetch('/admin/support/pending-count', { headers: { 'X-Requested-With': 'fetch' } })
+  function paint(el, n) {
+    if (!el) return;
+    if (n > 0) { el.textContent = n > 99 ? '99+' : n; el.classList.remove('hidden'); }
+    else { el.textContent = ''; el.classList.add('hidden'); }
+  }
+  function poll(url, key, el) {
+    if (!el) return;
+    fetch(url, { headers: { 'X-Requested-With': 'fetch' } })
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) {
-        if (!d) return;
-        var n = d.pending || 0;
-        if (n > 0) { b.textContent = n > 99 ? '99+' : n; b.classList.remove('hidden'); }
-        else { b.textContent = ''; b.classList.add('hidden'); }
-      })
+      .then(function (d) { if (d) paint(el, d[key] || 0); })
       .catch(function () {});
+  }
+  var sb = document.getElementById('support-badge');
+  var hb = document.getElementById('held-badge');
+  function refresh() {
+    poll('/admin/support/pending-count', 'pending', sb);
+    poll('/admin/held/count', 'held', hb);
   }
   setInterval(refresh, 30000);
 })();

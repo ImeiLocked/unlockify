@@ -22,6 +22,7 @@
     <a href="/admin/providers?p=<%= p.key %>" class="prov-tab <%= on ? 'active' : '' %>">
       <span class="prov-tab-name"><%= p.name %></span>
       <span class="prov-tab-meta"><%= c.published %> <%= adminLang==='en'?'live':'en vivo' %> · <%= c.total %> <%= adminLang==='en'?'total':'total' %></span>
+      <span class="prov-tab-bal" data-prov="<%= p.key %>"><%= adminLang==='en'?'Balance':'Saldo' %>: <b>…</b></span>
     </a>
   <% }); %>
 </div>
@@ -86,6 +87,9 @@
 .prov-tab.active{border-color:var(--primary,#16a34a);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary,#16a34a) 20%,transparent)}
 .prov-tab-name{font-weight:700}
 .prov-tab-meta{font-size:12px;opacity:.7}
+.prov-tab-bal{font-size:12px;margin-top:2px}
+.prov-tab-bal b{color:#15803d}
+.prov-tab-bal b.low{color:#dc2626}
 .prov-table{width:100%;border-collapse:collapse;font-size:14px}
 .prov-table th{text-align:left;padding:10px 14px;font-size:12px;text-transform:uppercase;letter-spacing:.03em;opacity:.6;border-bottom:1px solid var(--border,#e5e7eb)}
 .prov-table td{padding:9px 14px;border-bottom:1px solid var(--border,#f1f5f9);vertical-align:middle}
@@ -121,5 +125,14 @@
   q.addEventListener('input', apply);
   only.addEventListener('change', apply);
   apply();
+
+  // Saldo en vivo de cada proveedor en su pestaña
+  document.querySelectorAll('.prov-tab-bal').forEach(function(el){
+    var k = el.getAttribute('data-prov'); var b = el.querySelector('b');
+    fetch('/admin/providers/'+encodeURIComponent(k)+'/balance', { headers:{'X-Requested-With':'fetch'} })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ if (b) b.textContent = (d && d.credit!=null) ? ('$'+Number(d.credit).toFixed(2)) : '—'; })
+      .catch(function(){ if (b) b.textContent='—'; });
+  });
 })();
 </script>
