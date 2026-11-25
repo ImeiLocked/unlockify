@@ -1,39 +1,39 @@
 <%- include('partials/header') %>
-<a class="back" href="/account">← Mis pedidos</a>
+<a class="back" href="/account">← My orders</a>
 
 <div class="order-grid">
   <div class="panel" data-poll="/order/<%= order.code %>/status.json" data-status="<%= order.status %>" data-active="queued,processing">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <h1 style="margin:0;font-size:22px">Orden <%= order.code %></h1>
-      <span class="pill <%= order.status %>"><%= ({queued:'Procesando',processing:'Procesando',completed:'Completado',rejected:'Rechazado',cancelled:'Cancelado'})[order.status] %></span>
+      <h1 style="margin:0;font-size:22px">Order <%= order.code %></h1>
+      <span class="pill <%= order.status %>"><%= ({queued:'Processing',processing:'Processing',completed:'Completed',rejected:'Rejected',cancelled:'Cancelled'})[order.status] %></span>
     </div>
     <p class="muted" style="margin-top:0"><%= order.service_title %></p>
 
     <% if (order.status === 'completed') { %>
-      <div class="statusbar status-completed" style="margin-bottom:14px">✅ ¡Pedido completado!</div>
-      <label class="muted small">Resultado:</label>
-      <div class="result-box"><%= order.result_text || 'Procesado correctamente. Revisa tu equipo.' %></div>
+      <div class="statusbar status-completed" style="margin-bottom:14px">✅ Order completed!</div>
+      <label class="muted small">Result:</label>
+      <div class="result-box"><%= order.result_text || 'Processed successfully. Check your device.' %></div>
     <% } else if (order.status === 'rejected') { %>
-      <div class="statusbar status-rejected">No se pudo completar. Te reembolsamos <strong>$<%= order.price.toFixed(2) %></strong> a tu saldo.</div>
-      <a class="btn btn-primary" style="margin-top:14px" href="/service/<%= order.service_id %>">Intentar de nuevo</a>
+      <div class="statusbar status-rejected">Couldn't be completed. We refunded <strong>$<%= order.price.toFixed(2) %></strong> to your balance.</div>
+      <a class="btn btn-primary" style="margin-top:14px" href="/service/<%= order.service_id %>">Try again</a>
     <% } else { %>
-      <div class="statusbar status-processing"><span class="spinner"></span> Procesando tu pedido…</div>
-      <p class="hint" style="margin-top:14px">Te avisaremos por correo y aquí mismo cuando esté listo. No necesitas hacer nada más.</p>
+      <div class="statusbar status-processing"><span class="spinner"></span> Processing your order…</div>
+      <p class="hint" style="margin-top:14px">We'll notify you by email and here when it's ready. You don't need to do anything else.</p>
     <% } %>
   </div>
 
   <aside class="panel">
-    <h3 style="margin-top:0">Resumen</h3>
-    <div class="kv"><span>Orden</span><strong><%= order.code %></strong></div>
-    <div class="kv"><span><%= order.identifier_type === 'serial' ? 'N° Serie' : 'IMEI' %></span><strong><%= order.identifier %></strong></div>
-    <div class="kv"><span>Precio</span><strong>$<%= order.price.toFixed(2) %> USDT</strong></div>
-    <div class="kv"><span>Fecha</span><span class="small"><%= order.created_at %></span></div>
+    <h3 style="margin-top:0">Summary</h3>
+    <div class="kv"><span>Order</span><strong><%= order.code %></strong></div>
+    <div class="kv"><span><%= order.identifier_type === 'serial' ? 'Serial' : 'IMEI' %></span><strong><%= order.identifier %></strong></div>
+    <div class="kv"><span>Price</span><strong>$<%= order.price.toFixed(2) %> USDT</strong></div>
+    <div class="kv"><span>Date</span><span class="small"><%= order.created_at %></span></div>
     <% if (order.total_seconds != null && order.status === 'completed') { %>
-      <div class="kv"><span>Resuelto en</span><strong><%= order.total_seconds < 60 ? order.total_seconds + 's' : Math.floor(order.total_seconds/60) + 'm ' + (order.total_seconds%60) + 's' %></strong></div>
+      <div class="kv"><span>Resolved in</span><strong><%= order.total_seconds < 60 ? order.total_seconds + 's' : Math.floor(order.total_seconds/60) + 'm ' + (order.total_seconds%60) + 's' %></strong></div>
     <% } %>
   </aside>
 </div>
 
-<div class="toast" id="toast">Copiado ✅</div>
+<div class="toast" id="toast">Copied ✅</div>
 <script src="/static/js/pay.js"></script>
 <%- include('partials/footer') %>

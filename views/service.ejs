@@ -1,52 +1,52 @@
 <%- include('partials/header') %>
-<a class="back" href="/">← Volver a servicios</a>
+<a class="back" href="/">← Back to services</a>
 
 <div class="order-grid">
   <div class="panel">
     <h1 style="font-size:20px;margin:0 0 14px;line-height:1.3"><%= service.title %></h1>
     <div class="svc-meta" style="margin-bottom:16px">
       <% if (service.delivery_time) { %><span class="badge badge-time">⏱ <%= service.delivery_time %></span><% } %>
-      <span class="badge badge-id"><%= service.identifier_type === 'serial' ? 'Requiere N° de Serie' : 'Requiere IMEI' %></span>
-      <% if (service.auto_fulfill) { %><span class="badge badge-ok">⚡ Automático</span><% } %>
+      <span class="badge badge-id"><%= service.identifier_type === 'serial' ? 'Serial required' : 'IMEI required' %></span>
+      <% if (service.auto_fulfill) { %><span class="badge badge-ok">⚡ Automatic</span><% } %>
     </div>
 
     <div class="kv" style="border:none;padding:4px 0 16px">
-      <span>Precio</span><strong style="font-size:22px;color:var(--primary)">$<%= service.price.toFixed(2) %> USDT</strong>
+      <span>Price</span><strong style="font-size:22px;color:var(--primary)">$<%= service.price.toFixed(2) %> USDT</strong>
     </div>
 
     <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
     <% if (!user) { %>
-      <div class="alert alert-info">Inicia sesión para ordenar. Es gratis.</div>
-      <a class="btn btn-primary btn-lg" href="/login">Iniciar sesión</a>
-      <p class="form-foot">¿No tienes cuenta? <a href="/register">Créala aquí</a></p>
+      <div class="alert alert-info">Log in to order. It's free.</div>
+      <a class="btn btn-primary btn-lg" href="/login">Log in</a>
+      <p class="form-foot">Don't have an account? <a href="/register">Create one here</a></p>
     <% } else { %>
-      <div class="kv"><span>Tu saldo</span><strong>$<%= (userBalance||0).toFixed(2) %> USDT</strong></div>
+      <div class="kv"><span>Your balance</span><strong>$<%= (userBalance||0).toFixed(2) %> USDT</strong></div>
       <% if ((userBalance||0) < service.price) { %>
-        <div class="alert alert-warn" style="margin-top:12px">Saldo insuficiente. Te faltan $<%= (service.price - (userBalance||0)).toFixed(2) %>.</div>
-        <a class="btn btn-primary btn-lg" href="/topup">Recargar saldo</a>
+        <div class="alert alert-warn" style="margin-top:12px">Insufficient balance. You need $<%= (service.price - (userBalance||0)).toFixed(2) %> more.</div>
+        <a class="btn btn-primary btn-lg" href="/topup">Add funds</a>
       <% } else { %>
         <form action="/order/create" method="post" style="margin-top:10px">
           <input type="hidden" name="service_id" value="<%= service.id %>">
           <div class="field">
-            <label><%= service.identifier_type === 'serial' ? 'Número de Serie del equipo' : 'IMEI del equipo' %></label>
+            <label><%= service.identifier_type === 'serial' ? 'Device serial number' : 'Device IMEI' %></label>
             <input class="input" type="text" name="identifier" value="<%= form.identifier || '' %>"
-                   placeholder="<%= service.identifier_type === 'serial' ? 'Ej: F2LXXXXXXXXX' : 'Ej: 356789104567890' %>" autocomplete="off" required>
-            <div class="hint"><% if (service.identifier_type === 'serial') { %>En Ajustes → General → Información, o en la caja.<% } else { %>Marca <strong>*#06#</strong> o míralo en Ajustes → General → Información.<% } %></div>
+                   placeholder="<%= service.identifier_type === 'serial' ? 'e.g. F2LXXXXXXXXX' : 'e.g. 356789104567890' %>" autocomplete="off" required>
+            <div class="hint"><% if (service.identifier_type === 'serial') { %>In Settings → General → About, or on the box.<% } else { %>Dial <strong>*#06#</strong> or find it in Settings → General → About.<% } %></div>
           </div>
-          <button class="btn btn-primary btn-lg" type="submit">Ordenar ahora · −$<%= service.price.toFixed(2) %> del saldo</button>
+          <button class="btn btn-primary btn-lg" type="submit">Order now · −$<%= service.price.toFixed(2) %> from balance</button>
         </form>
       <% } %>
     <% } %>
   </div>
 
   <aside class="panel">
-    <h3 style="margin-top:0">Cómo funciona</h3>
-    <div class="kv"><span>1. Ingresas tu <%= service.identifier_type === 'serial' ? 'serie' : 'IMEI' %></span><span>📱</span></div>
-    <div class="kv"><span>2. Se cobra de tu saldo</span><span>💳</span></div>
-    <div class="kv"><span>3. Procesamos tu orden</span><span>⚙️</span></div>
-    <div class="kv"><span>4. Recibes el resultado</span><span>✅</span></div>
-    <p class="hint" style="margin-top:14px">Si por algo no se puede completar, se te <strong>reembolsa el saldo</strong> automáticamente.</p>
+    <h3 style="margin-top:0">How it works</h3>
+    <div class="kv"><span>1. Enter your <%= service.identifier_type === 'serial' ? 'serial' : 'IMEI' %></span><span>📱</span></div>
+    <div class="kv"><span>2. Charged from your balance</span><span>💳</span></div>
+    <div class="kv"><span>3. We process your order</span><span>⚙️</span></div>
+    <div class="kv"><span>4. You get the result</span><span>✅</span></div>
+    <p class="hint" style="margin-top:14px">If it can't be completed for any reason, your <strong>balance is refunded</strong> automatically.</p>
   </aside>
 </div>
 <%- include('partials/footer') %>

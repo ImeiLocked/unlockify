@@ -49,8 +49,8 @@ app.use('/', require('./routes/order'));
 app.use('/', require('./routes/topup'));
 app.use('/admin', require('./routes/admin'));
 
-app.use((req, res) => res.status(404).render('error', { title: 'No encontrado', message: 'La página que buscas no existe.' }));
-app.use((err, req, res, next) => { console.error('[error]', err); res.status(500).render('error', { title: 'Error', message: 'Ocurrió un error inesperado.' }); });
+app.use((req, res) => res.status(404).render('error', { title: 'Not found', message: 'The page you are looking for does not exist.' }));
+app.use((err, req, res, next) => { console.error('[error]', err); res.status(500).render('error', { title: 'Error', message: 'An unexpected error occurred.' }); });
 
 // --- recarga confirmada -> avisar ---
 async function onTopupConfirmed(topup) {
@@ -62,8 +62,8 @@ payments.startWatcher(onTopupConfirmed);
 fulfillment.startPoller();
 
 app.listen(config.port, () => {
-  console.log(`\n🚀 ${config.brandName} en puerto ${config.port}  |  ${config.publicUrl}`);
+  console.log(`\n🚀 ${config.brandName} on port ${config.port}  |  ${config.publicUrl}`);
   const chains = payments.availableChains().map((c) => c.key.toUpperCase());
   const provs = config.enabledProviders().map((p) => p.name);
-  console.log(`   Redes USDT: ${chains.join(', ') || 'NINGUNA'}  |  Proveedores auto: ${provs.join(', ') || 'NINGUNO (modo manual)'}  |  Telegram: ${config.telegram.enabled ? 'ON' : 'OFF'}\n`);
+  console.log(`   USDT networks: ${chains.join(', ') || 'NONE'}  |  Auto providers: ${provs.join(', ') || 'NONE (manual mode)'}  |  Telegram: ${config.telegram.enabled ? 'ON' : 'OFF'}\n`);
 });

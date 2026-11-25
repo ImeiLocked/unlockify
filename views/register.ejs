@@ -1,26 +1,26 @@
 <%- include('partials/header') %>
 <div class="form-wrap">
   <div class="panel">
-    <h1>Crear cuenta</h1>
-    <p class="muted" style="margin-top:0">Gratis. Necesaria para ordenar y seguir tus desbloqueos.</p>
+    <h1>Create account</h1>
+    <p class="muted" style="margin-top:0">Free. Required to order and track your unlocks.</p>
     <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
     <form action="/register" method="post">
       <div class="field">
-        <label>Nombre</label>
-        <input class="input" type="text" name="name" value="<%= form.name || '' %>" placeholder="Opcional">
+        <label>Name</label>
+        <input class="input" type="text" name="name" value="<%= form.name || '' %>" placeholder="Optional">
       </div>
       <div class="field">
-        <label>Correo</label>
+        <label>Email</label>
         <input class="input" type="email" name="email" value="<%= form.email || '' %>" required>
       </div>
       <div class="field">
-        <label>Contraseña</label>
+        <label>Password</label>
         <input class="input" type="password" name="password" minlength="6" required>
-        <div class="hint">Mínimo 6 caracteres.</div>
+        <div class="hint">At least 6 characters.</div>
       </div>
-      <button class="btn btn-primary btn-lg" type="submit">Crear cuenta</button>
+      <button class="btn btn-primary btn-lg" type="submit">Create account</button>
     </form>
-    <p class="form-foot">¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
+    <p class="form-foot">Already have an account? <a href="/login">Log in</a></p>
   </div>
 </div>
 <%- include('partials/footer') %>

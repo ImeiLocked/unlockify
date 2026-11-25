@@ -20,7 +20,7 @@ function genPassword() { return crypto.randomBytes(5).toString('base64').replace
 // ---------- Dashboard ----------
 router.get('/', (req, res) => {
   res.render('admin/dashboard', {
-    title: 'Panel', layoutAdmin: true,
+    title: 'Dashboard', layoutAdmin: true,
     stats: orders.stats(),
     recent: orders.adminList({ status: 'all' }).slice(0, 12),
     providers: config.providers,
@@ -32,14 +32,14 @@ router.get('/', (req, res) => {
 // ---------- Ordenes ----------
 router.get('/orders', (req, res) => {
   const status = req.query.status || 'all';
-  res.render('admin/orders', { title: 'Órdenes', layoutAdmin: true, orders: orders.adminList({ status }), status, providerName: providers.providerName });
+  res.render('admin/orders', { title: 'Orders', layoutAdmin: true, orders: orders.adminList({ status }), status, providerName: providers.providerName });
 });
 router.get('/orders/:code', (req, res) => {
   const order = orders.getByCode(req.params.code);
-  if (!order) return res.status(404).render('error', { title: 'No encontrada', message: 'Orden no encontrada.' });
+  if (!order) return res.status(404).render('error', { title: 'Not found', message: 'Order not found.' });
   const customer = db.prepare('SELECT email,name FROM users WHERE id=?').get(order.user_id);
   res.render('admin/order', {
-    title: `Orden ${order.code}`, layoutAdmin: true, order, customer,
+    title: `Order ${order.code}`, layoutAdmin: true, order, customer,
     attempts: orders.listAttempts(order.id), providerName: providers.providerName,
   });
 });
@@ -72,7 +72,7 @@ router.post('/orders/:id/retry', async (req, res) => {
 // ---------- Servicios ----------
 router.get('/services', (req, res) => {
   res.render('admin/services', {
-    title: 'Servicios', layoutAdmin: true,
+    title: 'Services', layoutAdmin: true,
     services: catalog.getAllServicesAdmin(), markup: config.markup,
     providers: config.providers, synced: req.query.synced, providerName: providers.providerName,
   });
@@ -107,13 +107,13 @@ router.post('/services/:id/sources', (req, res) => {
 });
 router.post('/sync/:provider', async (req, res) => {
   try { const r = await providers.syncCatalog(req.params.provider); res.redirect(`/admin/services?synced=${encodeURIComponent(JSON.stringify(r))}`); }
-  catch (e) { res.status(400).render('error', { title: 'Error de sincronización', message: e.message }); }
+  catch (e) { res.status(400).render('error', { title: 'Sync error', message: e.message }); }
 });
 
 // ---------- Usuarios ----------
 router.get('/users', (req, res) => {
   const users = db.prepare('SELECT id,email,name,active,balance,is_admin,created_at FROM users ORDER BY is_admin DESC, id DESC').all();
-  res.render('admin/users', { title: 'Usuarios', layoutAdmin: true, users, error: req.query.error || null });
+  res.render('admin/users', { title: 'Users', layoutAdmin: true, users, error: req.query.error || null });
 });
 router.post('/users', (req, res) => {
   try { auth.createUser({ email: req.body.email, password: req.body.password, name: req.body.name }); res.redirect('/admin/users'); }
@@ -147,7 +147,7 @@ router.post('/users/:id/password', (req, res) => {
 router.post('/users/:id/balance', (req, res) => {
   const u = db.prepare('SELECT id FROM users WHERE id=?').get(req.params.id);
   const amount = Number(req.body.amount);
-  const note = String(req.body.note || 'ajuste admin').slice(0, 80);
+  const note = String(req.body.note || 'admin adjustment').slice(0, 80);
   if (u && Number.isFinite(amount) && amount !== 0) {
     if (amount > 0) balance.credit(u.id, amount, 'admin_credit', note);
     else balance.debit(u.id, Math.abs(amount), 'admin_debit', note);
@@ -157,7 +157,7 @@ router.post('/users/:id/balance', (req, res) => {
 
 // ---------- Recargas ----------
 router.get('/topups', (req, res) => {
-  res.render('admin/topups', { title: 'Recargas', layoutAdmin: true, topups: topups.adminList(300) });
+  res.render('admin/topups', { title: 'Top-ups', layoutAdmin: true, topups: topups.adminList(300) });
 });
 
 module.exports = router;

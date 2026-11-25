@@ -148,8 +148,8 @@ function ensureAdmin() {
   if (existing) return;
   const hash = bcrypt.hashSync(config.admin.password, 10);
   db.prepare('INSERT INTO users (email, password_hash, name, is_admin, active) VALUES (?, ?, ?, 1, 1)')
-    .run(config.admin.email, hash, 'Administrador');
-  console.log(`[db] Admin creado: ${config.admin.email}`);
+    .run(config.admin.email, hash, 'Administrator');
+  console.log(`[db] Admin created: ${config.admin.email}`);
 }
 
 function normalizeTitle(t) {

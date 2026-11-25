@@ -10,7 +10,7 @@ const balance = require('../balance');
 
 router.get('/topup', auth.requireLogin, (req, res) => {
   res.render('topup', {
-    title: 'Recargar saldo',
+    title: 'Add funds',
     chains: payments.availableChains(),
     balance: balance.getBalance(req.user.id),
     min: config.usdt.minTopup,
@@ -22,11 +22,11 @@ router.post('/topup/create', auth.requireLogin, (req, res) => {
   const chains = payments.availableChains();
   const amount = Math.round(Number(req.body.amount) * 100) / 100;
   const chain = req.body.chain;
-  const rerender = (error) => res.status(400).render('topup', { title: 'Recargar saldo', chains, balance: balance.getBalance(req.user.id), min: config.usdt.minTopup, error, form: { amount: req.body.amount, chain } });
+  const rerender = (error) => res.status(400).render('topup', { title: 'Add funds', chains, balance: balance.getBalance(req.user.id), min: config.usdt.minTopup, error, form: { amount: req.body.amount, chain } });
 
-  if (!chains.find((c) => c.key === chain)) return rerender('Elige una red válida.');
-  if (!Number.isFinite(amount) || amount < config.usdt.minTopup) return rerender(`El mínimo de recarga es ${config.usdt.minTopup} USDT.`);
-  if (amount > 100000) return rerender('Monto demasiado alto.');
+  if (!chains.find((c) => c.key === chain)) return rerender('Choose a valid network.');
+  if (!Number.isFinite(amount) || amount < config.usdt.minTopup) return rerender(`The minimum top-up is ${config.usdt.minTopup} USDT.`);
+  if (amount > 100000) return rerender('Amount too high.');
 
   let pay;
   try { pay = payments.assignPayment(chain, amount); } catch (e) { return rerender(e.message); }
@@ -39,10 +39,10 @@ router.post('/topup/create', auth.requireLogin, (req, res) => {
 
 router.get('/topup/:code', auth.requireLogin, async (req, res) => {
   const t = topups.getByCodeForUser(req.params.code, req.user.id);
-  if (!t) return res.status(404).render('error', { title: 'No encontrada', message: 'Recarga no encontrada.' });
+  if (!t) return res.status(404).render('error', { title: 'Not found', message: 'Top-up not found.' });
   let qr = null;
   if (t.status === 'pending') { try { qr = await QRCode.toDataURL(t.pay_address, { margin: 1, width: 240 }); } catch {} }
-  res.render('topup_pay', { title: `Recarga ${t.code}`, topup: t, qr, balance: balance.getBalance(req.user.id) });
+  res.render('topup_pay', { title: `Top-up ${t.code}`, topup: t, qr, balance: balance.getBalance(req.user.id) });
 });
 
 router.get('/topup/:code/status.json', auth.requireLogin, (req, res) => {

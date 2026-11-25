@@ -1,11 +1,11 @@
 <%- include('../partials/header') %>
 <%- include('../partials/adminnav') %>
-<h1 class="page-title">Recargas</h1>
+<h1 class="page-title">Top-ups</h1>
 <div class="panel" style="overflow-x:auto">
   <table class="table">
-    <thead><tr><th>Recarga</th><th>Cliente</th><th>Monto</th><th>Red</th><th>Estado</th><th>TX</th><th>Fecha</th></tr></thead>
+    <thead><tr><th>Top-up</th><th>Customer</th><th>Amount</th><th>Network</th><th>Status</th><th>TX</th><th>Date</th></tr></thead>
     <tbody>
-      <% if (topups.length===0) { %><tr><td colspan="7" class="muted">Sin recargas.</td></tr><% } %>
+      <% if (topups.length===0) { %><tr><td colspan="7" class="muted">No top-ups.</td></tr><% } %>
       <% topups.forEach(function(t){ %>
         <tr>
           <td><strong><%= t.code %></strong></td>

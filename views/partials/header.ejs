@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %> · <%= brand %></title>
-  <meta name="description" content="<%= brand %> — Servicios de desbloqueo, FMI OFF, bypass MDM y liberacion de red. Pago seguro con USDT.">
+  <meta name="description" content="<%= brand %> — Unlock services: FMI OFF, MDM bypass and network unlock. Secure payment with USDT.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="/static/css/styles.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔓</text></svg>">
@@ -16,20 +16,20 @@
       <span class="brand-mark">🔓</span><span class="brand-name"><%= brand %></span>
     </a>
     <nav class="nav-links">
-      <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Servicios</a>
-      <a href="/como-funciona" class="<%= currentPath === '/como-funciona' ? 'active' : '' %>">Cómo funciona</a>
+      <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Services</a>
+      <a href="/how-it-works" class="<%= currentPath === '/how-it-works' ? 'active' : '' %>">How it works</a>
       <% if (user) { %>
         <% if (user.is_admin) { %>
-          <a href="/admin">Panel</a>
+          <a href="/admin">Dashboard</a>
         <% } else { %>
           <% if (typeof userBalance === 'number') { %><a href="/account" class="bal-chip">💰 $<%= userBalance.toFixed(2) %></a><% } %>
-          <a href="/topup" class="btn btn-primary btn-sm">Recargar</a>
+          <a href="/topup" class="btn btn-primary btn-sm">Add funds</a>
         <% } %>
-        <a href="/account" class="<%= currentPath === '/account' ? 'active' : '' %>">Mi cuenta</a>
-        <form action="/logout" method="post" class="inline"><button class="btn btn-ghost btn-sm">Salir</button></form>
+        <a href="/account" class="<%= currentPath === '/account' ? 'active' : '' %>">My account</a>
+        <form action="/logout" method="post" class="inline"><button class="btn btn-ghost btn-sm">Log out</button></form>
       <% } else { %>
-        <a href="/login">Entrar</a>
-        <a href="/register" class="btn btn-primary btn-sm">Crear cuenta</a>
+        <a href="/login">Log in</a>
+        <a href="/register" class="btn btn-primary btn-sm">Sign up</a>
       <% } %>
     </nav>
   </div>

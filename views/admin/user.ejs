@@ -1,55 +1,55 @@
 <%- include('../partials/header') %>
 <%- include('../partials/adminnav') %>
-<a class="back" href="/admin/users">← Todos los usuarios</a>
+<a class="back" href="/admin/users">← All users</a>
 
 <% if (newPassword) { %>
-  <div class="alert alert-ok">Nueva contraseña para <strong><%= u.email %></strong>: <code style="font-size:16px"><%= newPassword %></code> — cópiala y envíasela al cliente (no se vuelve a mostrar).</div>
+  <div class="alert alert-ok">New password for <strong><%= u.email %></strong>: <code style="font-size:16px"><%= newPassword %></code> — copy it and send it to the customer (it won't be shown again).</div>
 <% } %>
 
 <div class="order-grid">
   <div class="panel">
     <h1 style="margin:0;font-size:22px"><%= u.email %></h1>
-    <p class="muted" style="margin-top:4px"><%= u.name || 'Sin nombre' %> · registrado <%= u.created_at %></p>
-    <div class="kv"><span>Saldo</span><strong style="color:var(--primary);font-size:20px">$<%= u.balance.toFixed(2) %></strong></div>
-    <div class="kv"><span>Estado</span><% if (u.is_admin) { %><span>Administrador</span><% } else { %><span class="pill <%= u.active?'completed':'rejected' %>"><%= u.active?'Activo':'Desactivado' %></span><% } %></div>
+    <p class="muted" style="margin-top:4px"><%= u.name || 'No name' %> · joined <%= u.created_at %></p>
+    <div class="kv"><span>Balance</span><strong style="color:var(--primary);font-size:20px">$<%= u.balance.toFixed(2) %></strong></div>
+    <div class="kv"><span>Status</span><% if (u.is_admin) { %><span>Administrator</span><% } else { %><span class="pill <%= u.active?'completed':'rejected' %>"><%= u.active?'Active':'Disabled' %></span><% } %></div>
 
-    <h3 style="margin:20px 0 8px">Pedidos</h3>
+    <h3 style="margin:20px 0 8px">Orders</h3>
     <div style="overflow-x:auto"><table class="table">
-      <thead><tr><th>Pedido</th><th>Servicio</th><th>$</th><th>Estado</th></tr></thead>
+      <thead><tr><th>Order</th><th>Service</th><th>$</th><th>Status</th></tr></thead>
       <tbody>
-        <% if (orders.length===0) { %><tr><td colspan="4" class="muted">Sin pedidos.</td></tr><% } %>
+        <% if (orders.length===0) { %><tr><td colspan="4" class="muted">No orders.</td></tr><% } %>
         <% orders.forEach(function(o){ %><tr><td><a href="/admin/orders/<%= o.code %>"><%= o.code %></a></td><td style="max-width:200px"><%= o.service_title %></td><td><%= o.price.toFixed(2) %></td><td><span class="pill <%= o.status %>"><%= o.status %></span></td></tr><% }); %>
       </tbody>
     </table></div>
 
-    <h3 style="margin:20px 0 8px">Movimientos de saldo</h3>
+    <h3 style="margin:20px 0 8px">Balance history</h3>
     <div style="overflow-x:auto"><table class="table">
-      <thead><tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Saldo</th><th>Ref</th></tr></thead>
+      <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Balance</th><th>Ref</th></tr></thead>
       <tbody>
-        <% if (ledger.length===0) { %><tr><td colspan="5" class="muted">Sin movimientos.</td></tr><% } %>
+        <% if (ledger.length===0) { %><tr><td colspan="5" class="muted">No activity.</td></tr><% } %>
         <% ledger.forEach(function(m){ %><tr><td class="small"><%= m.created_at %></td><td><%= m.type %></td><td style="color:<%= m.amount>=0?'var(--primary)':'var(--danger)' %>"><%= m.amount>=0?'+':'' %><%= m.amount.toFixed(2) %></td><td>$<%= m.balance_after.toFixed(2) %></td><td class="small muted"><%= m.ref||'' %></td></tr><% }); %>
       </tbody>
     </table></div>
   </div>
 
   <aside class="panel">
-    <h3 style="margin-top:0">Acciones</h3>
+    <h3 style="margin-top:0">Actions</h3>
     <% if (!u.is_admin) { %>
       <form action="/admin/users/<%= u.id %>/active" method="post" style="margin-bottom:14px">
-        <button class="btn <%= u.active?'btn-danger':'btn-primary' %> btn-block" type="submit"><%= u.active ? '🚫 Desactivar (banear)' : '✅ Activar' %></button>
+        <button class="btn <%= u.active?'btn-danger':'btn-primary' %> btn-block" type="submit"><%= u.active ? '🚫 Disable (ban)' : '✅ Activate' %></button>
       </form>
     <% } %>
 
     <form action="/admin/users/<%= u.id %>/balance" method="post" style="margin-bottom:14px">
-      <label class="small muted">Ajustar saldo (+ suma, − resta)</label>
-      <div style="display:flex;gap:6px"><input class="input" name="amount" placeholder="Ej: 50 o -10" required><button class="btn btn-ghost" type="submit">Aplicar</button></div>
-      <input class="input" name="note" placeholder="Nota (opcional)" style="margin-top:6px">
+      <label class="small muted">Adjust balance (+ add, − subtract)</label>
+      <div style="display:flex;gap:6px"><input class="input" name="amount" placeholder="e.g. 50 or -10" required><button class="btn btn-ghost" type="submit">Apply</button></div>
+      <input class="input" name="note" placeholder="Note (optional)" style="margin-top:6px">
     </form>
 
-    <form action="/admin/users/<%= u.id %>/password" method="post" onsubmit="return confirm('¿Cambiar la contraseña de este usuario?');">
-      <label class="small muted">Restablecer contraseña</label>
-      <div style="display:flex;gap:6px"><input class="input" name="password" placeholder="Nueva (vacío = generar)"><button class="btn btn-ghost" type="submit">Cambiar</button></div>
-      <p class="hint">Si lo dejas vacío, se genera una segura y te la muestro para enviarla.</p>
+    <form action="/admin/users/<%= u.id %>/password" method="post" onsubmit="return confirm('Change this user\'s password?');">
+      <label class="small muted">Reset password</label>
+      <div style="display:flex;gap:6px"><input class="input" name="password" placeholder="New (blank = generate)"><button class="btn btn-ghost" type="submit">Change</button></div>
+      <p class="hint">If you leave it blank, a secure one is generated and shown so you can send it.</p>
     </form>
   </aside>
 </div>
