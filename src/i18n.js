@@ -170,7 +170,7 @@ const dict = {
 
     // ---------- admin nav ----------
     'nav.overview': '📊 Overview', 'nav.orders': '🧾 Orders', 'nav.services': '🛠 Services',
-    'nav.users': '👥 Users', 'nav.topups': '💰 Top-ups', 'nav.viewStore': '↗ View store',
+    'nav.users': '👥 Users', 'nav.topups': '💰 Top-ups', 'nav.account': '⚙ My account', 'nav.viewStore': '↗ View store',
 
     // ---------- admin dashboard ----------
     'dash.title': 'Overview', 'dash.orders': 'Orders', 'dash.queuedManual': 'Queued (manual)',
@@ -246,6 +246,16 @@ const dict = {
 
     // ---------- admin topups ----------
     'topups.title': 'Top-ups', 'topups.none': 'No top-ups.',
+
+    // ---------- admin: my account (change own password) ----------
+    'acctAdmin.title': 'My account', 'acctAdmin.changePassword': 'Change my password',
+    'acctAdmin.current': 'Current password', 'acctAdmin.new': 'New password',
+    'acctAdmin.confirm': 'Confirm new password', 'acctAdmin.save': 'Change password',
+    'acctAdmin.hint': 'This is the password you use to log into your panel.',
+    'acctAdmin.ok': 'Password changed.',
+    'acctAdmin.errCurrent': 'Current password is incorrect.',
+    'acctAdmin.errMin': 'New password must be at least 6 characters.',
+    'acctAdmin.errMatch': 'The new passwords do not match.',
   },
 
   es: {
@@ -408,7 +418,7 @@ const dict = {
 
     // ---------- admin nav ----------
     'nav.overview': '📊 Resumen', 'nav.orders': '🧾 Órdenes', 'nav.services': '🛠 Servicios',
-    'nav.users': '👥 Usuarios', 'nav.topups': '💰 Recargas', 'nav.viewStore': '↗ Ver tienda',
+    'nav.users': '👥 Usuarios', 'nav.topups': '💰 Recargas', 'nav.account': '⚙ Mi cuenta', 'nav.viewStore': '↗ Ver tienda',
 
     // ---------- admin dashboard ----------
     'dash.title': 'Resumen', 'dash.orders': 'Pedidos', 'dash.queuedManual': 'En cola (manual)',
@@ -484,6 +494,16 @@ const dict = {
 
     // ---------- admin topups ----------
     'topups.title': 'Recargas', 'topups.none': 'Sin recargas.',
+
+    // ---------- admin: mi cuenta (cambiar su propia contraseña) ----------
+    'acctAdmin.title': 'Mi cuenta', 'acctAdmin.changePassword': 'Cambiar mi contraseña',
+    'acctAdmin.current': 'Contraseña actual', 'acctAdmin.new': 'Nueva contraseña',
+    'acctAdmin.confirm': 'Confirmar nueva contraseña', 'acctAdmin.save': 'Cambiar contraseña',
+    'acctAdmin.hint': 'Es la contraseña con la que entras a tu panel.',
+    'acctAdmin.ok': 'Contraseña cambiada.',
+    'acctAdmin.errCurrent': 'La contraseña actual es incorrecta.',
+    'acctAdmin.errMin': 'La nueva contraseña debe tener al menos 6 caracteres.',
+    'acctAdmin.errMatch': 'Las contraseñas nuevas no coinciden.',
   },
 };
 

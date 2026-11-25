@@ -48,6 +48,20 @@ router.get('/', (req, res) => {
   });
 });
 
+// ---------- My account: admin changes their own panel password ----------
+router.get('/account', (req, res) => {
+  res.render('admin/account', { title: req.t('acctAdmin.title'), layoutAdmin: true, ok: false, error: null });
+});
+router.post('/account/password', (req, res) => {
+  const { current, password, confirm } = req.body;
+  const show = (ok, error) => res.render('admin/account', { title: req.t('acctAdmin.title'), layoutAdmin: true, ok, error });
+  if (!auth.verifyUser(req.user.email, current || '')) return show(false, req.t('acctAdmin.errCurrent'));
+  if (!password || password.length < 6) return show(false, req.t('acctAdmin.errMin'));
+  if (password !== confirm) return show(false, req.t('acctAdmin.errMatch'));
+  try { auth.setPassword(req.user.id, password); } catch (e) { return show(false, req.t('acctAdmin.errMin')); }
+  show(true, null);
+});
+
 // ---------- Ordenes ----------
 router.get('/orders', (req, res) => {
   const status = req.query.status || 'all';
