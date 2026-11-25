@@ -26,9 +26,8 @@
         <% if (user.is_admin) { %>
           <a href="/admin"><%= t('site.dashboard') %></a>
         <% } else { %>
-          <a href="/dashboard" class="<%= currentPath === '/dashboard' ? 'active' : '' %>"><%= t('site.dashboard') %></a>
           <% if (canBuy) { %>
-            <% if (typeof userBalance === 'number') { %><a href="/dashboard" class="bal-chip">💰 $<%= userBalance.toFixed(2) %></a><% } %>
+            <% if (typeof userBalance === 'number') { %><a href="/dashboard" class="bal-chip" title="<%= t('site.dashboard') %>">💰 $<%= userBalance.toFixed(2) %></a><% } %>
             <a href="/topup" class="btn btn-primary btn-sm"><%= t('site.addFunds') %></a>
           <% } %>
         <% } %>
