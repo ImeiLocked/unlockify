@@ -1,0 +1,125 @@
+<%- include('../partials/header') %>
+<%- include('../partials/adminnav') %>
+
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+  <h1 class="page-title" style="margin:0"><%= adminLang==='en' ? 'Providers' : 'Proveedores' %></h1>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <% provList.forEach(function(p){ %>
+      <form action="/admin/sync/<%= p.key %>" method="post"><button class="btn btn-ghost btn-sm" type="submit"><%= t('services.sync') %> <%= p.name %></button></form>
+    <% }); %>
+  </div>
+</div>
+
+<p class="hint" style="margin:6px 0 12px">
+  <%= adminLang==='en'
+      ? 'Each tab is one provider\'s full catalog. Publish sends a service to the store sourced from that provider (auto-processed). Customers never see providers or costs.'
+      : 'Cada pestaña es el catálogo completo de un proveedor. Publicar lanza el servicio a la tienda surtido por ese proveedor (auto-procesado). El cliente nunca ve proveedores ni costos.' %>
+</p>
+
+<!-- Pestañas por proveedor -->
+<div class="prov-tabs">
+  <% provList.forEach(function(p){ var c = counts[p.key] || {total:0,published:0}; var on = p.key === activeProvider; %>
+    <a href="/admin/providers?p=<%= p.key %>" class="prov-tab <%= on ? 'active' : '' %>">
+      <span class="prov-tab-name"><%= p.name %></span>
+      <span class="prov-tab-meta"><%= c.published %> <%= adminLang==='en'?'live':'en vivo' %> · <%= c.total %> <%= adminLang==='en'?'total':'total' %></span>
+    </a>
+  <% }); %>
+</div>
+
+<!-- Barra de herramientas -->
+<div class="panel" style="margin:12px 0;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+  <input id="provSearch" class="input" placeholder="<%= adminLang==='en'?'Search service or category…':'Buscar servicio o categoría…' %>" style="flex:1;min-width:220px">
+  <label class="small" style="display:inline-flex;gap:6px;align-items:center;cursor:pointer">
+    <input type="checkbox" id="onlyPub" <%= onlyPublished ? 'checked' : '' %>>
+    <%= adminLang==='en'?'Only published':'Solo publicados' %>
+  </label>
+  <span class="small muted" id="provShown"></span>
+</div>
+
+<% if (!rows.length) { %>
+  <div class="panel"><p class="muted" style="margin:0"><%= adminLang==='en'?'No services for this provider yet. Sync its catalog.':'Este proveedor aún no tiene servicios. Sincroniza su catálogo.' %></p></div>
+<% } else { %>
+<div class="panel" style="padding:0;overflow:hidden">
+  <table class="prov-table">
+    <thead>
+      <tr>
+        <th><%= adminLang==='en'?'Service':'Servicio' %></th>
+        <th class="hide-sm"><%= adminLang==='en'?'Category':'Categoría' %></th>
+        <th style="text-align:right"><%= adminLang==='en'?'Cost':'Costo' %></th>
+        <th style="text-align:right"><%= adminLang==='en'?'Your price (35%)':'Tu precio (35%)' %></th>
+        <th style="text-align:center"><%= adminLang==='en'?'Status':'Estado' %></th>
+        <th style="text-align:right"><%= adminLang==='en'?'Action':'Acción' %></th>
+      </tr>
+    </thead>
+    <tbody>
+    <% rows.forEach(function(r){ %>
+      <tr id="s<%= r.id %>" class="prov-row <%= r.published ? 'is-pub' : '' %>" data-t="<%= (r.title + ' ' + r.category_name).toLowerCase().replace(/"/g,'') %>">
+        <td class="prov-title"><%= r.title %></td>
+        <td class="hide-sm muted small"><%= r.category_name %></td>
+        <td style="text-align:right" class="muted">$<%= Number(r.cost).toFixed(2) %></td>
+        <td style="text-align:right;font-weight:600">$<%= Number(r.price).toFixed(2) %></td>
+        <td style="text-align:center">
+          <% if (r.published) { %><span class="chip chip-on"><%= adminLang==='en'?'Live':'En vivo' %></span>
+          <% } else { %><span class="chip chip-off"><%= adminLang==='en'?'Hidden':'Oculto' %></span><% } %>
+        </td>
+        <td style="text-align:right">
+          <% if (r.published) { %>
+            <form action="/admin/providers/<%= activeProvider %>/<%= r.id %>/hide<%= onlyPublished ? '?pub=1' : '' %>" method="post">
+              <button class="btn btn-ghost btn-sm" type="submit"><%= adminLang==='en'?'Hide':'Ocultar' %></button>
+            </form>
+          <% } else { %>
+            <form action="/admin/providers/<%= activeProvider %>/<%= r.id %>/publish<%= onlyPublished ? '?pub=1' : '' %>" method="post">
+              <button class="btn btn-primary btn-sm" type="submit"><%= adminLang==='en'?'Publish →':'Publicar →' %></button>
+            </form>
+          <% } %>
+        </td>
+      </tr>
+    <% }); %>
+    </tbody>
+  </table>
+</div>
+<% } %>
+
+<style>
+.prov-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.prov-tab{display:flex;flex-direction:column;gap:2px;padding:10px 16px;border:1px solid var(--border,#e5e7eb);border-radius:12px;background:var(--card,#fff);text-decoration:none;color:inherit;min-width:150px}
+.prov-tab.active{border-color:var(--primary,#16a34a);box-shadow:0 0 0 2px color-mix(in srgb,var(--primary,#16a34a) 20%,transparent)}
+.prov-tab-name{font-weight:700}
+.prov-tab-meta{font-size:12px;opacity:.7}
+.prov-table{width:100%;border-collapse:collapse;font-size:14px}
+.prov-table th{text-align:left;padding:10px 14px;font-size:12px;text-transform:uppercase;letter-spacing:.03em;opacity:.6;border-bottom:1px solid var(--border,#e5e7eb)}
+.prov-table td{padding:9px 14px;border-bottom:1px solid var(--border,#f1f5f9);vertical-align:middle}
+.prov-row:hover{background:color-mix(in srgb,var(--primary,#16a34a) 6%,transparent)}
+.prov-title{font-weight:500;max-width:420px}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.chip-on{background:#dcfce7;color:#15803d}
+.chip-off{background:#f1f5f9;color:#64748b}
+.prov-table form{margin:0}
+@media(max-width:760px){ .hide-sm{display:none} .prov-title{max-width:200px} }
+</style>
+
+<script>
+(function(){
+  var q = document.getElementById('provSearch');
+  var only = document.getElementById('onlyPub');
+  var rows = Array.prototype.slice.call(document.querySelectorAll('.prov-row'));
+  var shown = document.getElementById('provShown');
+  function apply(){
+    var term = (q.value || '').trim().toLowerCase();
+    var pubOnly = only.checked;
+    var n = 0;
+    for (var i=0;i<rows.length;i++){
+      var r = rows[i];
+      var okText = !term || r.getAttribute('data-t').indexOf(term) !== -1;
+      var okPub = !pubOnly || r.classList.contains('is-pub');
+      var vis = okText && okPub;
+      r.style.display = vis ? '' : 'none';
+      if (vis) n++;
+    }
+    if (shown) shown.textContent = n + ' / ' + rows.length;
+  }
+  q.addEventListener('input', apply);
+  only.addEventListener('change', apply);
+  apply();
+})();
+</script>

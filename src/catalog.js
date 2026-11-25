@@ -75,7 +75,44 @@ function countActiveServices() {
   return getCatalog().reduce((n, c) => n + c.services.length, 0);
 }
 
+/** Admin: todos los servicios que surte un proveedor, con su costo y precio de venta (35%).
+ *  "published" = el servicio está activo en la tienda surtido POR ESTE proveedor. */
+function getServicesByProvider(providerKey) {
+  const rows = db.prepare(`
+    SELECT s.id, s.title, s.active AS svc_active, s.primary_provider, s.auto_fulfill,
+           s.markup_type, s.markup_value, c.name AS category_name,
+           ss.cost, ss.active AS src_active, ss.provider_service_id, ss.delivery_time
+    FROM service_sources ss
+    JOIN services s ON s.id = ss.service_id
+    JOIN categories c ON c.id = s.category_id
+    WHERE ss.provider_key = ?
+    ORDER BY c.name, s.title
+  `).all(providerKey);
+  return rows.map((r) => {
+    const price = sellPrice(r.cost, { markupType: r.markup_type, markupValue: r.markup_value });
+    const published = !!r.svc_active && !!r.src_active && r.primary_provider === providerKey;
+    return {
+      id: r.id, title: r.title, category_name: r.category_name,
+      cost: r.cost, price, profit: profit(r.cost, price),
+      provider_service_id: r.provider_service_id, delivery_time: r.delivery_time,
+      svc_active: r.svc_active, src_active: r.src_active, primary_provider: r.primary_provider,
+      published,
+    };
+  });
+}
+
+/** Admin: cuántos servicios surte el proveedor y cuántos están publicados desde él. */
+function providerServiceCounts(providerKey) {
+  const total = db.prepare('SELECT COUNT(*) n FROM service_sources WHERE provider_key=?').get(providerKey).n;
+  const published = db.prepare(`
+    SELECT COUNT(*) n FROM service_sources ss JOIN services s ON s.id=ss.service_id
+    WHERE ss.provider_key=? AND s.active=1 AND ss.active=1 AND s.primary_provider=?
+  `).get(providerKey, providerKey).n;
+  return { total, published };
+}
+
 module.exports = {
   decorate, sourcesFor, effectiveCost,
   getCatalog, getCategoryBySlug, getServiceById, getAllServicesAdmin, countActiveServices,
+  getServicesByProvider, providerServiceCounts,
 };

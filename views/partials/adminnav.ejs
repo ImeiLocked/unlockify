@@ -2,6 +2,7 @@
   <a href="/admin" class="<%= currentPath === '/admin' ? 'active' : '' %>"><%= t('nav.overview') %></a>
   <a href="/admin/orders" class="<%= currentPath.indexOf('/admin/orders') === 0 ? 'active' : '' %>"><%= t('nav.orders') %></a>
   <a href="/admin/services" class="<%= currentPath === '/admin/services' ? 'active' : '' %>"><%= t('nav.services') %></a>
+  <a href="/admin/providers" class="<%= currentPath.indexOf('/admin/providers') === 0 ? 'active' : '' %>"><%= adminLang === 'en' ? '🔌 Providers' : '🔌 Proveedores' %></a>
   <a href="/admin/users" class="<%= currentPath.indexOf('/admin/users') === 0 ? 'active' : '' %>"><%= t('nav.users') %></a>
   <a href="/admin/topups" class="<%= currentPath === '/admin/topups' ? 'active' : '' %>"><%= t('nav.topups') %></a>
   <a href="/admin/support" class="nav-has-badge <%= currentPath.indexOf('/admin/support') === 0 ? 'active' : '' %>"><%= t('nav.support') %><span id="support-badge" class="nav-badge<%= (typeof supportPending !== 'undefined' && supportPending > 0) ? '' : ' hidden' %>"><%= (typeof supportPending !== 'undefined' && supportPending > 0) ? (supportPending > 99 ? '99+' : supportPending) : '' %></span></a>

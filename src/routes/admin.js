@@ -159,6 +159,39 @@ router.post('/sync/:provider', async (req, res) => {
   catch (e) { res.status(400).render('error', { title: 'Sync error', message: e.message }); }
 });
 
+// ---------- Proveedores: catálogo separado por proveedor, publicar/ocultar ----------
+router.get('/providers', (req, res) => {
+  const list = config.providers.filter((p) => p.enabled && p.apiUrl);
+  const active = list.find((p) => p.key === req.query.p) ? req.query.p : (list[0] && list[0].key);
+  const counts = {};
+  list.forEach((p) => { counts[p.key] = catalog.providerServiceCounts(p.key); });
+  res.render('admin/providers', {
+    title: 'Proveedores', layoutAdmin: true,
+    provList: list, activeProvider: active,
+    rows: active ? catalog.getServicesByProvider(active) : [],
+    counts, providerName: providers.providerName,
+    onlyPublished: req.query.pub === '1',
+  });
+});
+
+// Publicar un servicio a la tienda surtido por ESTE proveedor
+router.post('/providers/:provider/:id/publish', (req, res) => {
+  const { provider, id } = req.params;
+  db.prepare('UPDATE service_sources SET active=1 WHERE service_id=? AND provider_key=?').run(id, provider);
+  db.prepare('UPDATE services SET active=1, auto_fulfill=1, primary_provider=? WHERE id=?').run(provider, id);
+  res.redirect('/admin/providers?p=' + encodeURIComponent(provider) + (req.query.pub ? '&pub=1' : '') + '#s' + id);
+});
+
+// Ocultar: apaga la fuente de este proveedor; si no queda ninguna fuente activa, oculta el servicio
+router.post('/providers/:provider/:id/hide', (req, res) => {
+  const { provider, id } = req.params;
+  db.prepare('UPDATE service_sources SET active=0 WHERE service_id=? AND provider_key=?').run(id, provider);
+  const other = db.prepare('SELECT provider_key FROM service_sources WHERE service_id=? AND active=1 ORDER BY cost ASC LIMIT 1').get(id);
+  if (!other) db.prepare('UPDATE services SET active=0 WHERE id=?').run(id);
+  else db.prepare('UPDATE services SET primary_provider=? WHERE id=? AND primary_provider=?').run(other.provider_key, id, provider);
+  res.redirect('/admin/providers?p=' + encodeURIComponent(provider) + (req.query.pub ? '&pub=1' : '') + '#s' + id);
+});
+
 // ---------- Usuarios ----------
 router.get('/users', (req, res) => {
   const users = db.prepare('SELECT id,email,name,active,approved,balance,is_admin,created_at FROM users ORDER BY is_admin DESC, id DESC').all();
