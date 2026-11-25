@@ -7,13 +7,13 @@
   <meta name="description" content="<%= brand %> — <%= t('site.metaDesc') %>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="/static/css/styles.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><rect width='56' height='56' rx='14' fill='%2316a34a'/><path d='M20 26V18Q20 10 28 10Q35 10 36.5 15.5' stroke='%23ffffff' stroke-width='4.2' fill='none' stroke-linecap='round'/><rect x='13' y='25' width='30' height='22' rx='7' fill='%23ffffff'/><path d='M31 28L22 39H28L24.5 47L36 35H29.5Z' fill='%234dfacb'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2322d3ee'/><stop offset='1' stop-color='%2316a34a'/></linearGradient></defs><rect width='56' height='56' rx='14' fill='url(%23g)'/><path d='M19 25 V16 Q19 7 28 7 Q35.5 7 37 13.5' stroke='%23ffffff' stroke-width='4.2' fill='none' stroke-linecap='round'/><rect x='12' y='24' width='32' height='24' rx='8' fill='%23ffffff'/><path d='M31 26 L22 37 H28 L24 47 L37 35 H30 Z' fill='%23f6a821'/></svg>">
 </head>
 <body>
 <header class="nav">
   <div class="nav-inner container">
     <a class="brand" href="/">
-      <span class="brand-mark"><svg width="54" height="54" viewBox="0 0 56 56" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ulg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#16a34a"/></linearGradient></defs><path d="M19 25 V16 Q19 7 28 7 Q35.5 7 37 13.5" stroke="url(#ulg)" stroke-width="4.2" fill="none" stroke-linecap="round"/><rect x="12" y="24" width="32" height="24" rx="8" fill="url(#ulg)"/><path d="M31 26 L22 37 H28 L24 47 L37 35 H30 Z" fill="#4dfacb"/></svg></span><% var bn = String(brand || 'Unlockify'); var hasIfy = /ify$/i.test(bn); %><span class="brand-name"><%= hasIfy ? bn.slice(0, -3) : bn %><% if (hasIfy) { %><span class="brand-accent"><%= bn.slice(-3) %></span><% } %></span>
+      <span class="brand-mark"><svg width="32" height="32" viewBox="0 0 56 56" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M19 25 V16 Q19 7 28 7 Q35.5 7 37 13.5" stroke="#fff" stroke-width="4.2" fill="none" stroke-linecap="round"/><rect x="12" y="24" width="32" height="24" rx="8" fill="#fff"/><path d="M31 26 L22 37 H28 L24 47 L37 35 H30 Z" fill="#f6a821"/></svg></span><% var bn = String(brand || 'Unlockify'); var hasIfy = /ify$/i.test(bn); %><span class="brand-name"><%= hasIfy ? bn.slice(0, -3) : bn %><% if (hasIfy) { %><span class="brand-accent"><%= bn.slice(-3) %></span><% } %></span>
     </a>
     <nav class="nav-links">
       <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>"><%= t('site.services') %></a>
