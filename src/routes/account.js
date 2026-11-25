@@ -85,7 +85,11 @@ router.post('/login/otp/resend', (req, res) => {
   res.redirect('/login/otp');
 });
 
-router.post('/logout', (req, res) => { req.session.destroy(() => res.redirect('/')); });
+router.post('/logout', (req, res) => {
+  // Reset the public site to English on logout (language choice is per-session).
+  res.clearCookie('site_lang', { httpOnly: true, sameSite: 'lax', secure: config.isProd });
+  req.session.destroy(() => res.redirect('/'));
+});
 
 router.get('/account', auth.requireLogin, (req, res) => {
   res.render('account', {

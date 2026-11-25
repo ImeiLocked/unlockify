@@ -51,9 +51,11 @@ app.use((req, res, next) => {
 });
 
 // Switch public site language (customer-facing). Admin uses /admin/lang/:lang.
+// Session cookie (no maxAge): the choice lasts only the current session; a new
+// visit or logout returns to English. Emails stay English.
 app.get('/lang/:lang', (req, res) => {
   const lang = req.params.lang === 'es' ? 'es' : 'en';
-  res.cookie('site_lang', lang, { maxAge: 365 * 86400000, httpOnly: true, sameSite: 'lax', secure: config.isProd });
+  res.cookie('site_lang', lang, { httpOnly: true, sameSite: 'lax', secure: config.isProd });
   let back = '/';
   try { const u = new URL(req.get('referer')); if (u.pathname.indexOf('/admin') !== 0) back = u.pathname + (u.search || ''); } catch (e) {}
   res.redirect(back);
