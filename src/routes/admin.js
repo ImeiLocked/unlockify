@@ -7,6 +7,7 @@ const config = require('../config');
 const { db, getSetting, setSetting } = require('../db');
 const orders = require('../orders');
 const catalog = require('../catalog');
+const markupMod = require('../markup');
 const providers = require('../providers');
 const fulfillment = require('../providers/fulfillment');
 const balance = require('../balance');
@@ -106,9 +107,23 @@ router.post('/orders/:id/retry', async (req, res) => {
 router.get('/services', (req, res) => {
   res.render('admin/services', {
     title: req.t('services.title'), layoutAdmin: true,
-    services: catalog.getAllServicesAdmin(), markup: config.markup,
+    services: catalog.getAllServicesAdmin(), markup: markupMod.getGlobalMarkup(),
     providers: config.providers, synced: req.query.synced, providerName: providers.providerName,
   });
+});
+// Save the global profit percentage (applies to services without a custom % or fixed price)
+router.post('/markup/global', (req, res) => {
+  const v = Number(req.body.value);
+  if (Number.isFinite(v)) { setSetting('markup_type', 'percent'); setSetting('markup_value', v); }
+  res.redirect('/admin/services');
+});
+// Bulk-raise every fixed-price service by a percentage
+router.post('/markup/bump-fixed', (req, res) => {
+  const pct = Number(req.body.pct);
+  if (Number.isFinite(pct) && pct !== 0) {
+    db.prepare("UPDATE services SET markup_value = ROUND(markup_value * (1 + ?/100.0), 2) WHERE markup_type='fixed' AND markup_value IS NOT NULL").run(pct);
+  }
+  res.redirect('/admin/services');
 });
 router.post('/services/:id', (req, res) => {
   const b = req.body;
