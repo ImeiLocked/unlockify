@@ -10,7 +10,7 @@
         <tr>
           <td><strong><%= t2.code %></strong></td>
           <td class="small"><%= t2.user_email %></td>
-          <td><%= t2.expected_amount %> USDT</td>
+          <td><% if (t2.status==='confirmed' && t2.received_amount != null) { %><strong><%= t2.received_amount %></strong> USDT<% if (Math.abs(t2.received_amount - t2.expected_amount) >= 0.01) { %> <span class="muted small">(<%= (typeof lang!=='undefined'&&lang==='en')?'asked':'pidió' %> <%= t2.expected_amount %>)</span><% } %><% } else { %><%= t2.expected_amount %> USDT<% } %></td>
           <td><%= t2.chain.toUpperCase() %></td>
           <td><span class="pill <%= t2.status==='confirmed'?'completed':(t2.status==='expired'?'rejected':'queued') %>"><%= t2.status %></span></td>
           <td class="small" style="max-width:160px;word-break:break-all"><%= t2.tx_hash || '—' %></td>

@@ -165,6 +165,10 @@ function init() {
   // --- migraciones: origen de las novedades (manual vs automática) ---
   const acols = db.prepare('PRAGMA table_info(announcements)').all().map((c) => c.name);
   if (!acols.includes('source')) db.exec("ALTER TABLE announcements ADD COLUMN source TEXT NOT NULL DEFAULT 'manual'");
+
+  // --- migración: monto realmente recibido en una recarga (puede diferir por comisión) ---
+  const tcols = db.prepare('PRAGMA table_info(topups)').all().map((c) => c.name);
+  if (!tcols.includes('received_amount')) db.exec('ALTER TABLE topups ADD COLUMN received_amount REAL');
 }
 
 // --- simple key/value settings (auto_approve, etc.) ----------------------

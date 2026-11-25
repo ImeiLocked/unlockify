@@ -79,7 +79,8 @@ async function notifyAdminNewOrder(order, mode) {
   await telegram(text);
 }
 async function notifyAdminTopup(topup, newBalance) {
-  await telegram(`💰 <b>TOP-UP</b> ${topup.expected_amount} USDT (${topup.chain.toUpperCase()})\n👤 ${esc(topup.user_email || '')}\n🧾 ${topup.code} — balance: ${newBalance}`);
+  const got = topup.received_amount != null ? topup.received_amount : topup.expected_amount;
+  await telegram(`💰 <b>TOP-UP</b> ${got} USDT (${topup.chain.toUpperCase()})\n👤 ${esc(topup.user_email || '')}\n🧾 ${topup.code} — balance: ${newBalance}`);
 }
 /** Alerta al admin: una orden quedó retenida porque tu saldo en el proveedor no alcanza. */
 async function notifyAdminFundsHold(order, providerKey, credit, cost) {
@@ -123,11 +124,12 @@ async function notifyOrderRejected(order, to) {
 }
 async function notifyTopupConfirmed(topup, newBalance, to) {
   if (!config.mailEnabled || !to) return;
+  const got = topup.received_amount != null ? topup.received_amount : topup.expected_amount;
   const url = `${config.publicUrl}/account`;
-  const text = `Hi,\n\nYour top-up ${topup.code} of ${topup.expected_amount} USDT was confirmed.\nCurrent balance: ${newBalance} USDT.\n\n${url}\n\n${config.brandName}`;
+  const text = `Hi,\n\nYour top-up ${topup.code} of ${got} USDT was confirmed.\nCurrent balance: ${newBalance} USDT.\n\n${url}\n\n${config.brandName}`;
   await email(`Top-up confirmed — balance ${newBalance} USDT`, text, to, customerHtml({
     heading: '💳 Top-up confirmed', intro: `We credited your top-up ${topup.code}.`,
-    rows: [['Added', `${topup.expected_amount} USDT`], ['Current balance', `${newBalance} USDT`]],
+    rows: [['Added', `${got} USDT`], ['Current balance', `${newBalance} USDT`]],
     ctaUrl: url, ctaText: 'Go to my account',
   }));
 }

@@ -20,6 +20,9 @@
           <button class="btn btn-ghost btn-sm copy-btn" data-copy="<%= topup.expected_amount %>"><%= t('btn.copy') %></button>
         </div>
         <div class="hint"><%= t('pay.exactHint') %></div>
+        <div class="hint" style="color:#15803d">💡 <%= (typeof lang!=='undefined' && lang==='en')
+          ? 'If your wallet or exchange charges a fee, don\'t worry — we credit the exact amount that arrives in our wallet.'
+          : 'Si tu billetera o exchange cobra comisión, no te preocupes — se te acredita el monto exacto que llegue a nuestra wallet.' %></div>
       </div>
       <div class="field">
         <label><%= t('col.network') %></label><div><span class="badge badge-ok" style="font-size:13px"><%= netLabel %></span></div>

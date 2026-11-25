@@ -36,9 +36,9 @@ function listPendingForWatch() {
   return db.prepare(`SELECT t.*, u.email AS user_email FROM topups t JOIN users u ON u.id=t.user_id
                      WHERE t.status='pending' AND t.expires_at>datetime('now')`).all();
 }
-function markConfirmed(id, txHash) {
-  db.prepare(`UPDATE topups SET status='confirmed', tx_hash=?, confirmed_at=datetime('now') WHERE id=? AND status='pending'`)
-    .run(txHash, id);
+function markConfirmed(id, txHash, receivedAmount) {
+  db.prepare(`UPDATE topups SET status='confirmed', tx_hash=?, received_amount=?, confirmed_at=datetime('now') WHERE id=? AND status='pending'`)
+    .run(txHash, receivedAmount != null ? receivedAmount : null, id);
   return getById(id);
 }
 function expireStale() {

@@ -34,6 +34,16 @@ function availableChains() {
 
 function amountMatches(a, b) { return Math.abs(Number(a) - Number(b)) < 0.005; }
 
+// Banda tolerante: acepta que llegue algo menos (comisión de la billetera/exchange)
+// o un poco más (redondeo). Se acreditará SIEMPRE el monto real recibido.
+function withinBand(received, expected) {
+  received = Number(received); expected = Number(expected);
+  if (!(received > 0)) return false;
+  const lo = expected - Math.max(expected * 0.25, 3); // tolera hasta 25% (o 3 USDT) de comisión
+  const hi = expected + Math.max(expected * 0.10, 1); // tolera un pequeño exceso
+  return received >= lo && received <= hi;
+}
+
 let running = false;
 async function tick(onConfirmed) {
   if (running) return;
@@ -57,20 +67,32 @@ async function tick(onConfirmed) {
       } catch (e) { console.error(`[pay] ${chain}:`, e.message); continue; }
 
       const used = new Set();
-      for (const t of list) {
+      list.sort((a, b) => parseSql(a.created_at) - parseSql(b.created_at)); // más viejas primero
+
+      const findTx = (t, matcher) => {
         const created = parseSql(t.created_at) - 5 * 60 * 1000;
-        const m = txs.find((x) => !used.has(x.txHash) && !topups.isTxUsed(x.txHash) && x.timestamp >= created && amountMatches(x.amount, t.expected_amount));
-        if (m) {
-          used.add(m.txHash);
-          const conf = topups.markConfirmed(t.id, m.txHash);
-          const res = balance.credit(t.user_id, t.expected_amount, 'topup', t.code);
-          console.log(`[pay] ✅ Recarga ${t.code} confirmada: +${t.expected_amount} USDT (saldo: ${res.balance}) tx=${m.txHash}`);
-          if (typeof onConfirmed === 'function') {
-            conf.user_email = t.user_email; conf.new_balance = res.balance;
-            Promise.resolve(onConfirmed(conf)).catch((e) => console.error('[pay] onConfirmed:', e.message));
-          }
+        const cands = txs.filter((x) => !used.has(x.txHash) && !topups.isTxUsed(x.txHash) && x.timestamp >= created && matcher(x.amount, t.expected_amount));
+        if (!cands.length) return null;
+        cands.sort((a, b) => Math.abs(a.amount - t.expected_amount) - Math.abs(b.amount - t.expected_amount)); // el más cercano al esperado
+        return cands[0];
+      };
+      const settle = (t, m) => {
+        used.add(m.txHash);
+        const credited = Math.round(Number(m.amount) * 100) / 100; // lo que REALMENTE llegó
+        const conf = topups.markConfirmed(t.id, m.txHash, credited);
+        const res = balance.credit(t.user_id, credited, 'topup', t.code);
+        console.log(`[pay] ✅ Recarga ${t.code}: +${credited} USDT (esperado ${t.expected_amount}, saldo: ${res.balance}) tx=${m.txHash}`);
+        if (typeof onConfirmed === 'function') {
+          conf.user_email = t.user_email; conf.new_balance = res.balance;
+          Promise.resolve(onConfirmed(conf)).catch((e) => console.error('[pay] onConfirmed:', e.message));
         }
-      }
+      };
+
+      // Pase 1: coincidencia EXACTA (desambigua entre clientes distintos a la misma wallet)
+      const leftover = [];
+      for (const t of list) { const m = findTx(t, amountMatches); if (m) settle(t, m); else leftover.push(t); }
+      // Pase 2: tolerante (llegó de menos por comisión) → acredita el monto real
+      for (const t of leftover) { const m = findTx(t, withinBand); if (m) settle(t, m); }
     }
   } finally { running = false; }
 }
