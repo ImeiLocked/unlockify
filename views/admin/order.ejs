@@ -1,0 +1,63 @@
+<%- include('../partials/header') %>
+<%- include('../partials/adminnav') %>
+<a class="back" href="/admin/orders">← Todas las órdenes</a>
+
+<div class="order-grid">
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h1 style="margin:0;font-size:22px">Orden <%= order.code %></h1>
+      <span class="pill <%= order.status %>"><%= order.status %></span>
+    </div>
+    <div style="margin-top:16px">
+      <div class="kv"><span>Servicio</span><span style="text-align:right;max-width:60%"><%= order.service_title %></span></div>
+      <div class="kv"><span><%= order.identifier_type === 'serial' ? 'N° Serie' : 'IMEI' %></span><strong><%= order.identifier %></strong></div>
+      <div class="kv"><span>Cliente</span><span><%= customer ? customer.email : '-' %></span></div>
+      <div class="kv"><span>Cobrado del saldo</span><strong>$<%= order.price.toFixed(2) %></strong><% if (order.refunded) { %> <span class="pill refunded">reembolsado</span><% } %></div>
+      <div class="kv"><span>Modo</span><span><%= order.auto ? 'Automático' : 'Manual' %></span></div>
+      <div class="kv"><span>Proveedor actual</span><span><%= order.provider_key ? providerName(order.provider_key) : '—' %></span></div>
+      <% if (order.total_seconds != null) { %><div class="kv"><span>Tiempo total (cliente)</span><strong><%= order.total_seconds<60?order.total_seconds+'s':Math.floor(order.total_seconds/60)+'m '+(order.total_seconds%60)+'s' %></strong></div><% } %>
+      <div class="kv"><span>Creada</span><span class="small"><%= order.created_at %></span></div>
+    </div>
+    <% if (order.result_text) { %>
+      <label class="muted small" style="margin-top:14px;display:block">Resultado entregado:</label>
+      <div class="result-box"><%= order.result_text %></div>
+    <% } %>
+
+    <h3 style="margin:22px 0 8px">Intentos por proveedor</h3>
+    <% if (attempts.length === 0) { %><p class="muted small">Sin intentos automáticos (orden manual).</p><% } else { %>
+      <ul class="timeline">
+        <% attempts.forEach(function(a){ %>
+          <li class="<%= a.status==='success'?'ok':(a.status==='sent'?'wait':'bad') %>">
+            <div class="t-prov"><%= providerName(a.provider_key) %> — <%= ({sent:'enviado (en proceso)',success:'✅ resuelto',rejected:'⛔ rechazado',error:'⚠️ error'})[a.status] %></div>
+            <div class="t-meta">
+              costo $<%= (a.cost||0).toFixed(2) %>
+              <% if (a.seconds!=null) { %> · tardó <%= a.seconds<60?a.seconds+'s':Math.floor(a.seconds/60)+'m '+(a.seconds%60)+'s' %><% } %>
+              <% if (a.result_text) { %> · <%= a.result_text %><% } %>
+            </div>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </div>
+
+  <aside class="panel">
+    <h3 style="margin-top:0">Procesar</h3>
+    <form action="/admin/orders/<%= order.id %>/complete" method="post">
+      <div class="field">
+        <label>Resultado / código para el cliente</label>
+        <textarea class="input" name="result_text" rows="4" placeholder="Ej: Unlock completado. Código: 1234-5678"></textarea>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">✅ Marcar completada y avisar</button>
+    </form>
+
+    <div style="height:1px;background:var(--border);margin:16px 0"></div>
+
+    <form action="/admin/orders/<%= order.id %>/retry" method="post" style="margin-bottom:10px">
+      <button class="btn btn-ghost btn-block" type="submit">🤖 Enviar al proveedor (auto, más barato)</button>
+    </form>
+    <form action="/admin/orders/<%= order.id %>/reject" method="post" onsubmit="return confirm('¿Rechazar y reembolsar el saldo al cliente?');">
+      <button class="btn btn-danger btn-block" type="submit">⛔ Rechazar y reembolsar</button>
+    </form>
+  </aside>
+</div>
+<%- include('../partials/footer') %>

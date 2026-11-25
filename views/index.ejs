@@ -1,0 +1,46 @@
+<%- include('partials/header') %>
+
+<section class="hero">
+  <h1>Desbloqueos <span class="grad">rápidos y seguros</span><br>para tu iPhone y iPad</h1>
+  <p>FMI OFF, bypass de MDM y liberación de red con tasa de éxito del 100%. Ordena en minutos y paga de forma segura con USDT.</p>
+  <div class="hero-badges">
+    <span class="chip">⚡ <strong>Entrega rápida</strong></span>
+    <span class="chip">🔒 Pago con <strong>USDT (TRC20 / ERC20)</strong></span>
+    <span class="chip">✅ <strong>100%</strong> de éxito</span>
+    <span class="chip">🤖 Proceso <strong>automático</strong></span>
+  </div>
+</section>
+
+<% if (categories.length === 0) { %>
+  <div class="panel" style="margin-top:30px">
+    <p class="muted">Aún no hay servicios cargados. Si eres el administrador, sincroniza el catálogo desde el panel.</p>
+  </div>
+<% } %>
+
+<% categories.forEach(function(cat){ %>
+  <section class="section" id="<%= cat.slug %>">
+    <div class="section-head">
+      <div>
+        <h2><%= cat.name %></h2>
+        <% if (cat.description) { %><p class="muted"><%= cat.description %></p><% } %>
+      </div>
+    </div>
+    <div class="grid">
+      <% cat.services.forEach(function(s){ %>
+        <div class="card">
+          <div class="svc-title"><%= s.title %></div>
+          <div class="svc-meta">
+            <% if (s.delivery_time) { %><span class="badge badge-time">⏱ <%= s.delivery_time %></span><% } %>
+            <span class="badge badge-id"><%= s.identifier_type === 'serial' ? '# Serie' : 'IMEI' %></span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <div class="price">$<%= s.price.toFixed(2) %> <small>USDT</small></div>
+          </div>
+          <a class="btn btn-primary" href="/service/<%= s.id %>">Ordenar ahora</a>
+        </div>
+      <% }); %>
+    </div>
+  </section>
+<% }); %>
+
+<%- include('partials/footer') %>

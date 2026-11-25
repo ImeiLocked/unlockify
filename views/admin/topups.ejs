@@ -1,0 +1,23 @@
+<%- include('../partials/header') %>
+<%- include('../partials/adminnav') %>
+<h1 class="page-title">Recargas</h1>
+<div class="panel" style="overflow-x:auto">
+  <table class="table">
+    <thead><tr><th>Recarga</th><th>Cliente</th><th>Monto</th><th>Red</th><th>Estado</th><th>TX</th><th>Fecha</th></tr></thead>
+    <tbody>
+      <% if (topups.length===0) { %><tr><td colspan="7" class="muted">Sin recargas.</td></tr><% } %>
+      <% topups.forEach(function(t){ %>
+        <tr>
+          <td><strong><%= t.code %></strong></td>
+          <td class="small"><%= t.user_email %></td>
+          <td><%= t.expected_amount %> USDT</td>
+          <td><%= t.chain.toUpperCase() %></td>
+          <td><span class="pill <%= t.status==='confirmed'?'completed':(t.status==='expired'?'rejected':'queued') %>"><%= t.status %></span></td>
+          <td class="small" style="max-width:160px;word-break:break-all"><%= t.tx_hash || '—' %></td>
+          <td class="small"><%= t.created_at %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+<%- include('../partials/footer') %>

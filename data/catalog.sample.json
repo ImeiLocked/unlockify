@@ -1,0 +1,49 @@
+{
+  "_comment": "Catalogo de ejemplo tomado de tus capturas. providerCost = lo que TU pagas al proveedor (el precio de venta se calcula con tu markup). providerServiceId = el ID del servicio en el panel del proveedor (lo rellenas cuando tengas la API). identifierType: imei (iPhone de operador) o serial (iPad WiFi / MDM).",
+  "categories": [
+    {
+      "slug": "fmi-off-ipad",
+      "name": "FMI OFF 100% iPad WiFi 2014-2018",
+      "description": "Remocion de Find My / iCloud (Activation Lock) en iPad WiFi. Se procesa con el numero de serie.",
+      "icon": "tablet",
+      "services": [
+        { "providerServiceId": "", "title": "FMI OFF - iPad mini 3 (WiFi) [iPad4,7]", "providerCost": 43.5, "deliveryTime": "1-24 horas", "identifierType": "serial" },
+        { "providerServiceId": "", "title": "FMI OFF - iPad mini 4 (WiFi) [iPad5,1]", "providerCost": 48.5, "deliveryTime": "1-24 horas", "identifierType": "serial" },
+        { "providerServiceId": "", "title": "FMI OFF - iPad Air 2 (WiFi) [iPad5,3]", "providerCost": 48.5, "deliveryTime": "1-24 horas", "identifierType": "serial" },
+        { "providerServiceId": "", "title": "FMI OFF - iPad (5th gen, WiFi) [iPad6,11]", "providerCost": 48.5, "deliveryTime": "1-24 horas", "identifierType": "serial" },
+        { "providerServiceId": "", "title": "FMI OFF - iPad (6th gen, WiFi) [iPad7,5]", "providerCost": 51, "deliveryTime": "1-24 horas", "identifierType": "serial" },
+        { "providerServiceId": "", "title": "FMI OFF - iPad (7th gen, WiFi) [iPad7,11]", "providerCost": 56, "deliveryTime": "1-24 horas", "identifierType": "serial" },
+        { "providerServiceId": "", "title": "FMI OFF - iPad Pro 9.7-inch (WiFi) [iPad6,3]", "providerCost": 54, "deliveryTime": "1-24 horas", "identifierType": "serial" },
+        { "providerServiceId": "", "title": "FMI OFF - iPad Pro 10.5-inch (WiFi) [iPad7,3]", "providerCost": 59, "deliveryTime": "1-24 horas", "identifierType": "serial" },
+        { "providerServiceId": "", "title": "FMI OFF - iPad Pro 12.9-inch (1st gen, WiFi) [iPad6,7]", "providerCost": 64, "deliveryTime": "1-24 horas", "identifierType": "serial" }
+      ]
+    },
+    {
+      "slug": "tmobile-premium",
+      "name": "T-Mobile USA Full Premium (Fast)",
+      "description": "Desbloqueo de red premium T-Mobile / Sprint / MetroPCS. 100% exito. Se procesa con el IMEI.",
+      "icon": "signal",
+      "services": [
+        { "providerServiceId": "", "title": "T-Mobile | Sprint | MetroPCS (iPhone 15/16/17 series) Premium Network Unlock", "providerCost": 106, "deliveryTime": "6-12 horas", "identifierType": "imei" },
+        { "providerServiceId": "", "title": "T-Mobile | Sprint | MetroPCS (iPhone 18 series) Premium Network Unlock", "providerCost": 106, "deliveryTime": "6-12 horas", "identifierType": "imei" },
+        { "providerServiceId": "", "title": "T-Mobile | Sprint | MetroPCS (iPhone XR a 14 Pro Max) Premium Network Unlock", "providerCost": 94, "deliveryTime": "6-12 horas", "identifierType": "imei" }
+      ]
+    },
+    {
+      "slug": "mdm-bypass",
+      "name": "HFZ Activator MDM Premium",
+      "description": "Bypass de MDM (Remote Management) para iPhone 4S hasta 18 Pro Max, cualquier iOS. Entrega instantanea (software).",
+      "icon": "shield",
+      "services": [
+        { "providerServiceId": "", "title": "HFZ - MDM BYPASS - iPhone 4S a 18 Pro Max | Any iOS 9-27x | Windows / macOS", "providerCost": 5, "deliveryTime": "Instantaneo", "identifierType": "serial" }
+      ]
+    },
+    {
+      "slug": "att-past-due",
+      "name": "AT&T Past Due 100%",
+      "description": "Desbloqueo de red AT&T con saldo pendiente (past due). Agrega aqui tus servicios cuando tengas la lista completa.",
+      "icon": "signal",
+      "services": []
+    }
+  ]
+}

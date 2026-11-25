@@ -1,0 +1,70 @@
+<%- include('partials/header') %>
+<div class="balance-hero" style="margin-bottom:20px">
+  <div>
+    <div class="lbl">Hola<%= user.name ? ', ' + user.name : '' %> 👋 — tu saldo</div>
+    <div class="amt">$<%= balance.toFixed(2) %></div>
+  </div>
+  <div style="display:flex;gap:10px">
+    <a class="btn btn-primary" href="/topup">Recargar</a>
+    <a class="btn btn-ghost" href="/">Comprar</a>
+  </div>
+</div>
+
+<div class="section-head"><h2>Mis pedidos</h2></div>
+<div class="panel" style="overflow-x:auto;margin-bottom:24px">
+  <table class="table">
+    <thead><tr><th>Pedido</th><th>Servicio</th><th>Precio</th><th>Estado</th><th>Tiempo</th><th></th></tr></thead>
+    <tbody>
+      <% if (orders.length === 0) { %><tr><td colspan="6" class="muted">Aún no tienes pedidos. <a href="/" style="color:var(--primary)">Explora los servicios →</a></td></tr><% } %>
+      <% orders.forEach(function(o){ %>
+        <tr>
+          <td><strong><%= o.code %></strong><br><span class="muted small"><%= o.created_at %></span></td>
+          <td style="max-width:260px"><%= o.service_title %><br><span class="muted small"><%= o.identifier_type==='serial'?'# ':'IMEI ' %><%= o.identifier %></span></td>
+          <td>$<%= o.price.toFixed(2) %></td>
+          <td><span class="pill <%= o.status %>"><%= ({queued:'Procesando',processing:'Procesando',completed:'Completado',rejected:'Rechazado',cancelled:'Cancelado'})[o.status] %></span></td>
+          <td class="small"><%= o.total_seconds!=null ? (o.total_seconds<60? o.total_seconds+'s' : Math.floor(o.total_seconds/60)+'m') : '—' %></td>
+          <td><a class="btn btn-ghost btn-sm" href="/order/<%= o.code %>">Ver</a></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-head"><h2>Recargas</h2></div>
+<div class="panel" style="overflow-x:auto;margin-bottom:24px">
+  <table class="table">
+    <thead><tr><th>Recarga</th><th>Monto</th><th>Red</th><th>Estado</th><th></th></tr></thead>
+    <tbody>
+      <% if (topups.length === 0) { %><tr><td colspan="5" class="muted">Sin recargas todavía.</td></tr><% } %>
+      <% topups.forEach(function(t){ %>
+        <tr>
+          <td><strong><%= t.code %></strong><br><span class="muted small"><%= t.created_at %></span></td>
+          <td><%= t.expected_amount %> USDT</td>
+          <td><%= t.chain.toUpperCase() %></td>
+          <td><span class="pill <%= t.status === 'confirmed' ? 'completed' : (t.status==='expired'?'rejected':'queued') %>"><%= ({pending:'Pendiente',confirmed:'Confirmada',expired:'Expirada'})[t.status] %></span></td>
+          <td><% if (t.status==='pending') { %><a class="btn btn-ghost btn-sm" href="/topup/<%= t.code %>">Pagar</a><% } %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-head"><h2>Movimientos de saldo</h2></div>
+<div class="panel" style="overflow-x:auto">
+  <table class="table">
+    <thead><tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Saldo</th><th>Ref</th></tr></thead>
+    <tbody>
+      <% if (ledger.length === 0) { %><tr><td colspan="5" class="muted">Sin movimientos.</td></tr><% } %>
+      <% ledger.forEach(function(m){ %>
+        <tr>
+          <td class="small"><%= m.created_at %></td>
+          <td><%= ({topup:'Recarga',order:'Compra',refund:'Reembolso',admin_credit:'Ajuste +',admin_debit:'Ajuste −'})[m.type] || m.type %></td>
+          <td style="color:<%= m.amount>=0 ? 'var(--primary)' : 'var(--danger)' %>"><%= m.amount>=0?'+':'' %><%= m.amount.toFixed(2) %></td>
+          <td>$<%= m.balance_after.toFixed(2) %></td>
+          <td class="small muted"><%= m.ref || '' %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+<%- include('partials/footer') %>

@@ -1,0 +1,21 @@
+<%- include('partials/header') %>
+<div class="form-wrap">
+  <div class="panel">
+    <h1>Iniciar sesión</h1>
+    <p class="muted" style="margin-top:0">Entra para ver tus órdenes y crear nuevas.</p>
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+    <form action="/login" method="post">
+      <div class="field">
+        <label>Correo</label>
+        <input class="input" type="email" name="email" value="<%= form.email || '' %>" required autofocus>
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input class="input" type="password" name="password" required>
+      </div>
+      <button class="btn btn-primary btn-lg" type="submit">Entrar</button>
+    </form>
+    <p class="form-foot">¿No tienes cuenta? <a href="/register">Crear cuenta</a></p>
+  </div>
+</div>
+<%- include('partials/footer') %>

@@ -1,0 +1,49 @@
+<%- include('partials/header') %>
+<div class="form-wrap" style="max-width:520px">
+  <div class="balance-hero" style="margin-bottom:18px">
+    <div><div class="lbl">Tu saldo actual</div><div class="amt">$<%= balance.toFixed(2) %></div></div>
+    <div class="lbl">USDT</div>
+  </div>
+
+  <div class="panel">
+    <h1 style="margin:0 0 4px">Recargar saldo</h1>
+    <p class="muted" style="margin-top:0">Cargas con USDT y queda disponible al instante para tus pedidos.</p>
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+    <% if (chains.length === 0) { %>
+      <div class="alert alert-warn">Las recargas aún no están disponibles. Vuelve pronto.</div>
+    <% } else { %>
+    <form action="/topup/create" method="post">
+      <div class="field">
+        <label>Monto a recargar (USDT)</label>
+        <div class="preset-amounts">
+          <% [20,50,100,200].forEach(function(v){ %><button type="button" class="preset" data-v="<%= v %>"><%= v %></button><% }); %>
+        </div>
+        <input class="input" type="number" name="amount" id="amount" min="<%= min %>" step="0.01" value="<%= form.amount || '' %>" placeholder="Mínimo <%= min %>" required>
+        <div class="hint">Mínimo <%= min %> USDT.</div>
+      </div>
+      <div class="field">
+        <label>Red</label>
+        <div class="chain-options">
+          <% chains.forEach(function(c, i){ %>
+            <div class="chain-opt">
+              <input type="radio" name="chain" id="ch_<%= c.key %>" value="<%= c.key %>" <%= (form.chain === c.key || (!form.chain && i===0)) ? 'checked' : '' %> required>
+              <label for="ch_<%= c.key %>"><b><%= c.key.toUpperCase() %></b><span><%= c.key === 'trc20' ? 'TRON · comisión baja' : 'Ethereum' %></span></label>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-lg" type="submit">Continuar →</button>
+    </form>
+    <% } %>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('.preset').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.preset').forEach(function(x){x.classList.remove('sel');});
+      b.classList.add('sel');
+      document.getElementById('amount').value = b.getAttribute('data-v');
+    });
+  });
+</script>
+<%- include('partials/footer') %>

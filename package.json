@@ -1,0 +1,27 @@
+{
+  "name": "unlock-reseller",
+  "version": "1.0.0",
+  "description": "Plataforma de reventa de servicios de unlock con cobro en USDT (TRC20/ERC20) y confirmacion automatica",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/db.js --seed"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.3.0",
+    "connect-sqlite3": "^0.9.15",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "nodemailer": "^6.9.14",
+    "qrcode": "^1.5.4"
+  }
+}
