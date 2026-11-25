@@ -41,9 +41,9 @@ a { color: inherit; text-decoration: none; }
   background: rgba(255,255,255,.82); backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
-.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 76px; }
-.brand { display: flex; align-items: center; gap: 11px; font-weight: 800; font-size: 29px; letter-spacing: .2px; }
-.brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, #22d3ee, #16a34a); box-shadow: 0 6px 16px rgba(22,163,74,.22); }
+.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 84px; }
+.brand { display: flex; align-items: center; gap: 13px; font-weight: 800; font-size: 34px; letter-spacing: .2px; }
+.brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 15px; background: linear-gradient(135deg, #22d3ee, #16a34a); box-shadow: 0 6px 16px rgba(22,163,74,.22); }
 .brand-mark svg { display: block; }
 .brand-name { color: var(--text); }
 .brand-accent { background: linear-gradient(90deg, #0891e8, #22d3ee); -webkit-background-clip: text; background-clip: text; color: transparent; }
