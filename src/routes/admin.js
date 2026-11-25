@@ -143,8 +143,17 @@ router.get('/users/:id', (req, res) => {
   if (!u) return res.redirect('/admin/users');
   let newPassword = null;
   if (req.session.resetPwUser && String(req.session.resetPwUser) === String(u.id)) { newPassword = req.session.resetPw; req.session.resetPwUser = null; req.session.resetPw = null; }
+  const sum = (sql) => db.prepare(sql).get(u.id).n;
+  const stats = {
+    // lifetime recharged = confirmed on-chain top-ups + payments logged by admin (other methods)
+    recharged: sum("SELECT COALESCE(SUM(expected_amount),0) n FROM topups WHERE user_id=? AND status='confirmed'")
+             + sum("SELECT COALESCE(SUM(amount),0) n FROM balance_ledger WHERE user_id=? AND type='admin_payment'"),
+    gifts: sum("SELECT COALESCE(SUM(amount),0) n FROM balance_ledger WHERE user_id=? AND type='admin_gift'"),
+    servicesCount: sum("SELECT COUNT(*) n FROM orders WHERE user_id=? AND status='completed'"),
+    totalSpent: sum("SELECT COALESCE(SUM(price),0) n FROM orders WHERE user_id=? AND status='completed'"),
+  };
   res.render('admin/user', {
-    title: u.email, layoutAdmin: true, u, newPassword,
+    title: u.email, layoutAdmin: true, u, newPassword, stats,
     orders: db.prepare('SELECT * FROM orders WHERE user_id=? ORDER BY id DESC LIMIT 30').all(u.id),
     topups: db.prepare('SELECT * FROM topups WHERE user_id=? ORDER BY id DESC LIMIT 20').all(u.id),
     ledger: balance.ledger(u.id, 30),
@@ -166,12 +175,33 @@ router.post('/users/:id/password', (req, res) => {
 router.post('/users/:id/balance', (req, res) => {
   const u = db.prepare('SELECT id FROM users WHERE id=?').get(req.params.id);
   const amount = Number(req.body.amount);
-  const note = String(req.body.note || 'admin adjustment').slice(0, 80);
+  const reason = String(req.body.reason || '');
+  const note = String(req.body.note || '').slice(0, 80) || null;
   if (u && Number.isFinite(amount) && amount !== 0) {
-    if (amount > 0) balance.credit(u.id, amount, 'admin_credit', note);
-    else balance.debit(u.id, Math.abs(amount), 'admin_debit', note);
+    if (amount > 0) {
+      // payment (other method) and gift count toward lifetime stats; correction does not
+      const type = reason === 'gift' ? 'admin_gift' : (reason === 'payment' ? 'admin_payment' : 'admin_credit');
+      balance.credit(u.id, amount, type, note);
+    } else {
+      balance.debit(u.id, Math.abs(amount), 'admin_debit', note);
+    }
   }
   res.redirect('/admin/users/' + req.params.id);
+});
+
+// Permanently delete a user and all their records (orders cascade their attempts).
+router.post('/users/:id/delete', (req, res) => {
+  const u = db.prepare('SELECT id,is_admin FROM users WHERE id=?').get(req.params.id);
+  if (!u) return res.redirect('/admin/users');
+  if (u.is_admin) return res.redirect('/admin/users/' + u.id); // never delete an admin
+  const wipe = db.transaction((uid) => {
+    db.prepare('DELETE FROM orders WHERE user_id=?').run(uid);
+    db.prepare('DELETE FROM topups WHERE user_id=?').run(uid);
+    db.prepare('DELETE FROM balance_ledger WHERE user_id=?').run(uid);
+    db.prepare('DELETE FROM users WHERE id=?').run(uid);
+  });
+  wipe(u.id);
+  res.redirect('/admin/users');
 });
 
 // ---------- Recargas ----------

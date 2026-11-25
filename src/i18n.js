@@ -31,6 +31,7 @@ const dict = {
     // ledger types
     'ltype.topup': 'Top-up', 'ltype.order': 'Purchase', 'ltype.refund': 'Refund',
     'ltype.admin_credit': 'Adjustment +', 'ltype.admin_debit': 'Adjustment −',
+    'ltype.admin_payment': 'Payment', 'ltype.admin_gift': 'Gift',
 
     // ---------- public site chrome ----------
     'site.services': 'Services', 'site.howItWorks': 'How it works',
@@ -220,6 +221,13 @@ const dict = {
     'user.notePlaceholder': 'Note (optional)', 'user.confirmPassword': 'Change the password for this user?',
     'user.resetPassword': 'Reset password', 'user.newBlankGenerate': 'New (blank = generate)',
     'user.resetHint': 'If you leave it blank, a secure one is generated and shown so you can send it.',
+    'user.lifetimeRecharged': 'Lifetime recharged', 'user.lifetimeGifts': 'Gifts given',
+    'user.servicesPurchased': 'Services purchased', 'user.totalSpent': 'Total spent',
+    'user.reasonLabel': 'Reason', 'user.reasonPayment': 'Payment (other method)',
+    'user.reasonGift': 'Gift balance', 'user.reasonCorrection': 'Correction / remove',
+    'user.dangerZone': 'Danger zone', 'user.deleteUser': '🗑 Delete user',
+    'user.deleteHint': 'Permanent: removes the customer and all their orders, top-ups and balance history.',
+    'user.confirmDelete': 'Delete this user permanently? This erases their orders, top-ups and balance history. It cannot be undone.',
 
     // ---------- admin topups ----------
     'topups.title': 'Top-ups', 'topups.none': 'No top-ups.',
@@ -247,6 +255,7 @@ const dict = {
     'tstatus.awaiting': 'Esperando pago',
     'ltype.topup': 'Recarga', 'ltype.order': 'Compra', 'ltype.refund': 'Reembolso',
     'ltype.admin_credit': 'Ajuste +', 'ltype.admin_debit': 'Ajuste −',
+    'ltype.admin_payment': 'Pago', 'ltype.admin_gift': 'Regalo',
 
     // ---------- public site chrome ----------
     'site.services': 'Servicios', 'site.howItWorks': 'Cómo funciona',
@@ -435,6 +444,13 @@ const dict = {
     'user.notePlaceholder': 'Nota (opcional)', 'user.confirmPassword': '¿Cambiar la contraseña de este usuario?',
     'user.resetPassword': 'Restablecer contraseña', 'user.newBlankGenerate': 'Nueva (vacío = generar)',
     'user.resetHint': 'Si lo dejas vacío, se genera una segura y te la muestro para enviarla.',
+    'user.lifetimeRecharged': 'Recargado de por vida', 'user.lifetimeGifts': 'Regalos dados',
+    'user.servicesPurchased': 'Servicios comprados', 'user.totalSpent': 'Total gastado',
+    'user.reasonLabel': 'Motivo', 'user.reasonPayment': 'Pago recibido (otro medio)',
+    'user.reasonGift': 'Saldo de regalo', 'user.reasonCorrection': 'Corrección / quitar',
+    'user.dangerZone': 'Zona de riesgo', 'user.deleteUser': '🗑 Eliminar usuario',
+    'user.deleteHint': 'Permanente: elimina al cliente y todos sus pedidos, recargas e historial de saldo.',
+    'user.confirmDelete': '¿Eliminar este usuario permanentemente? Esto borra sus pedidos, recargas e historial de saldo. No se puede deshacer.',
 
     // ---------- admin topups ----------
     'topups.title': 'Recargas', 'topups.none': 'Sin recargas.',
