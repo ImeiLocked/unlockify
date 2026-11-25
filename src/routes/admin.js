@@ -25,6 +25,7 @@ router.use((req, res, next) => {
   res.locals.t = req.t;
   res.locals.lang = lang;
   res.locals.adminLang = lang;
+  try { res.locals.supportPending = require('../support').pendingReplyCount(); } catch (_) { res.locals.supportPending = 0; }
   next();
 });
 router.get('/lang/:lang', (req, res) => {
@@ -261,6 +262,11 @@ router.get('/support', (req, res) => {
     title: req.t('support.title'), layoutAdmin: true,
     threads: support.listThreads(200), imapOn: config.imap.enabled,
   });
+});
+
+// Conteo en vivo de pendientes por responder (para el badge del menú).
+router.get('/support/pending-count', (req, res) => {
+  res.json({ pending: support.pendingReplyCount() });
 });
 
 router.get('/support/:id', (req, res) => {

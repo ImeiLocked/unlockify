@@ -228,3 +228,45 @@ h1.page-title { font-size: 26px; margin: 0 0 18px; }
 .lang-switch .sep{opacity:.3}
 .admin-lang a{opacity:.55;padding:2px 5px;border-radius:6px;font-size:13px}
 .admin-lang a.active{opacity:1;font-weight:700;color:var(--primary)}
+
+/* ---------- Badge de pendientes (menú admin) ---------- */
+.nav-has-badge { position: relative; }
+.nav-badge {
+  position: absolute; top: -7px; right: -7px;
+  min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box;
+  background: var(--danger); color: #fff; border-radius: 999px;
+  font-size: 11px; font-weight: 700; line-height: 18px; text-align: center;
+  box-shadow: 0 2px 6px rgba(229,72,77,.45); border: 2px solid var(--surface);
+}
+.nav-badge.hidden { display: none; }
+
+/* ---------- Footer enriquecido ---------- */
+.footer-grid { padding: 34px 20px 22px; display: grid; grid-template-columns: 2fr 1fr 1.4fr; gap: 28px; }
+.footer-col { display: flex; flex-direction: column; gap: 9px; }
+.footer-logo { font-size: 20px; font-weight: 800; color: var(--text); }
+.footer-brand .muted { margin: 2px 0 6px; max-width: 320px; }
+.footer-social { display: flex; gap: 10px; margin-top: 2px; }
+.footer-social .soc {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--muted); cursor: default; transition: .15s;
+}
+.footer-social .soc:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-1px); }
+.footer-h { font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 0 0 4px; font-weight: 700; }
+.footer-col > a { color: var(--muted); font-size: 14px; text-decoration: none; }
+.footer-col > a:hover { color: var(--text); }
+.footer-contact { display: inline-flex; align-items: center; gap: 8px; }
+.footer-contact svg { flex: 0 0 auto; color: var(--primary); }
+.footer-bar { border-top: 1px solid var(--border); }
+.footer-bar-inner { padding: 14px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.footer-pay { display: flex; gap: 8px; flex-wrap: wrap; }
+.pay-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: .5px; color: var(--muted);
+  padding: 4px 9px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--border);
+}
+.pay-badge.pay-usdt { color: var(--primary); border-color: rgba(22,163,74,.4); background: rgba(22,163,74,.08); }
+@media (max-width: 760px) {
+  .footer-grid { grid-template-columns: 1fr; gap: 22px; }
+  .footer-bar-inner { flex-direction: column; align-items: flex-start; }
+}

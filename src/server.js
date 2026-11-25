@@ -44,6 +44,7 @@ app.use((req, res, next) => {
   res.locals.t = req.t;
   res.locals.brand = config.brandName;
   res.locals.publicUrl = config.publicUrl;
+  res.locals.supportEmail = config.email.from || config.zoho.from || config.imap.user || 'support@unlockify.uk';
   res.locals.year = new Date().getFullYear();
   res.locals.currentPath = req.path;
   res.locals.layoutAdmin = false;

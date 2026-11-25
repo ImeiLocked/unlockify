@@ -4,7 +4,7 @@
   <a href="/admin/services" class="<%= currentPath === '/admin/services' ? 'active' : '' %>"><%= t('nav.services') %></a>
   <a href="/admin/users" class="<%= currentPath.indexOf('/admin/users') === 0 ? 'active' : '' %>"><%= t('nav.users') %></a>
   <a href="/admin/topups" class="<%= currentPath === '/admin/topups' ? 'active' : '' %>"><%= t('nav.topups') %></a>
-  <a href="/admin/support" class="<%= currentPath.indexOf('/admin/support') === 0 ? 'active' : '' %>"><%= t('nav.support') %></a>
+  <a href="/admin/support" class="nav-has-badge <%= currentPath.indexOf('/admin/support') === 0 ? 'active' : '' %>"><%= t('nav.support') %><span id="support-badge" class="nav-badge<%= (typeof supportPending !== 'undefined' && supportPending > 0) ? '' : ' hidden' %>"><%= (typeof supportPending !== 'undefined' && supportPending > 0) ? (supportPending > 99 ? '99+' : supportPending) : '' %></span></a>
   <a href="/admin/account" class="<%= currentPath.indexOf('/admin/account') === 0 ? 'active' : '' %>"><%= t('nav.account') %></a>
   <a href="/"><%= t('nav.viewStore') %></a>
   <span class="admin-lang" title="<%= t('nav.language') %>" style="margin-left:auto;display:inline-flex;gap:4px;align-items:center">
@@ -14,3 +14,21 @@
     <a href="/admin/lang/en" class="<%= adminLang==='en' ? 'active' : '' %>">EN</a>
   </span>
 </div>
+<script>
+(function () {
+  var b = document.getElementById('support-badge');
+  if (!b) return;
+  function refresh() {
+    fetch('/admin/support/pending-count', { headers: { 'X-Requested-With': 'fetch' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return;
+        var n = d.pending || 0;
+        if (n > 0) { b.textContent = n > 99 ? '99+' : n; b.classList.remove('hidden'); }
+        else { b.textContent = ''; b.classList.add('hidden'); }
+      })
+      .catch(function () {});
+  }
+  setInterval(refresh, 30000);
+})();
+</script>

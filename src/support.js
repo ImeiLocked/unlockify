@@ -168,6 +168,18 @@ function unreadCount() {
   try { return db.prepare("SELECT COUNT(*) n FROM support_threads WHERE unread>0").get().n; }
   catch (_) { return 0; }
 }
+// Hilos cuyo ÚLTIMO mensaje es del cliente (entrante) => pendientes de responder.
+// Cuenta aunque el admin ya haya abierto el hilo, hasta que responda.
+function pendingReplyCount() {
+  try {
+    return db.prepare(`
+      SELECT COUNT(*) n FROM support_threads t
+      WHERE (SELECT m.direction FROM support_messages m
+             WHERE m.thread_id = t.id
+             ORDER BY datetime(m.created_at) DESC, m.id DESC LIMIT 1) = 'in'
+    `).get().n;
+  } catch (_) { return 0; }
+}
 
 function startPoller() {
   ensureSchema();
@@ -183,4 +195,4 @@ function startPoller() {
   setTimeout(cleanupOld, 15000);
 }
 
-module.exports = { startPoller, pollOnce, sendReply, cleanupOld, ensureSchema, listThreads, getThread, markRead, unreadCount };
+module.exports = { startPoller, pollOnce, sendReply, cleanupOld, ensureSchema, listThreads, getThread, markRead, unreadCount, pendingReplyCount };
