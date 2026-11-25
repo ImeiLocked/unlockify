@@ -44,7 +44,9 @@ a { color: inherit; text-decoration: none; }
 .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 84px; }
 .brand { display: flex; align-items: center; gap: 13px; font-weight: 800; font-size: 34px; letter-spacing: .2px; }
 .brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 15px; background: linear-gradient(135deg, #22d3ee, #16a34a); box-shadow: 0 6px 16px rgba(22,163,74,.22); }
-.brand-mark svg { display: block; }
+.brand-mark svg { display: block; width: 72%; height: 72%; }
+.nav-toggle { display: none; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text); cursor: pointer; }
+.nav-toggle:hover { background: var(--surface-2); }
 .brand-name { color: var(--text); }
 .brand-accent { background: linear-gradient(90deg, #f59e0b, #fbbf24); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .nav-links { display: flex; align-items: center; gap: 18px; font-size: 15px; }
@@ -188,11 +190,31 @@ h1.page-title { font-size: 26px; margin: 0 0 18px; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {
+  .nav-inner { height: 62px; }
+  .brand { font-size: 23px; gap: 9px; }
+  .brand-mark { width: 42px; height: 42px; border-radius: 11px; }
+  .nav-toggle { display: inline-flex; }
+
+  /* Menú hamburguesa: la barra de enlaces se despliega bajo el header */
+  .nav-links {
+    position: absolute; top: 100%; left: 0; right: 0;
+    display: none; flex-direction: column; align-items: stretch; gap: 6px;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow); padding: 12px 20px 16px; font-size: 16px;
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a, .nav-links .bal-chip { width: 100%; box-sizing: border-box; padding: 11px 13px; border-radius: 10px; }
+  .nav-links a:not(.btn):hover, .nav-links a.active:not(.btn) { background: var(--surface-2); }
+  .nav-links form { width: 100%; }
+  .nav-links form button, .nav-links a.btn { width: 100%; justify-content: center; }
+  .nav-links .lang-switch { margin: 6px 0 0; justify-content: center; }
+
+  .grid { grid-template-columns: 1fr; }
   .order-grid { grid-template-columns: 1fr; }
-  .nav-links { gap: 12px; font-size: 14px; }
-  .nav-links a:not(.btn) { display: none; }
-  .nav-links a.btn, .nav-links form, .nav-links .lang-switch { display: inline-flex; }
+  .hero { padding: 26px 0 6px; }
   .hero p { font-size: 16px; }
+  .preset-amounts { grid-template-columns: repeat(2, 1fr); }
+  .balance-hero .amt { font-size: 32px; }
 }
 .copy-btn { cursor: pointer; }
 .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; padding: 10px 18px; border-radius: 10px; font-weight: 600; opacity: 0; transition: .25s; z-index: 100; box-shadow: var(--shadow); }
