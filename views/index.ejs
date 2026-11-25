@@ -12,6 +12,25 @@
   </div>
 </section>
 
+<% var EN = (typeof lang !== 'undefined' && lang === 'en');
+   var feats = [
+     { ic:'🗄️', c:'f-blue',   t: EN?'Verified Sources':'Fuentes verificadas', d: EN?'IMEI and GSX data pulled from verified global databases for accurate, reliable results.':'Datos IMEI y GSX de bases globales verificadas, para resultados precisos y confiables.' },
+     { ic:'⚡', c:'f-green',  t: EN?'Instant Response':'Respuesta inmediata', d: EN?'Receive IMEI results and unlock confirmations fast, around the clock.':'Recibe resultados y confirmaciones de desbloqueo rápido, las 24 horas.' },
+     { ic:'📈', c:'f-violet', t: EN?'99.9% Uptime':'99.9% disponible', d: EN?'Distributed infrastructure keeps the platform fast and stable for every order.':'Infraestructura distribuida que mantiene la plataforma rápida y estable.' },
+     { ic:'🛡️', c:'f-amber',  t: EN?'Secure Platform':'Plataforma segura', d: EN?'SSL encryption and secure authentication keep your account and data protected.':'Cifrado SSL y autenticación segura protegen tu cuenta y tus datos.' },
+     { ic:'💸', c:'f-rose',   t: EN?'Refund Guarantee':'Garantía de reembolso', d: EN?'If an eligible service fails on our side, your balance is credited back.':'Si un servicio elegible falla de nuestro lado, se te reembolsa el saldo.' },
+     { ic:'🌍', c:'f-slate',  t: EN?'Worldwide Coverage':'Cobertura mundial', d: EN?'Services for Apple, Xiaomi, Samsung and more — available worldwide.':'Servicios para Apple, Xiaomi, Samsung y más — disponibles en todo el mundo.' }
+   ]; %>
+<section class="features">
+  <% feats.forEach(function(f){ %>
+    <div class="feature">
+      <div class="feature-ic <%= f.c %>"><%= f.ic %></div>
+      <h3><%= f.t %></h3>
+      <p class="muted"><%= f.d %></p>
+    </div>
+  <% }); %>
+</section>
+
 <% if (pending) { %>
   <div class="alert alert-warn" style="margin-top:20px"><%= t('gate.pendingBanner') %></div>
 <% } %>
@@ -39,13 +58,15 @@
             <span class="badge badge-id"><%= s.identifier_type === 'serial' ? t('badge.serial') : 'IMEI' %></span>
           </div>
           <% if (canBuy) { %>
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <div class="card-foot">
               <div class="price">$<%= s.price.toFixed(2) %> <small>USDT</small></div>
+              <a class="btn btn-primary btn-sm card-order" href="/service/<%= s.id %>"><%= t('home.orderNow') %> →</a>
             </div>
-            <a class="btn btn-primary" href="/service/<%= s.id %>"><%= t('home.orderNow') %></a>
           <% } else { %>
-            <div class="muted small" style="padding:8px 0"><%= user ? t('gate.cardPending') : t('gate.cardGuest') %></div>
-            <% if (!user) { %><a class="btn btn-ghost btn-sm" href="/login"><%= t('site.login') %></a><% } %>
+            <div class="card-foot card-foot-gate">
+              <span class="muted small"><%= user ? t('gate.cardPending') : t('gate.cardGuest') %></span>
+              <% if (!user) { %><a class="btn btn-ghost btn-sm" href="/login"><%= t('site.login') %></a><% } %>
+            </div>
           <% } %>
         </div>
       <% }); %>
